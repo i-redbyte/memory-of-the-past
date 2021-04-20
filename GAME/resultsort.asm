@@ -1,0 +1,10 @@
+51>| 301
+Lenin>| 301
+ty>| 300
+hgh>| 151
+Player>| 115
+Loop>| 85
+Red_byte>| 82
+123>| 80
+Player>| 60
+Lenin>| 60
