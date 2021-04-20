@@ -12,3 +12,4 @@ I have completely preserved the style, file names, encoding, etc.
 6. [My First site](/Мой%20САЙТ!/README.md)
 7. [Desktop test on VB](/TEST/README.md)
 8. [Chinese hexagrams](/Прога%20по%20ицзын/README.md)
+9. [Database for AOMZ](/baza_AOMZ1.6/README.md)
