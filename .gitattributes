@@ -1,11 +1,1 @@
-*.html linguist-detectable=false
-RS-485_protocol/*.* linguist-language=C++
-ASM_labs/*.* linguist-language=Assembly
-TEST/*.* linguist-language=C++
-baza_AOMZ1_6/* linguist-vendored
-first_site/* linguist-vendored
-GAME/* linguist-vendored
-Prover_vers2_32_3/* linguist-vendored
-Syntax3_6/* linguist-vendored
-chines_histogram/* linguist-vendored
-TEST/* linguist-vendored
+*.* linguist-vendored
