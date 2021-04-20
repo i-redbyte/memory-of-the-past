@@ -1,0 +1,15 @@
+uses  wincrt;
+
+
+
+var sum,sumnn,x,z,n,nn: integer;
+
+
+
+Begin
+gotoxy(40,7);
+z:=5554+sum*2;
+Write(sum,'Выводимый текст');
+if (sumnn <> sum) then
+End .
+
