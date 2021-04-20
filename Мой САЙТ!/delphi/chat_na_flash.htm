@@ -1,0 +1,2444 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Создание полноценного чата на Flash</title>
+<bgsound src="v5.gif" loop="-1">
+<meta name="Microsoft Theme" content="zero 011, default">
+</head>
+
+<body background="zertxtr.gif" bgcolor="#000000" text="#FFFFFF" link="#6699CC" vlink="#669966" alink="#999999">
+
+<!--mstheme--><font face="Arial">
+
+<!--Новости //-->
+<blockquote>
+<!--mstheme--></font>
+  <h3 align="center"><!--mstheme--><font face="Arial" color="#CCCCCC"><font color="#00FF00" size="5">Создание
+  полноценного чата на Flash.</font><!--mstheme--></font></h3>
+<!--mstheme--><font face="Arial">
+  <!--// BODY -->
+  Итак, решил я изучить Flash, нашел книжку по 5-ому
+  флешу просмотрел ее по диагонали, кое что в
+  голове отложилось, но в целом все очень
+  туманно... Поискал в инете учебники по
+  флешу... ничего интересного не нашел, кроме
+  &quot;программирование движения на Flash Action
+  Script&quot; <a href="http://dembicki.narod.ru/tutor/index.htm" target="_blank">http://dembicki.narod.ru/tutor/index.htm</a>
+  Открыл в первый раз Macromedia Flash MX 2004
+  потыкался туда-сюда, нарисовал шарик,
+  сделал чтобы он бегал за курсором мыши и
+  понял, придется делать все как обычно:
+  разбираться самостоятельно с нуля.<br>
+  Во Flash меня в первую очередь интересует
+  программирование, а не рисование
+  мультиков, потому и решил начать свое
+  обучение с написания чата. Посмотрел, что
+  есть в инете на тему &quot;чат на Flash&quot;, нашел
+  одну примитивную заметку, где все
+  реализовывалось через refresh с
+  подчитыванием 50-ти последних строк чата и
+  вывода их в виде обычного текста.
+  Попытался найти работающие чаты на Flash -
+  ситуация хуже, чем я предполагал... Если это
+  более-менее нормальный чат, то сам вывод
+  текста реализован в HTML с подгрузкой
+  последних строк через refresh, а на Flash
+  реализованы только строка для ввода
+  текста и смены настроек (<a href="http://chat.arkos.ru/" target="_blank">http://chat.arkos.ru/</a>)...
+  Если же это чат полностью на Flash, то
+  функционал на уровне детского сада,
+  обычный текст, без смайликов и возможности
+  кликать по ссылкам в тексте или по нику
+  отправителя, чтобы написать ему ответ... За
+  две недели поиска информации по этому
+  вопросу, мне попался только один достойный
+  чат на Flash (<a href="http://c.ruse.ru/fc5/" target="_blank">http://c.ruse.ru/fc5/</a>):
+  постоянный коннект, удобный интерфейс,
+  продуманный протокол с малым трафиком,
+  стильно оформлен... но нет возможности
+  вставлять смайлики в основном окне
+  общения.<br>
+  Поэтому, идея создания нормального чата
+  мне еще больше понравилась. А так как я
+  пишу его, не имея навыков работы во Flash, то
+  подробное описание процесса со всеми
+  сделанными ошибками и открытиями будет
+  очень хорошим пособием для начинающих
+  изучать Flash.
+  <p>&nbsp;<!--mstheme--></font>
+  <h4><!--mstheme--><font face="Arial" color="#CCCCCC">1. Постановка задачи<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+  Что же в итоге должно получиться:<br>
+  <ol>
+    <li>Клиентская часть чата должна быть
+      реализована на Flash, серверная на Perl.<br>
+      Я хорошо знаю Perl поэтому мне будет проще
+      и быстрее на нем писать, а по большому
+      счету на чем реализовывать серверную
+      часть роли не играет, от этого будет
+      только зависеть сколько народу в online
+      выдержит сервер.
+    <li>Чат должен держать постоянный коннект
+      с сервером.<br>
+      В этом есть свои плюсы и минусы. Плюсы:
+      меньше трафик, больше динамика чата, т.к.
+      нет пауз из-за рефреша, однозначное
+      определение есть человек в online или у
+      него разорвалась связь. Минусы: на
+      сервере необходимо запустить своего
+      демона на выделенном порту (это можно
+      сделать, только имея рутовый доступ),
+      если у юзера на машине стоит FireWall ему
+      надо будет открыть доступ по этому порту,
+      если юзер выходит в инет через прокси,
+      может не получиться соединиться с
+      сервером (не знаю как во Flash решены эти
+      проблемы). И все же, чаты с технологией
+      refresh, на мой взгляд, дело прошлое, и надо
+      идти в ногу со временем, поэтому делаем
+      постоянное соединение.
+    <li>В чате должны быть смайлики. Ники
+      кликабельны.
+    <li>Возможность выбрать цвет своих
+      сообщений.
+    <li>Подсветка сообщений адресованных мне.
+      Возможность установки фильтров.</li>
+  </ol>
+  P.S. Мы не ищем легких задач :)<!--mstheme--></font>
+  <h4><!--mstheme--><font face="Arial" color="#CCCCCC">2. Установка постоянного коннекта с
+  сервером.<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+  Начнем сначала, ввод имени и установка
+  коннекта с сервером. Для обмена
+  информацией с сервером используем объект
+  XMLSocket. Итак, во флеш создаем новый документ
+  и делаем титульную страницу для входа в
+  чат: поле для ввода ника (TextInput используем
+  стандартные компоненты флеша MX из окна
+  components) и кнопку &quot;войти&quot; (Button).
+  Регистрацию делать не будем, это не имеет
+  отношения к самому чату.<br>
+  Поле ввода ника обзываем login. Кнопку:
+  enter_button.<br>
+  Кроме этого понадобится еще пустое поле
+  Dynamic Text, куда будем выводить информацию о
+  подключении к серверу и ошибки, если такие
+  возникнут. Поле привязываем к переменной
+  messages. Цвет текста красный, чтобы в глаза
+  бросалось.<br>
+  В actions кнопки пишем:<br>
+  <code>on (click) {<br>
+  &nbsp;&nbsp;&nbsp; _parent.messages = _parent.login.text;<br>
+  }<br>
+  </code>Внешне получилось вот что:<br>
+  <center><img alt src="../v1.png" border="0" width="623" height="439"><br>
+  </center>Если нажать Ctrl-Enter, ввести в поле свое
+  имя и нажать на кнопку &quot;Войти&quot;, то имя
+  выведется ниже красным цветом. Отлично,
+  уже что-то работает :) Создаем новый слой,
+  обзовем его Scripts, там и будем писать все
+  основные скрипты. Для начала, меняем код
+  нажатия кнопки на:<br>
+  <code>on (click) {<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (length(_parent.login.text) &lt; 3) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _parent.messages = &quot;Введите
+  ваше имя&quot;;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _parent.login.setFocus();<br>
+  &nbsp;&nbsp;&nbsp; } <b>else</b> {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _root.Connect();<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  }<br>
+  </code>Если имя не было введено (или оно
+  меньше трех символов), то ругаемся, иначе
+  переходим к установке соединения с
+  сервером. Саму функцию Connect () пишем в слое
+  Scripts, вот что у меня получилось (большая
+  часть скопирована из хелпа к XMLSocket ;) <code><b>var</b>
+  serverName = &quot;localhost&quot;;<br>
+  <b>var</b> serverPort = 1024;<br>
+  <br>
+  <font color="#808080">// Устанавливает соединение с
+  сервером</font><br>
+  <b>function</b> Connect() {<br>
+  &nbsp;&nbsp;&nbsp; messages = &quot;Устанавливается
+  соединение с сервером...&quot;;<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// Create a <b>new</b> XMLSocket
+  object</font><br>
+  &nbsp;&nbsp;&nbsp; sock = <b>new</b> XMLSocket();<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// Устанавливаем
+  обработчики событий</font><br>
+  &nbsp;&nbsp;&nbsp; sock.onConnect = onSockConnect;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  соединение</font><br>
+  &nbsp;&nbsp;&nbsp; sock.onXML = onGetXML;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// получение данных</font><br>
+  &nbsp;&nbsp;&nbsp; sock.onClose = onSockClose;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  связь утеряна</font><br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// Call its connect() method to
+  establish a connection</font><br>
+  &nbsp;&nbsp;&nbsp; sock.connect(serverName, serverPort);<br>
+  }<br>
+  <br>
+  <font color="#808080">// Define a <b>function</b> to assign to the sock object
+  that handles</font><br>
+  <font color="#808080">// the server's response.</font><br>
+  <b>function</b> onSockConnect(success){<br>
+  <b>if</b> (success){ <font color="#808080">// соединение
+  установлено</font><br>
+  &nbsp;&nbsp;&nbsp; messages = &quot;Соединение
+  установлено. Вход...&quot;;<br>
+  &nbsp;&nbsp;&nbsp; doLogin(); <font color="#808080">// переходим к
+  процедуре передачи нашего логина</font><br>
+  } <b>else</b> {<br>
+  &nbsp;&nbsp;&nbsp; messages=&quot;Не удалось установить
+  соединение с сервером: &quot;+serverName;<br>
+  }<br>
+  }<br>
+  <br>
+  <font color="#808080">// Передача нашего логина на
+  сервер</font><br>
+  <b>function</b> doLogin() {<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> myXML = <b>new</b> XML(&quot;&lt;LOGIN
+  NAME=\&quot;&quot;+login.text+&quot;\&quot; /&gt;&quot;);<br>
+  &nbsp;&nbsp;&nbsp; sock.send(myXML);<br>
+  }<br>
+  <br>
+  <font color="#808080">// Закрылось соединение с
+  сервером</font><br>
+  <b>function</b> onSockClose(){<br>
+  &nbsp;&nbsp;&nbsp; gotoAndStop(1); <font color="#808080">// Перейти
+  на титульную страницу, где бы мы не
+  находились</font><br>
+  &nbsp;&nbsp;&nbsp; messages = &quot;Сервер разорвал
+  соединение.&quot;;<br>
+  }<br>
+  <br>
+  <font color="#808080">// Прием данных от сервера</font><br>
+  <b>function</b> onGetXML(doc) {<br>
+  &nbsp;&nbsp;&nbsp; trace(&quot;onXML: &quot;+doc);<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> e = doc.firstChild; <font color="#808080">//
+  Берем первый элемент</font><br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (e != null) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> s = e.nodeName; <font color="#808080">//
+  Имя элемента</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (s == &quot;ERROR&quot;)
+  { <font color="#808080">// Произошла ошибка, разорвать
+  соединение и</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  sock.close();<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; messages =
+  e.attributes.TEXT; <font color="#808080">// Вывести сообщение
+  об ошибке</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  }<br>
+  </code><br>
+  Хорошо, теперь нужно немного отвлечься от
+  Flash и написать простенький серверный демон
+  на Perl... куда собственно будем подключаться.
+  Вот код:<br>
+  <code><br>
+  #!/usr/bin/perl<br>
+  use POSIX ();<br>
+  use Socket;<br>
+  <br>
+  my $DaemonPort = 1024;<br>
+  my $work = 1;<br>
+  $|=1;<br>
+  <br>
+  my $sock_name = sockaddr_in($DaemonPort, INADDR_ANY)&nbsp; &nbsp;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or die &quot;Couldn't convert into
+  an Internet address: $!\n&quot;;<br>
+  socket(SERVER, PF_INET, SOCK_STREAM, getprotobyname('tcp'))<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or die &quot;Couldn't create
+  socket: $!\n&quot;;<br>
+  setsockopt(SERVER, SOL_SOCKET, SO_REUSEADDR, 1)<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or die &quot;setsockopt() failed:
+  $!\n&quot;;<br>
+  bind(SERVER, $sock_name)<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or die &quot;Couldn't bind to port
+  $port: $!\n&quot;;<br>
+  listen(SERVER, SOMAXCONN);<br>
+  $SIG{PIPE} = 'IGNORE';<br>
+  <br>
+  _log(&quot;Server started...&quot;);<br>
+  <br>
+  &nbsp;&nbsp;&nbsp; my $rem_addr = accept(CLIENT,SERVER);<br>
+  &nbsp;&nbsp;&nbsp; next unless (defined $rem_addr);<br>
+  &nbsp; &nbsp;<br>
+  &nbsp;&nbsp;&nbsp; my($port,$iaddr) = sockaddr_in($rem_addr);<br>
+  &nbsp;&nbsp;&nbsp; $IP = inet_ntoa($iaddr);<br>
+  &nbsp;&nbsp;&nbsp; _log(&quot;Connection from $IP:$port&quot;);<br>
+  <br>
+  &nbsp;&nbsp;&nbsp; my ($byte, $line);<br>
+  &nbsp;&nbsp;&nbsp; <b>while</b> ($work and sysread(CLIENT, $byte, 1) == 1) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (ord($byte) == 0) {
+  goCommand($line) }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>else</b> { $line .= $byte }<br>
+  }<br>
+  <br>
+  &nbsp;&nbsp;&nbsp; sleep(3);&nbsp;&nbsp;&nbsp; #-- Замрем на 3
+  секунды<br>
+  &nbsp;&nbsp;&nbsp; _log(&quot;Die connection.&quot;);<br>
+  &nbsp;&nbsp;&nbsp; close CLIENT;<br>
+  <br>
+  close(SERVER);<br>
+  _log(&quot;Server shutdown&quot;);<br>
+  die;<br>
+  <br>
+  #-- Выводит на экран тестовую информацию<br>
+  sub _log<br>
+  { my ($s) = @_;<br>
+  &nbsp;&nbsp;&nbsp; print &quot;&quot;.(localtime(time)).&quot;\t$s\n&quot;;<br>
+  <br>
+  }<br>
+  <br>
+  #-- Обработка поступившей от клиента
+  команды<br>
+  sub goCommand<br>
+  { my ($line) = @_;<br>
+  <b>if</b> (index($line, &quot;&lt;LOGIN&quot;)==0) {&nbsp;&nbsp;&nbsp; #--
+  Залогинивание<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b>
+  ($line=~/NAME=\&quot;([^\&quot;]+)\&quot;/) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _log(&quot;LOGIN: $1&quot;);<br>
+  #-- Говорим, что такой логин занят (test)<br>
+  &nbsp;&nbsp;&nbsp; sendAnswer(&quot;&lt;ERROR TEXT=\&quot;Такой
+  логин занят, выберите другой\&quot;/&gt;&quot;);&nbsp;
+  &nbsp;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; $work = 0;<br>
+  }<br>
+  <br>
+  #-- Отсылает ответ клиенту. Проблема в том,
+  что русские буквы надо<br>
+  #-- кодировать в utf и в конце ставим ноль<br>
+  sub sendAnswer<br>
+  { my ($s) = @_;<br>
+  &nbsp;&nbsp;&nbsp; print CLIENT utf($s).chr(0);<br>
+  }<br>
+  <br>
+  #-- Функции кодирования русских букв нашел
+  где-то в инете, очень не хотелось<br>
+  #-- цеплять здоровые библиотеки по работе с
+  utf ради такой мелочи<br>
+  sub utf<br>
+  { my $s = shift;<br>
+  &nbsp;&nbsp;&nbsp; $s=~s/([А-Яа-яЪЬЁъьё])/win2utf($1)/eg;<br>
+  &nbsp;&nbsp;&nbsp; <b>return</b> $s;<br>
+  }<br>
+  <br>
+  sub win2utf<br>
+  {&nbsp;&nbsp;&nbsp; my $s = shift;<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> ( ord($s)&gt;=192 and ord($s)&lt;=239) { <b>return</b>
+  chr(208).chr(ord($s)-48) }<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> ( ord($s)&gt;=240 and ord($s)&lt;=255) { <b>return</b>
+  chr(209).chr(ord($s)-112)}<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> ($s==&quot;Ё&quot;) { <b>return</b>
+  chr(208).chr(149) }<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> ($s==&quot;ё&quot;) { <b>return</b>
+  chr(208).chr(181) }<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> ($s==&quot;Ъ&quot;) { <b>return</b>
+  chr(208).chr(172) }<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> ($s==&quot;Ь&quot;) { <b>return</b>
+  chr(208).chr(170) }<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> ($s==&quot;ъ&quot;) { <b>return</b>
+  chr(208).chr(140) }<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> ($s==&quot;ь&quot;) { <b>return</b>
+  chr(208).chr(138) }<br>
+  &nbsp;&nbsp;&nbsp; <b>return</b> $s;<br>
+  }<br>
+  </code>Комментировать тут особо нечего, кто в
+  Perl разбирается, тот поймет, а другим и не
+  надо (мы пишем чат на Flash, а не Perl изучаем :) В
+  двух словах: он ожидает подключения к
+  порту 1024, затем ожидает команду и если это
+  &lt;LOGIN ... то в ответ посылает сообщение об
+  ошибке, что такой логин занят и закрывает
+  соединение.<br>
+  Здесь вы можете скачать исходники этой
+  версии (<a href="http://www.delphimaster.ru/articles/flash/chat_v1.zip">chat
+  v1.zip</a>).<br>
+  Итак, запускаем серверный скрипт, из
+  командной строки:<br>
+  <code>perl chat_daemon.pl</code> (у вас должен быть
+  установлен Perl на компьютере, скачать его
+  можно на <a href="http://www.activestate.com/" target="_blank">http://www.activestate.com/</a>
+  порядка 10Мб.)<br>
+  И запускаете флешку. Вводим любое имя и
+  нажимаем &quot;Войти&quot;, видим сообщение об
+  установке соединения, о том, что
+  соединение установлено и через 3 секунды (такая
+  задержка стоит в серверном скрипте)
+  сообщение об ошибке, что такой логин занят...<!--mstheme--></font>
+  <h4><!--mstheme--><font face="Arial" color="#CCCCCC">3. Протокол.<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+  Итак, с установкой соединения разобрались,
+  теперь нужно подумать о протоколе общения
+  серверной части и клиентской. Здесь
+  обсуждать особенно нечего, как придумаешь,
+  так и реализовывать будешь. Необходимый
+  минимум: залогинивание, получение
+  сообщений, получение списка народа в online,
+  отправка сообщения, вывод сообщений о
+  критических ошибках.<br>
+  <b>3.1.</b> Залогинивание у нас фактически уже
+  реализовано. Клиент передает на сервер:<br>
+  <code>&lt;LOGIN NAME=&quot;[имя]&quot; /&gt;</code> В ответ
+  получит или сообщение об ошибке, или
+  команда <code>&lt;OK /&gt;</code> - что означает
+  нормальное подключение к чату.<br>
+  <b>3.2.</b> Сообщение о критических ошибках
+  тоже есть. Сервер передает:<br>
+  <code>&lt;ERROR TEXT=&quot;[текст ошибки]&quot;/&gt;</code><br>
+  <b>3.3.</b> Получение списка народа в чате (online).
+  Для экономии трафика, передадим весь
+  список в одном теге, ведь в нашем варианте
+  чата, кроме имени человека ничего больше
+  знать не нужно.<br>
+  <code>&lt;LIST&gt; [список имен через запятую]
+  &lt;/LIST&gt;</code> В целях экономии трафика нужно
+  еще сделать команды: пришел новый человек,
+  ушел человек. Чтобы ради одного имени не
+  отсылать весь список полностью. Это нам
+  дает еще одно преимущество, не формировать
+  сообщения вида &quot;вас приветствует [имя]&quot;
+  и &quot;уходит [имя]&quot; непосредственно на
+  сервере, такие сообщения можно
+  формировать в самом Flash-клиенте. Добавляем
+  еще две команды:<br>
+  <code>&lt;ADD&gt;[имя]&lt;/ADD&gt;</code> - пришел новый
+  человек.<br>
+  <code>&lt;DEL&gt;[имя]&lt;/DEL&gt;</code> - ушел.<br>
+  <b>3.4.</b> Отправка сообщения на сервер. В
+  целях уменьшения трафика все теги и
+  свойства обозначаем одной буквой. Кроме
+  самого сообщения нужно передавать еще и
+  его цвет.<br>
+  <code>&lt;T C=&quot;[цвет] &quot;&gt;[текст сообщения]
+  &lt;/T&gt;</code> <b>C</b> - цвет текста. Если он не
+  указан - пишем черным.<br>
+  Кому адресовано сообщение и смайлики
+  указываются прямо в тексте. Например в
+  таком виде:<br>
+  <b>to [кому]</b> - обращение в общем чате к кому-то<br>
+  <b>private [кому]</b> - отправка приватного
+  сообщения, его увидит только получатель<br>
+  смайлики в тексте сообщения выделяются
+  двоеточием с двух сторон <b>:smile:</b>, какие
+  именно будут смайлики уточним позже.<br>
+  <b>3.5.</b> Получение сообщений от серверного
+  скрипта. Делаем аналогично команде
+  отправки сообщения на сервер.<br>
+  <code>&lt;T C= &quot;[цвет] &quot;&gt; строка текста
+  &lt;/T&gt;</code><br>
+  <b>C</b> - цвет текста. По умолчанию - черный.<br>
+<!--mstheme--></font>
+  <h4><!--mstheme--><font face="Arial" color="#CCCCCC">4. Отображение списка болтунов в online.<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+  Переходим непосредственно к чату. Создаем
+  пустой ключевой фрейм. Что и как должно
+  располагаться, см. рисунок.<br>
+  <center><img alt src="../v2.png" border="0" width="620" height="399"><br>
+  </center><br>
+  Займемся отображением списка online, здесь
+  нас сразу подстерегает &quot;биг проблема&quot;<br>
+  В списке кроме отображения имен нужно
+  отображать еще и кнопочку, для посылки
+  приватных сообщений. Клик по имени -
+  отправка обычного сообщения в общий чат.
+  Клик по картинке приватного сообщения -
+  отправка приватного сообщения, которое
+  видит только адресат. Стандартный
+  компонент List нам не подходит, он позволяет
+  только выбрать один элемент из списка, но
+  не позволяет делать несколько кнопок в
+  одной строчке списка.<br>
+  Я вижу четыре пути решения этой проблемы.
+  Первые три - это создание нужного списка
+  самостоятельно, последний - подход не
+  программиста, а менеджера.<br>
+  4.1. Программно формируется слой, где
+  размещаются необходимые кнопки и имена в
+  нужном порядке. Получается большая такая
+  лента, над этим слоем располагается слой
+  маска, с прямоугольной областью в которую
+  мы и наблюдаем видимую часть списка. При
+  этом надо будет сделать кнопочки
+  прокрутки списка вверх - вниз.<br>
+  Недостаток - если народу в списке будет
+  очень много, то начнутся серьезные тормоза
+  с формированием и прокруткой большой
+  ленты.<br>
+  4.2. Программно рисуем и выводим имена и
+  кнопочки только видимой области списка.
+  При нажатии кнопок вверх/вниз все элементы
+  сдвигаем вверх/вниз, одну строчку вверху/внизу
+  удаляем, новую вверху/внизу добавляем. Т.е.
+  реализуем прокрутку полностью
+  самостоятельно программно, это устраняет
+  недостаток первого метода. Размеры списка
+  не играют в этом случае никакой роли, но
+  придется больше программировать.<br>
+  4.3. Делаем список в виде HTML текста и
+  вставляем его в обычный TextField. Здесь
+  обязательно использование Flash 7.0, т.к.
+  только он умеет вставлять картинки в HTML
+  тексте, или же отказаться от картинки и
+  сделать кнопку привата текстом.<br>
+  4.4. Изменить интерфейс. Например, сделать
+  только список имен, при этом: один клик по
+  имени - обычное сообщение, второй клик -
+  приватное.<br>
+  <br>
+  Реализуем последний способ, т.к. один из
+  первых двух частично нам придется делать
+  при отображении самого окна чата.<br>
+  Существенно переделывается серверный
+  скрипт, добавляем поддержку нескольких
+  коннектов, проверку имен, и т.п. Здесь не
+  привожу код, кому интересно посмотрит его
+  в архиве.<br>
+  Во Flash, вставляем проверку на вводимое имя.
+  Какие должны быть ограничения:<br>
+<!--mstheme--></font>
+<!--msthemelist--><table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="top" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">нельзя использовать в имени символы: &lt;
+      &gt; &quot; '<br>
+      Использование этих символов дает
+      возможность послать любую команду к
+      серверному скрипту. Например, в качестве
+      имени пишем: &quot;asd&quot; /&gt;&lt;произвольная
+      команда&gt;&quot;<br>
+      <!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">нельзя использовать в имени символы [ ]<br>
+      т.к. при обращении к кому-либо в чате мы
+      должны написать to [имя], то если в имени
+      будут содержаться квадратные скобки,
+      возникнут проблемы с интерпретацией
+      строки.<br>
+      <!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">нельзя использовать в имени запятую, т.к.
+      списки имен мы передаем через запятую.<br>
+      <!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">проверить длину имени. Например,
+      ограничим минимально 3 максимально 16
+      символов. (ограничение по максимуму
+      чтобы не делать горизонтальную
+      прокрутку в списке имен)<br>
+      <!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">нельзя в имени использоваться два
+      двоеточия.<br>
+      Т.к. смайлики в чат добавляются в виде <i>:смайлик:</i>
+      , то если чье-то имя будет содержать
+      такую же последовательность возникнут
+      проблемы у интерпретатора.<br>
+      <!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">нельзя чтобы имя начиналось или
+      заканчивалось пробелом.<br>
+      Это создаст возможность подделки имени,
+      например, в чате есть:<br>
+      <i>Вася<br>
+      </i>и входит<br>
+      <i>Вася<br>
+      </i>отличие от первого только в том, что в
+      конце стоит пробел. Это может создать
+      определенные проблемы.<br>
+      <!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">нельзя чтобы имя содержало два пробела
+      подряд.<br>
+      Причина аналогичная предыдущему
+      ограничению, например, есть в чате:<br>
+      <i>Вася Пупкин<br>
+      </i>и входит:<br>
+      <i>Вася &nbsp;Пупкин<br>
+      </i>вместо одного пробела, использовано
+      два. На глаз это трудно заметить.<br>
+      <!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">нельзя использовать в имени русские и
+      английские символы одновременно.<br>
+      Причина все та же, подделка имени.
+      Например, в чате есть:<br>
+      <i>Вася<br>
+      </i>и входит:<br>
+      <i>Ваcя<br>
+      </i>вместо русской &quot;с&quot; использована
+      английская &quot;си&quot;<br>
+      <!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">Не пропускать неудобочитаемые имена
+      состоящие только из пунктуации.
+      Требовать, чтобы в имени было хотя бы две
+      буквы.<br>
+      <!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+<!--msthemelist--></table>
+<!--mstheme--><font face="Arial">
+  <br>
+  Вот такая функция у меня получилась:<br>
+  <code><font color="#808080">// Проверка правильности
+  ввода имени</font><br>
+  <b>function</b> CheckLogin(login) {<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> len = length(login);<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (len &lt;= 0) { <b>return</b> &quot;Введите
+  ваше имя&quot; }<br>
+  &nbsp;&nbsp;&nbsp; <b>else</b> <b>if</b> (len &lt; 3 or len &gt; 12) { <b>return</b>
+  &quot;Длина имени должна быть от трех
+  символов до 12-ти&quot; }<br>
+  &nbsp;&nbsp;&nbsp; <b>else</b> <b>if</b> (login.charAt(0) == &quot; &quot; or
+  login.charAt(len-1) == &quot; &quot;) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>return</b> &quot;Имя не
+  может начинаться и заканчиваться пробелом&quot;;<br>
+  &nbsp;&nbsp;&nbsp; } <b>else</b> <b>if</b> (login.indexOf(&quot;
+  &quot;)&gt;=0) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>return</b> &quot;Имя не
+  может содержать два пробела подряд&quot;;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> i = login.indexOf(&quot;:&quot;);<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (i &gt;= 0 and login.indexOf(&quot;:&quot;,
+  i+1)&gt;0) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>return</b> &quot;В имени
+  нельзя использовать два двоеточия&quot;;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> stop_chars = Array(&quot;&lt;&quot;,
+  &quot;&gt;&quot;, &quot;'&quot;, &quot;[&quot;, &quot;]&quot;, &quot;,&quot;,
+  &quot;\&quot;&quot;);<br>
+  &nbsp;&nbsp;&nbsp; <b>for</b> (i <b>in</b> stop_chars) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b>
+  (login.indexOf(stop_chars[i])&gt;=0) <b>return</b> &quot;В имени
+  использован запрещенный символ:
+  &quot;+stop_chars[i];<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// составим массив
+  русских и английских букв</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> rus_chars = &quot;абвгдежзийклмнопрстуфхцчшщьыъэюяАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЬЫЪЭЮЯЁё&quot;.split(&quot;&quot;);<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> eng_chars =
+  &quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ&quot;.split(&quot;&quot;);<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// подсчитаем
+  количество букв обоих алфавитов</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> rus_count = 0, eng_count = 0;<br>
+  &nbsp;&nbsp;&nbsp; <b>for</b> (i <b>in</b> rus_chars) {
+  if(login.indexOf(rus_chars[i])&gt;=0) rus_count++; }<br>
+  &nbsp;&nbsp;&nbsp; <b>for</b> (i <b>in</b> eng_chars) {
+  if(login.indexOf(eng_chars[i])&gt;=0) eng_count++; }<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (rus_count&gt;0 and eng_count&gt;0) <b>return</b>
+  &quot;В имени разрешено использовать только
+  буквы одного алфавита русского или
+  английского. Нельзя смешивать.&quot;;<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (rus_count&lt;2 and eng_count&lt;2) <b>return</b>
+  &quot;В имени обязательно должны содержаться
+  хотя бы две буквы&quot;;<br>
+  &nbsp;&nbsp;&nbsp; <b>return</b> &quot;&quot;;<br>
+  }<br>
+  </code>Добавим в место &quot;список народа
+  online&quot; компонент List и назовем его listonline.<br>
+  Далее необходимо переделать функцию onGetXML.
+  Во-первых, возможно поступление сразу
+  нескольких команд от сервера. Во-вторых,
+  добавим обработку тегов OK и LIST.<br>
+  Вот что получилось:<br>
+  <code><font color="#808080">// Прием данных от сервера</font><br>
+  <b>function</b> onGetXML(doc) {<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> e = doc.firstChild;<br>
+  &nbsp;&nbsp;&nbsp; <b>while</b> (e != null) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  Обход всего XML дерева</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> s = e.nodeName;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (s == &quot;ERROR&quot;)
+  { <font color="#808080">// Произошла ошибка, разорвать
+  соединение и вывести текст ошибки</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  sock.close();<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; messages =
+  e.attributes.TEXT; <font color="#808080">// Вывести сообщение
+  об ошибке</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } <b>else</b> <b>if</b> (s ==
+  &quot;OK&quot;) { <font color="#808080">// Мы вошли в чат</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; online =
+  true;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  nextFrame();&nbsp;&nbsp;&nbsp; <font color="#808080">// Переход на
+  второй кадр, где и расположен интерфейс
+  чата</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } <b>else</b> <b>if</b> (online) { <font color="#808080">//
+  Все остальные команды обрабатываются
+  только, когда мы в online</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b>
+  (s == &quot;LIST&quot;) { <font color="#808080">// Пришел список
+  народа</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// Преобразуем в массив</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <b>var</b> logins = e.firstChild.nodeValue.split(&quot;,&quot;);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  listonline.removeAll();&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  Очистим list</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <b>for</b> (<b>var</b> i <b>in</b> logins) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  Добавляем все логины</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  listonline.addItem(logins[i]);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  listonline.sortItemsBy(&quot;label&quot;, &quot;ASC&quot;); <font color="#808080">//
+  Сортируем по возрастанию</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; e = e.nextSibling;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// переход к следующему
+  элементу XML дерева</font><br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  } </code>С этим кодом мучался несколько часов.
+  Не появляется список народа во флешке,
+  хоть ты тресни! Приходит команда от
+  сервера (<i>&lt;OK /&gt;&lt;LIST&gt;atest1,test2,Петя,Random -
+  99&lt;/LIST&gt;</i>), нормально обрабатывается
+  флешкой, но список остается девственно
+  чист. Причина, как оказалось, кроется в том,
+  что переход на второй фрейм (кадр)
+  происходит не сразу, как встретилась
+  команда nextFrame() , а только по завершению
+  выполнения функции onGetXML, чем это нам
+  мешает? А тем, что компонента listonline на
+  момент выполнения этой функции еще не
+  существует, т.к. реально перехода на второй
+  фрейм еще не было!<br>
+  Как можно решить эту проблему?<br>
+<!--mstheme--></font>
+<!--msthemelist--><table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="top" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">Передавать только по одной команде от
+      серверного скрипта (что приводит к его
+      усложнению)<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">Сделать переход на второй фрейм(кадр)
+      раньше, в момент посылки к серверу
+      нашего логина, а не в момент прихода
+      команды OK.<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">Заставить Flash реально перейти на второй
+      фрейм(кадр) в нужном месте. Честно говоря
+      не знаю как это сделать.<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">Отказаться от второго кадра, а
+      разместить интерфейс чата на невидимом
+      слое и включить его видимость по приходу
+      команды OK.<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+<!--msthemelist--></table>
+<!--mstheme--><font face="Arial">
+  Сделаем так. Функцию <b>doLogin()</b> удалить.
+  Функция <b>onSockConnect()</b> выглядит теперь так:<br>
+  <code><b>function</b> onSockConnect(success){<br>
+  <b>if</b> (success){ <font color="#808080">// соединение
+  установлено, переходим к процедуре
+  передачи нашего логина</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _global.mylogin = login.text;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// Запоминаем введенный логин</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; nextFrame();<br>
+  } <b>else</b> {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; messages=&quot;Не удалось
+  установить соединение с сервером:
+  &quot;+serverName;<br>
+  }<br>
+  } </code>А во втором слое, на входе (Layer 1: Frame 2)
+  пишем:<br>
+  <code><b>var</b> myXML = <b>new</b> XML(&quot;&lt;LOGIN
+  NAME=\&quot;&quot;+_global.mylogin+&quot;\&quot; /&gt;&quot;);<br>
+  sock.send(myXML);<br>
+  stop(); </code>Т.е. перед тем, как передать наш
+  логин на сервер, запоминаем его в
+  глобальной переменной (_global.mylogin) и
+  переключаемся на второй фрейм(кадр). И вот
+  только когда он полностью загрузится и
+  выполнится код реально передающий наш
+  логин на сервер, и по приходу оттуда ответа
+  у нас уже все готово, для отображения
+  списка народа online.<br>
+  <br>
+  Пока изучал help по ActionScript нашел полезную
+  вещь. Если на старте первого кадра (Layer 1: Frame
+  1) написать:<br>
+  focusManager.defaultPushButton = enter_button;<br>
+  то при вводе в поле имени, нажатие кнопки
+  Enter равносильно нажатию мышкой на кнопку
+  &quot;вход&quot;.<br>
+  <br>
+  Дефолтная функция<br>
+  <code>listonline.sortItemsBy(&quot;label&quot;, &quot;ASC&quot;);</code>
+  сортирует список с учетом регистра, что не
+  очень хорошо, поэтому заменяем ее на свой
+  вариант:<br>
+  <code>listonline.sortItems(upperCaseFunc);<br>
+  . . .<br>
+  <font color="#808080">// Сортировка без учета
+  регистра</font><br>
+  <b>function</b> upperCaseFunc(a,b){<br>
+  <b>return</b> a.label.toUpperCase() &gt; b.label.toUpperCase();<br>
+  } </code>Теперь можно добавить поле для ввода
+  текста, используем уже знакомый компонент
+  TextInput, обзовем его entertext.<br>
+  В actions списка имен (listonline) пишем функцию
+  добавления текста в строку ввода при
+  выборе имени человека в списке:<br>
+  <code>on (change) {<br>
+  &nbsp;&nbsp;&nbsp; _root.AddName(selectedItem.label);<br>
+  } </code>В слой Scripts добавляем функцию
+  добавления имени:<br>
+  <code><font color="#808080">// Добавляет в строку ввода
+  to [имя] или private [имя]</font><br>
+  <b>function</b> AddName(s) {<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> i;<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> ((i=entertext.text.indexOf(&quot;to
+  [&quot;+s+&quot;]&quot;))&gt;=0) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  строка уже содержит обращение to [имя]</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  меняем на private [имя]</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entertext.text =
+  entertext.text.substr(0, i)+&quot;private&quot;+entertext.text.substr(i+2);<br>
+  &nbsp;&nbsp;&nbsp; } <b>else</b><br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> ((i=entertext.text.indexOf(&quot;private
+  [&quot;+s+&quot;]&quot;))&gt;=0) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  строка уже содержит обращение private [имя]</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  меняем на to [имя]</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entertext.text =
+  entertext.text.substr(0, i)+&quot;to&quot;+entertext.text.substr(i+7);<br>
+  &nbsp;&nbsp;&nbsp; } <b>else</b> {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  строка не содержит обращения по этому
+  имени</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  добавляем to [имя]</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; entertext.text = &quot;to
+  [&quot;+s+&quot;] &quot;+entertext.text;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  } </code>Отлично. Теперь сделаем отправку
+  введенного текста на сервер. Добавим
+  справа от поля ввода кнопочку (компонент
+  Button) с именем ok_button. Сделаем чтобы она была
+  дефолтной, т.е. при нажатии кнопки Enter в
+  поле ввода срабатывало on(click) этой кнопки.
+  Для этого при открытии второго фрейма(кадра)
+  (Layer 1: Frame 2) добавим строчку:<br>
+  <code>focusManager.defaultPushButton = ok_button;</code> И теперь в
+  actions кнопки пишем:<br>
+  <code>on (click) {<br>
+  &nbsp;&nbsp;&nbsp; _root.SendTextToServer(_parent.entertext.text);<font color="#808080">//
+  отправка введенного текста на сервер</font><br>
+  &nbsp;&nbsp;&nbsp; _parent.entertext.text = &quot;&quot;;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  очистка строки ввода</font><br>
+  &nbsp;&nbsp;&nbsp; _parent.entertext.setFocus();&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  поставим фокус на строку ввода</font><br>
+  } </code>И в слой Scripts добавляем функцию:<br>
+  <code><font color="#808080">// Отправка введенного
+  текста на сервер</font><br>
+  <b>function</b> SendTextToServer(text :String) {<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (length(text)==0) <b>return</b> ;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// выход, если нет текста</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> myXML = <b>new</b> XML();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// новый XML</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> myNode = myXML.createElement(&quot;T&quot;);&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// создаем тег &quot;T&quot;</font><br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// добавляем текст в
+  тег</font><br>
+  &nbsp;&nbsp;&nbsp;
+  myNode.appendChild(myXML.createTextNode(&quot;[&quot;+_global.mylogin+&quot;]
+  &quot;+text));<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// добавляем
+  созданный тег в основной XML документ</font><br>
+  &nbsp;&nbsp;&nbsp; myXML.appendChild(myNode);<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// отправляем на
+  сервер</font><br>
+  &nbsp;&nbsp;&nbsp; sock.send(myXML);<br>
+  } </code>Создавать XML надо именно так, а не: <code><b>var</b>
+  myXML = <b>new</b> XML(&quot;&lt;T
+  C=&quot;+color+&quot;&gt;&quot;+text+&quot;&gt;&lt;/T&gt;&quot;);</code> т.к.
+  в строке text могут содержаться кавычки и
+  угловые скобки, которые надо
+  самостоятельно заменить на: &amp;quot; &amp;gt;
+  &amp;lt; а функция createTextNode делает это
+  автоматически.<br>
+  <br>
+  Теперь сделаем простой прием сообщений от
+  сервера (обработка тегов <i>&lt;T&gt;</i>), чтобы
+  проверить работоспособность всего
+  вышеописанного.<br>
+  Добавим &quot;Text tool&quot; тип &quot;Dinamic text&quot; на
+  место &quot;Основное окно с текстом чата&quot;.
+  Шрифт _sans, размер 16, selectable, Render text as HTML, show
+  border, имя &quot;output_txt&quot;.<br>
+  В функцию onGetXML добавляем простую
+  обработку тега <i>&lt;T&gt;</i>:<br>
+  <code><b>if</b> (s == &quot;T&quot;) { <font color="#808080">// Пришел
+  текст в чат</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> color = e.attributes.C;<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> txt = e.firstChild.nodeValue;<br>
+  &nbsp;&nbsp;&nbsp; output_txt.htmlText += txt+&quot;&lt;BR&gt;&quot;; <font color="#808080">//
+  добавляем текст и перевод строки</font><br>
+  &nbsp;&nbsp;&nbsp; output_txt.scroll=output_txt.maxscroll;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  прокручиваем в конец списка</font><br>
+  } </code>Выводим только текст без обработки на
+  цвет, кнопки, ссылки и смайлики.<br>
+  Здесь же добавим обработку тегов <i>&lt;ADD&gt;</i>
+  и <i>&lt;DEL&gt;</i> они совсем простые.<br>
+  <code><b>if</b> (s == &quot;ADD&quot;) { <font color="#808080">//
+  Добавить нового человека в список online</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> new_login = e.firstChild.nodeValue;<br>
+  &nbsp;&nbsp;&nbsp; listonline.addItem(new_login);<br>
+  &nbsp;&nbsp;&nbsp; listonline.sortItems(upperCaseFunc);&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  снова отсортировать список</font><br>
+  &nbsp;&nbsp;&nbsp; AppendText(&quot;входит: &quot;+new_login);&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// добавляем текст</font><br>
+  } <b>else</b> <b>if</b> (s == &quot;DEL&quot;) { <font color="#808080">//
+  Удалить человека из списак online</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> del_login = e.firstChild.nodeValue;<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// Ищем такое имя в
+  нашем списке</font><br>
+  &nbsp;&nbsp;&nbsp; <b>for</b> (<b>var</b> i=0; i&lt;listonline.length; i++) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b>
+  (listonline.getItemAt(i).label == del_login) { <font color="#808080">//
+  нашли</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  listonline.removeItemAt(i);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  AppendText(&quot;уходит: &quot;+del_login); <font color="#808080">//
+  добавляем текст</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break; <font color="#808080">//
+  выходим из цикла</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  } </code>Можно подвести промежуточные итоги.
+  Что получилось на данный момент? Есть
+  нормальное подключение к серверу с
+  обработкой ошибок и проверкой синтаксиса
+  имени юзера. Реализовано получение списка
+  народа online от сервера, изменения в списке и
+  соответствующий интерфейс к списку.
+  Отправка сообщений на сервер и получение
+  сообщений от сервера с простым выводом. Т.е.
+  уже сформировался рабочий каркас для
+  хорошего чата.<br>
+  Здесь вы можете скачать архив с текущей
+  версией чата (<a href="http://www.delphimaster.ru/articles/flash/chat_v2.zip">chat
+  v2.zip</a>).<br>
+  Необходимо запустить серверный демон:<br>
+  <code>perl chat_daemon.pl</code> и затем можно открыть
+  несколько чатов (<b>chat.swf</b>) и поговорить
+  самому с собой от имени нескольких человек.<br>
+<!--mstheme--></font>
+  <h4><!--mstheme--><font face="Arial" color="#CCCCCC">5. Выбор цвета<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+  Сделаем выбор цвета для текста в чате.
+  Можно создать несколько цветных
+  квадратиков и по щелчку по ним выбирать
+  цвет, можно сделать выпадающий список с
+  названиями стандартных цветов, но это все
+  не наш путь, слишком просто ;)<br>
+  Сделаем цветную панель а-ля Photoshop. Т.к.
+  функция по созданию такого объекта будет
+  довольно большой, то сделаем отдельный
+  слой (назовем его ColorPicker) только под него.<br>
+  Сама функция создания такого объекта
+  выглядит так:<br>
+  <code><font color="#808080">// Создает поле выбора цвета</font><br>
+  <font color="#808080">// name - имя нового объекта</font><br>
+  <font color="#808080">// x1,y1 - координаты, где он
+  должен размещаться</font><br>
+  <font color="#808080">// width, height - размеры</font><br>
+  <font color="#808080">// depth - глубина объекта</font><br>
+  <font color="#808080">// funcSetNewColor - ссылка на функцию,
+  которая вызывается при смене цвета,</font><br>
+  <font color="#808080">// передает один параметр: цвет</font><br>
+  <b>function</b> CreateColorPicker(name, x1, y1, width, height, depth,
+  funcSetNewColor) {<br>
+  &nbsp;&nbsp;&nbsp; _root.createEmptyMovieClip(name, depth);&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  создание мувикла</font><br>
+  &nbsp;&nbsp;&nbsp; <b>with</b> (_root[name]) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  создание горизонтального градиента,
+  базовые 7 сегментов</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> colors = [0xFF0000,
+  0xFFFF00, 0x00FF00, 0x00FFFF, 0x0000FF, 0xFF00FF, 0xFF0000];<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> alphas = [100, 100, 100,
+  100, 100, 100, 100];<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> ratios = [];<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>for</b> (<b>var</b> i = 0;
+  i&lt;7; i++) { ratios[ratios.length] = (255/6)*i }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> matrix =
+  {matrixType:&quot;box&quot;, x:0, y:0, w:width, h:height, r:0};<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  beginGradientFill(&quot;linear&quot;, colors, alphas, ratios, matrix);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; moveto(0, 0);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lineto(0, height);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lineto(width, height);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lineto(width, 0);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lineto(0, 0);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; endFill();<br>
+  <br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  создание осветления/затемнения по
+  вертикали</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; colors = [0xFFFFFF, 0xFFFFFF, 0,
+  0];<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; alphas = [100, 0, 0, 100];<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ratios = [0, 255/4, 255/2, 255];<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; matrix =
+  {matrixType:&quot;box&quot;, x:0, y:0, w:width, h:height, r:0.5*Math.PI};<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  beginGradientFill(&quot;linear&quot;, colors, alphas, ratios, matrix);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; moveto(0, 0);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lineto(0, height);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lineto(width, height);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lineto(width, 0);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lineto(0, 0);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; endFill();<br>
+  <br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  параметры объекта</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _x=x1; _y=y1;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _width=width;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _height=height;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.onSetNewColor =
+  funcSetNewColor;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// обработка событий</font><br>
+  &nbsp;&nbsp;&nbsp; _root[name].onRollOver=<b>function</b>(){&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// мышь над объектом</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  создание курсора из библиотеки</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  _root.attachMovie(&quot;cur&quot;,&quot;cur&quot;,30000,{_x:_root._xmouse,_y:_root._ymouse})<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mouse.hide();&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  скрываем системную мышку</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _root.cur.startDrag();&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// начинаем таскаться за мышкой</font><br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; _root[name].onRollOut = _root[name].onReleaseOutside = <b>function</b>(){&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// мыш ушла с объекта</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _root.cur.stopDrag();&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// перестаем &quot;таскаться&quot;</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _root.cur.removeMovieClip();&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// удаляем курсор</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Mouse.show();&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  показываем системную мышку</font><br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; _root[name].onPress=<b>function</b>(){&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  щелчок мышкой</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  if(hitTest(_root._xmouse,_root._ymouse,true)){&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  обрабатываем только если щелкнули по нам</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  вычисляем цвет и вызываем нужную функцию</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  onSetNewColor(check_color(this._xmouse,this._ymouse, this._width,
+  this._height));<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  }<br>
+  <font color="#808080">// функция вычисляет цвет по
+  координате мыши, ширине и высоте объекта</font><br>
+  <b>function</b> check_color(ux, uy, width, height) {<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> perx = width/6;<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> cperx = 255/width;<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> r=0,g=0,b=0;<br>
+  &nbsp;&nbsp;&nbsp; switch (Math.floor(ux/perx)) {<br>
+  &nbsp;&nbsp;&nbsp; case 0 :<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r = 255;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; g = (cperx*ux);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b = 0;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br>
+  &nbsp;&nbsp;&nbsp; case 1 :<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r = cperx*(2*perx-ux);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; g = 255;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b = 0;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br>
+  &nbsp;&nbsp;&nbsp; case 2 :<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r = 0;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; g = 255;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b = cperx*(ux-2*perx);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br>
+  &nbsp;&nbsp;&nbsp; case 3 :<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r = 0;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; g = cperx*(4*perx-ux);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b = 255;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br>
+  &nbsp;&nbsp;&nbsp; case 4 :<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r = cperx*(ux-4*perx);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; g = 0;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b = 255;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br>
+  &nbsp;&nbsp;&nbsp; case 5 :<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r = 255;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; g = 0;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b = cperx*(width-ux);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br>
+  &nbsp;&nbsp;&nbsp; case 6 :<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r = 255;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; g = 0;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b = 0;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> h2 = height/2;<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (uy&gt;h2) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> hp = (height-uy)/h2;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r *= hp;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; g *= hp;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b *= hp;<br>
+  &nbsp;&nbsp;&nbsp; } <b>else</b> <b>if</b> (uy&lt;h2) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> temp = (h2-uy)/h2;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; r += temp*(255-r);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; g += temp*(255-g);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; b += temp*(255-b);<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <b>return</b> (r &lt;&lt; 16 | g &lt;&lt; 8 | b);<br>
+  } </code>Здесь все очень просто, хоть и
+  выглядит объемно... Сначала создается
+  пустой мувиклип, затем он заполняется
+  двумя градиентами, картинка получается
+  почти как в Photosop.<br>
+  <center><img alt src="../v3.jpg" border="0" width="40" height="26"></center><br>
+  Далее описываются функции для трех
+  событий:<!--mstheme--></font>
+<!--msthemelist--><table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="top" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">Курсор мыши над объектом: при этом
+      создаем свой курсор мыши в виде пипетки (его
+      надо нарисовать и добавить в библиотеку
+      под именем cur, например, такой: <img alt src="../v0.gif" border="0" width="20" height="18">),
+      скрываем системный курсор в виде
+      стрелки и начинаем &quot;таскаться&quot; за
+      мышкой (startDrag)<br>
+      <!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">Курсор мыши ушел с нашего объекта: при
+      этом удаляем созданный курсор и
+      включаем системный.<br>
+      <!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">Клик мышкой: при этом пытаемся
+      вычислить, какой выбран цвет,
+      основываясь на положении курсора мыши и
+      размеров объекта. Выбор довольно грубый,
+      если сделать размеры объекта порядка
+      300x300, то погрешность в выборе цвета будет
+      заметна, а при маленьком размере (как в
+      нашем случае), разница очень
+      несущественна.<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+<!--msthemelist--></table>
+<!--mstheme--><font face="Arial">
+  <br>
+  <b>Интересный глюк!</b> Если в Document publish settings
+  стоит version: Flash Player 7, то не работает функция
+  beginGradientFill , вместо градиентной заливки
+  видите чистый лист! Не работают даже
+  примеры из Help... как только меняем
+  настройки на Flash Player 6 - все отлично
+  работает. Так что в нашем случае пришлось
+  поставить publish settings в Flash Player 6, благо мы
+  пока ничего из седьмого не использовали...<br>
+  <br>
+  При входе во второй кадр добавляем функцию
+  создания объекта выбора цвета и функцию
+  установки выбранного цвета.<br>
+  <code>_root.CreateColorPicker(&quot;picker&quot;, 580, 370, 40, 26, 10,
+  setNewColor);<br>
+  . . .<br>
+  <br>
+  <font color="#808080">// Функция установки нового
+  цвета</font><br>
+  <b>function</b> setNewColor(color) {<br>
+  &nbsp;&nbsp;&nbsp; _global.myColor = color;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  запомним цвет в глобальной переменной</font><br>
+  &nbsp;&nbsp;&nbsp; _root.entertext.setStyle(&quot;color&quot;, color); <font color="#808080">//
+  поменяем цвет текста в поле ввода</font><br>
+  } </code>В таком варианте будет проблема, если
+  юзер выбирает цвет близкий к цвету фона
+  основного окна чата, тогда его текст будет
+  сливаться с фоном, нужно вставить проверку.<br>
+  Получим цвет фона поля ввода:<br>
+  <code><b>var</b> testcolor = entertext.getStyle(&quot;backgroundColor&quot;);</code>
+  Теперь проверка, переведем цвета в RGB и
+  сравним по каждому каналу, если разница
+  меньше порогового значения, то затемним
+  новый цвет. Вот что у меня получилось:<br>
+  <code><font color="#808080">// Функция установки нового
+  цвета</font><br>
+  <b>function</b> setNewColor(newcolor) {<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> min_dif = 30;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  минимальная разница между фоном и цветом
+  текста</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> testcolor =
+  entertext.getStyle(&quot;backgroundColor&quot;);<font color="#808080">//
+  фоновый цвет поля ввода</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> c1 = extractRGB(testcolor);&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  преобразуем фоновый цвет в RGB</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> c2 = extractRGB(newcolor);&nbsp;&nbsp;&nbsp; /<font color="#808080">//
+  преобразуем новый цвет в RGB</font><br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// сравниваем</font><br>
+  &nbsp;&nbsp;&nbsp; <b>while</b> (Math.abs(c1.r-c2.r)&lt;min_dif and<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Math.abs(c1.g-c2.g)&lt;min_dif and<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Math.abs(c1.b-c2.b)&lt;min_dif)<br>
+  &nbsp;&nbsp;&nbsp; {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c2.r-=3; c2.g-=3; c2.b-=3; <font color="#808080">//
+  затемняем</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (c2.r&lt;0) c2.r=0;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (c2.g&lt;0) c2.g=0;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (c2.b&lt;0) c2.b=0;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; newcolor = extractColor(c2);<br>
+  &nbsp;&nbsp;&nbsp; _global.myColor = newcolor.toString(16);<font color="#808080">//
+  запомним цвет в глобальной переменной</font><br>
+  &nbsp;&nbsp;&nbsp; entertext.setStyle(&quot;color&quot;, newcolor);//поменяем
+  цвет текста в поле ввода<br>
+  }<br>
+  <font color="#808080">// Возвращает RGB составляющую
+  цвета</font><br>
+  <b>function</b> extractRGB(clr) {<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> B = clr &amp; 0xFF; clr = clr &gt;&gt; 8;<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> G = clr &amp; 0xFF; clr = clr &gt;&gt; 8;<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> R = clr &amp; 0xFF;<br>
+  &nbsp;&nbsp;&nbsp; <b>return</b> {r:R,g:G,b:B};<br>
+  }<br>
+  <font color="#808080">// Из RGB возвращает цвет</font><br>
+  <b>function</b> extractColor(rgb) {<br>
+  &nbsp;&nbsp;&nbsp; <b>return</b> ((rgb.r &amp; 0xFF) &lt;&lt; 16 | (rgb.g
+  &amp; 0xFF) &lt;&lt; 8 | (rgb.b &amp; 0xFF));<br>
+  } </code>Далеко не лучший вариант, но для
+  нашего случая вполне подойдет. Теперь при
+  попытке установить цвет близкий к белому (вернее,
+  близкий к фоновому строки ввода) он
+  немного затемняется, так чтобы быть всегда
+  заметным на фоне.<br>
+  Осталось передать этот цвет на сервер при
+  отправке текста. В функцию <b>SendTextToServer</b>
+  добавим строчку:<br>
+  <code><font color="#808080">// добавляем свойство &quot;цвет&quot;,
+  если он указан</font><br>
+  <b>if</b> (_global.myColor != undefined) {myNode.attributes.C =
+  _global.myColor}</code>
+<!--mstheme--></font>
+  <h4><!--mstheme--><font face="Arial" color="#CCCCCC">6. Настройки.<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+  Что хотелось бы иметь в чате из настроек,
+  кроме выбора цвета текста?<!--mstheme--></font>
+<!--msthemelist--><table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="top" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">Фильтр: показывать все сообщения, не
+      показывать системные (кто-то пришел/ушел),
+      и показывать только сообщения
+      адресованные лично мне.<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">Сделать озвучку нажатий клавиш и
+      подавать сигнал, когда пришло сообщение,
+      адресованное мне (очень удобно, если
+      браузер с чатом сейчас зарыт другим
+      окном). Соответственно, нужна
+      возможность выключить звук.<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">Удобный выбор смайликов.<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+<!--msthemelist--></table>
+<!--mstheme--><font face="Arial">
+  Перейдем к созданию кнопок настройки.
+  Сначала фильтр: три фиксированных
+  состояния, переключающиеся по кругу.<br>
+  В библиотеке делаем графический объект
+  Create <b>new</b> Symbol (Graphic) назовем SystemButton, и
+  рисуем шаблон системных кнопок. Что-то
+  вроде этого: <img alt src="../v01.gif" border="0" width="36" height="29"><br>
+  Далее в библиотеке создаем еще один объект,
+  на этот раз <b>Movie clip</b>, назовем его <b>Filter_button</b>.
+  Два слоя, на нижнем <b>SystemButton</b> (фоновое
+  изображение кнопки), а на верхнем
+  схематичное изображение состояния
+  переключателя. Я это изобразил в виде трех
+  строчек текста <img alt src="../v02.gif" border="0" width="37" height="29"> (в
+  следующем состоянии их становится две и
+  далее одна). В Action пишем <code>stop();</code> Чтобы
+  клип остановился на этом кадре, а не стал
+  нам прокручивать все состояния.<br>
+  Создаем второй кадр (ключевой), где в
+  верхнем слое убираем одну строку текста,
+  так же пишем <code>stop();</code> Далее совершенно
+  аналогично создаем еще один кадр, где
+  оставляем одну строчку текста.<br>
+  Готово. Теперь добавляем созданный клип
+  кнопки в наш чат. Сделаем переключение
+  режимов, в Actions этой кнопки пишем:<br>
+  <code>on(release) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  переключение режима фильтрации</font><br>
+  &nbsp;&nbsp;&nbsp; nextFrame();<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (_root.Filter++ &gt;= 3) _root.Filter=1;<br>
+  } </code>И там же, где объявлены все глобальные
+  переменные (<b>Scripts - Frame 1</b>) объявим и
+  переменную для фильтра:<br>
+  <code><b>var</b> Filter = 1;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  Режимы фильтра: 1-показываем все,</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  2-удаляем системные сообщения,</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  3-оставляем только личную переписку</font><br>
+  </code>Посмотрим, что получилось. Кнопка
+  работает, переключается, но из последнего
+  состояния не переходит в начало... что,
+  собственно, логично :)<br>
+  Вернемся в редактирование клипа кнопки,
+  надо добавить четвертый кадр, менять на
+  нем ничего не надо, а в его Actions написать: <code>gotoAndStop(1);</code>
+  Что заставит переключиться кнопку из
+  последнего состояния в первое.<br>
+  Надо добавить звук. Звуков у нас будет
+  всего два: нажатие кнопок (щелчок), и
+  получение сообщения в чате адресованное
+  нам. В интернете много разных wav файлов,
+  выбрать подходящие не проблема. Добавим их
+  в библиотеку, в свойствах надо выставить
+  параметры сжатия, для получения
+  преемлемого звучания и минимального
+  объема. И назначить им имена в <b>Linkage</b> (без
+  этого нельзя их подгрузить программно),
+  пусть будет <b>btn</b> и <b>message</b>. Теперь на
+  входе во второй кадр (раньше они нам не
+  понадобятся) создадим переменные для
+  управления звуком:<br>
+  <code><font color="#808080">// подключаем звуки</font><br>
+  btnSound = <b>new</b> Sound();<br>
+  btnSound.attachSound(&quot;btn&quot;)<br>
+  mesSound = <b>new</b> Sound();<br>
+  mesSound.attachSound(&quot;message&quot;); </code>И событие
+  нажатия на кнопку переключения фильтра
+  теперь будет выглядеть так:<br>
+  <code>on(release) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  переключение режима фильтрации</font><br>
+  &nbsp;&nbsp;&nbsp; nextFrame();<br>
+  &nbsp;&nbsp;&nbsp; _root.btnSound.start();<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (_root.Filter++ &gt;= 3) _root.Filter=1;<br>
+  } </code>Отлично, вот только человеку, который
+  впервые попал в наш чат, значение этой
+  кнопки будет непонятно, необходимо
+  сделать подсказки, и чем больше - тем лучше.<br>
+  Выводить подсказки будем программно по
+  мере надобности. Вот такую функцию для
+  отображения Hints (подсказок) я нашел на <a href="http://www.flasher.ru/" target="_blank">http://www.flasher.ru/</a>
+  (немного изменил и упростил):<br>
+  <code><font color="#808080">// Hint (всплывающая подсказка)</font><br>
+  <b>function</b> alt(altTxt) {<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (_root[&quot;altfield&quot;]!=undefined) {//hint
+  уже создан,просто меняем текст<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _root.altfield.text = altTxt;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>return</b> ;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// создаем hint</font><br>
+  &nbsp;&nbsp;&nbsp; _root.createTextField(&quot;altfield&quot;, 778, 0,0,200,
+  20);<br>
+  &nbsp;&nbsp;&nbsp; <b>with</b> (_root.altfield) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  выставляем параметры</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; text = altTxt;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; autoSize = &quot;left&quot;;&nbsp;
+  &nbsp;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; background = 1; border = 1;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; backgroundColor = 0xFFFFE1;
+  selectable = 0;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _y = _root._ymouse - _height;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _x = _root._xmouse - _width+10;<br>
+  &nbsp;&nbsp;&nbsp; }&nbsp; &nbsp;<br>
+  }<br>
+  <font color="#808080">// удаляем hint</font><br>
+  <b>function</b> removeAlt() {<br>
+  &nbsp;&nbsp;&nbsp; _root.altfield.removeTextField();<br>
+  } </code>Добавляем это в слой Scripts. А в Actions
+  нашей кнопки пишем:<br>
+  <code>on (rollOver) {&nbsp;&nbsp;&nbsp; <font color="#808080">// вывод
+  подсказки</font><br>
+  &nbsp;&nbsp;&nbsp; _root.alt(&quot;Фильтрация сообщений в
+  чате\n- &quot;+<br>
+  &nbsp;&nbsp;&nbsp; (_root.Filter==1?&quot;показывать все&quot;:<br>
+  &nbsp;&nbsp;&nbsp; _root.Filter==2?&quot;не отображать
+  системные сообщения&quot;:<br>
+  &nbsp;&nbsp;&nbsp; &quot;только моя переписка&quot;));<br>
+  }<br>
+  on (rollOut, ReleaseOutside) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  удаляем подсказку</font><br>
+  &nbsp;&nbsp;&nbsp; _root.removeAlt();<br>
+  } </code>Готово. Теперь при наведении мыши на
+  кнопку всплывает подсказка, которая
+  сообщает о назначении этой кнопки и ее
+  текущем состоянии.<br>
+  <center><img alt src="../v03.gif" border="0" width="211" height="67"></center><br>
+  Когда мышь уходит с кнопки (<b>rollOut</b>),
+  подсказка удаляется. Необходимо удалять
+  подсказку и по событию (<b>ReleaseOutside</b>), это
+  происходит когда нажать кнопку мыши,
+  оттащить мышку в сторону и за объектом
+  отпустить. При этом мышка ушла с объекта, а
+  события <b>rollOut</b> не произошло, и подсказка
+  не исчезает.<br>
+  <br>
+  Теперь сделаем кнопку вкл./выкл. звука.
+  Создаем в библиотеке новый <b>Movie Clip</b>, все
+  аналогично предыдущей кнопке, только
+  здесь всего два состояния. События на этой
+  кнопке будут следующие:<br>
+  <code>on(release) {&nbsp;&nbsp;&nbsp; <font color="#808080">// вкл./выкл.
+  звука</font><br>
+  &nbsp;&nbsp;&nbsp; nextFrame();<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (_root.btnSound.getVolume()==0) {&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// включить звуки</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _root.btnSound.setVolume(100);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _root.mesSound.setVolume(100);<br>
+  &nbsp;&nbsp;&nbsp; } <b>else</b> { <font color="#808080">// выключить
+  звуки</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _root.btnSound.setVolume(0);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _root.mesSound.setVolume(0);<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; _root.btnSound.start();<br>
+  }<br>
+  on (rollOver) {&nbsp;&nbsp;&nbsp; <font color="#808080">// вывод
+  подсказки</font><br>
+  &nbsp;&nbsp;&nbsp; _root.alt(&quot;Вкл./выкл. звука&quot;);<br>
+  }<br>
+  on (rollOut, releaseOutside) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  удаляем подсказку</font><br>
+  &nbsp;&nbsp;&nbsp; _root.removeAlt();<br>
+  } </code>Наверное, есть возможность выключить
+  все звуки во флешке более простым способом,
+  но лень разбираться, когда и так работает :)<br>
+  <br>
+  Пора заняться смайликами. Сначала делаем
+  кнопочку, по нажатию на которую будет
+  открываться окно со смайликами. Кнопочку
+  делаем аналогично предыдущим, но у нее все
+  гораздо проще, только одно состояние (т.е.
+  один кадр).<br>
+  В библиотеке создаем несколько <b>Movie clip</b> и
+  рисуем смайлики, на сколько терпения
+  хватит. Смайлики обзываем <b>smile0</b>, <b>smile1</b>, <b>smile2</b>
+  и т.д. обязательно ставим <b>linkage</b> с таким
+  же именем, чтобы можно было их создавать
+  программно!<br>
+  Далее, создаем еще один <b>Movie clip</b> (сразу в
+  свойстве <b>Linkage</b> ставим имя <b>SmileSelect</b>),
+  где рисуем поле, на котором будут
+  размещаться смайлики. Например, так:<br>
+  <center><img alt src="../v04.gif" border="0" width="128" height="114"></center><br>
+  Показывать и убирать это окно будем
+  программно. Сначала его нужно создать,
+  вместе с набором смайликов. Создадим
+  глобальный массив (в <b>Scripts - Frame 1</b>), где
+  впишем, как смайлики отображаются в тексте:<br>
+  <code><b>var</b> SmileName = <font color="#808080">// имена
+  смайликов. smile0 == :) , smile1 == :rotate: и т.д.</font><br>
+  &nbsp;&nbsp;&nbsp; [&quot;:)&quot;, &quot;:rotate:&quot;, &quot;:yes:&quot;,
+  &quot;:no:&quot;, &quot;:P&quot;]; </code>На входе во второй
+  кадр (<b>Layer 1- Frame 2</b>), пишем:<br>
+  <code><font color="#808080">// Создаем окно выбора
+  смайликов</font><br>
+  _root.attachMovie(&quot;SmileSelect&quot;, &quot;ss_mc&quot;, 20);<br>
+  <b>with</b> (_root.ss_mc) {<br>
+  &nbsp;&nbsp;&nbsp; _x = 520 - _width;<br>
+  &nbsp;&nbsp;&nbsp; _y = 395 - _height;<br>
+  &nbsp;&nbsp;&nbsp; _visible = false;<br>
+  }<br>
+  <font color="#808080">// заполняем смайлами</font><br>
+  <b>var</b> x=13, y=12, dy=23, dh=21;<br>
+  <b>for</b> (<b>var</b> i=0; i&lt;SmileName.length; i++) {<br>
+  &nbsp;&nbsp;&nbsp; _root.ss_mc.attachMovie(&quot;smile&quot;+i,
+  &quot;smile&quot;+i+&quot;_mc&quot;, dh++);<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> j =
+  eval(&quot;_root.ss_mc.smile&quot;+i+&quot;_mc&quot;);<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (x+j._width &gt; _root.ss_mc._width - 10) { x=13;
+  y+=dy; dy=23; }<br>
+  &nbsp;&nbsp;&nbsp; j._x=x; j._y=y;<br>
+  &nbsp;&nbsp;&nbsp; j.SmileText = SmileName[i];<br>
+  &nbsp;&nbsp;&nbsp; x+=j._width+7;<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (j._height+7 &gt; dy) { dy = j._height+7 }<br>
+  <br>
+  &nbsp;&nbsp;&nbsp; j.onPress = <b>function</b>() {
+  _root.AddSmile(this.SmileText); }<br>
+  }</code> Создаем объект с именем <b>ss_mc</b>,
+  координаты где-то в правом нижнем углу (так
+  чтобы своим правым краем залезал на кнопку
+  выбора смайликов) и делаем невидимым<br>
+  <code>_visible = false;</code> Далее заполняем окно
+  смайликами, в цикле по массиву <b>SmileName</b>,
+  где перечислены все смайлы, создаем новый <b>MovieClip:</b><br>
+  <code>_root.ss_mc.attachMovie(&quot;smile&quot;+i,
+  &quot;smile&quot;+i+&quot;_mc&quot;, dh++);</code> Имя в
+  библиотеке <b>&quot;smile&quot;+i</b> (<b>smile0</b>, <b>smile1</b>,
+  и т.д.), новое имя <b>&quot;smile&quot;+i+&quot;_mc&quot;</b> (на
+  самом деле, оно нам совсем не нужно, но раз
+  надо...), глубина в стеке. Дальше задаются
+  координаты x и y для этого клипа со смайлом,
+  запоминаем его имя во внутренней
+  переменной <b>SmileText</b> и создаем обработчик
+  нажатия на него мышкой <b>onPress</b>, который
+  вызывает глобальную функцию <b>AddSmile</b>,
+  передавая ей имя смайла.<br>
+  Здесь есть маленький недочет, при создании
+  каждого смайлика создается новый
+  обработчик <b>onPress</b>, хотя внутри он у всех
+  одинаковый. При этом впустую расходуется
+  память. В данном случае это пустяки, но
+  лучше привыкать писать все правильно. Надо
+  сделать один обработчик <b>onPress</b> следующим
+  образом:<br>
+  <code>j.onPress = myOnPress;<br>
+  . . .<br>
+  <b>function</b> myOnPress() { _root.AddSmile(this.SmileText); }<br>
+  </code>Функция AddSmile выглядит так:<br>
+  <code><font color="#808080">// Добавляет в строку ввода
+  смайлик</font><br>
+  <b>function</b> AddSmile(smile) {<br>
+  &nbsp;&nbsp;&nbsp; with(_root.entertext) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  удаляем пробелы в конце строки</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> i = text.length-1;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>while</b> (i &gt;= 0 and
+  text.charAt(i)==&quot; &quot;) { i-- }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (i&lt;=0) { text =
+  smile+&quot; &quot; }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>else</b> { text =
+  text.substring(0, i+1)+ &quot; &quot;+smile+&quot; &quot; }<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// TODO: еще надо бы
+  передвинуть текстовый курсор в конец
+  строки. Пока не ясно как.</font><br>
+  }</code> Далее указывается, когда окно будет
+  исчезать.<br>
+  <code><font color="#808080">// Закрытие окна со
+  смайликами, когда мышка уходит из окна</font><br>
+  this.onEnterFrame = <b>function</b>() {<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (_root.ss_mc._visible and
+  !_root.ss_mc.hitTest(_root._xmouse,_root._ymouse,false)) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _root.ss_mc._visible = false;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  }</code> По событию <b>onEnterFrame</b> проверяем, если
+  окно со смайлами сейчас видимо, а курсор
+  мыши не над ним, то убрать окно (сделать
+  невидимым). Т.е. как только мышка уйдет с
+  окна - оно тут же исчезает.<br>
+  Осталось указать, а когда это окно должно
+  появляться? В actions кнопки выбора смайликов
+  пишем:<br>
+  <code>on(release) {&nbsp;&nbsp;&nbsp; <font color="#808080">// выбор
+  смайликов</font><br>
+  &nbsp;&nbsp;&nbsp; _root.btnSound.start();<br>
+  &nbsp;&nbsp;&nbsp; _root.ss_mc._visible = true;<br>
+  }</code> Бибикнуть и отобразить окно.<br>
+  Вроде бы с настройками все.<br>
+  Что у нас получилось на данный момент, вы
+  можете посмотреть здесь: <a href="http://www.delphimaster.ru/articles/flash/chat_v3.zip">chat
+  v3.zip</a><br>
+<!--mstheme--></font>
+  <h4><!--mstheme--><font face="Arial" color="#CCCCCC">7. Основное окно чата<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+  Пора всерьез заняться окном чата, оно
+  должно нам показывать текст сообщений
+  разными цветами, свой цвет у времени
+  сообщения, свой цвет у системных сообщений
+  (<i>пришел/ушел [имя]</i>), графические
+  смайлики, кликабельные имена и ссылки.<br>
+  Cначала подсветим время сообщения, для
+  этого я вижу два пути, вставить теги <i>&lt;font
+  color=&quot;...&quot;&gt;</i> или же использовать новую
+  фишку Flash 7 таблицы стилей CSS. Так как сам
+  текст сообщения нам тоже придется
+  выводить указанным цветом (а он пусть
+  будет произвольный, а не дискретный), а это
+  осуществляется только тегом font + color, то CSS
+  трогать не будем.<br>
+  Когда приходит строка текста от сервера у
+  нас вызывается функция <b>AppendText(txt, color)</b>,
+  которая и добавляет новую строку текста в
+  окно чата. Вот созданием этой функции
+  сейчас и займемся. Для начала определим
+  цвета (где все глобальные переменные <b>Scripts
+  - Frame1</b>):<br>
+  <code><b>var</b> chatColors = {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// цвета в чате</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; date:&quot;00A000&quot;,
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">// дата
+  сообщения</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; system:&quot;A00000&quot;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// системные сообщения</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name:&quot;0000CC&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// подсветка имени</font><br>
+  &nbsp;&nbsp;&nbsp; }; </code>Все сообщения в чате
+  построены по одному шаблону:<br>
+  <code>Дата/системная_фраза пробел [в скобках
+  имя] пробел произвольный текст</code>
+  Попробуем выделить цветом первое слово.
+  Находим первый пробел и подсвечиваем в
+  зависимости от того: первый символ цифра
+  или буква.<br>
+  <code><font color="#808080">// Добавляет в поле
+  отображения чата новый текст</font><br>
+  <b>function</b> AppendText(txt, color) {<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> i=txt.indexOf(' ');<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (i&gt;0) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> clr =
+  &quot;000000&quot;;&nbsp;&nbsp;&nbsp; <font color="#808080">// цвет
+  первого слова</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (txt.charCodeAt(0) &lt;
+  58) {&nbsp;&nbsp;&nbsp; <font color="#808080">// первая цифра.
+  это дата</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; clr =
+  chatColors.date;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } <b>else</b> { <font color="#808080">//
+  первая буква. это системное сообщение</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; clr =
+  chatColors.system;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  Выделяем цветом clr первое слово/дату</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; txt = &quot;&lt;font
+  color=\&quot;#&quot;+clr+&quot;\&quot;&gt;&quot; + txt.substr(0,i) +<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  &quot;&lt;/font&gt;&quot; + txt.substr(i);<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; output_txt.htmlText += txt+&quot;&lt;BR&gt;&quot;;<font color="#808080">//
+  добавляем текст и перевод строки</font><br>
+  &nbsp;&nbsp;&nbsp; output_txt.scroll=output_txt.maxscroll;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  прокручиваем в конец списка</font><br>
+  }</code> Далее надо проверить, если после
+  пробела стоит <i>[имя]</i>, то его надо сделать
+  гиперссылкой, по нажатию на которую это
+  имя добавляется в строку ввода текста.
+  Делается это при помощи <b>asfunction</b>. Вот
+  пример из хелпа:<br>
+  <code><b>function</b> MyFunc(arg){<br>
+  &nbsp;&nbsp;&nbsp; trace (&quot;You clicked me! Argument was &quot;+arg);<br>
+  }<br>
+  myTextField.htmlText =&quot;&lt;A HREF=\&quot;asfunction:MyFunc,Foo
+  \&quot;&gt;Click Me!&lt;/A&gt;&quot;;<br>
+  <br>
+  When the hyperlink is clicked, the following results are displayed in the
+  Output panel:<br>
+  <br>
+  You clicked me! Parameter was Foo </code>Вроде бы все понятно.
+  Добавляем в нашу функцию проверку наличия
+  имени и правим строчку, добавляя эту <b>asfunction:</b><br>
+  <code><b>var</b> i=txt.indexOf(' ');<br>
+  <b>if</b> (i&gt;0) {<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> clr = &quot;000000&quot;;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  цвет первого слова</font><br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (txt.charCodeAt(0) &lt; 58) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  первая цифра. это дата</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; clr = chatColors.date;<br>
+  &nbsp;&nbsp;&nbsp; } <b>else</b> { <font color="#808080">// первая
+  буква. это системное сообщение</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; clr = chatColors.system;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> j;<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (txt.charAt(i+1)=='[' and
+  (j=txt.indexOf(']'))&gt;i){ //есть имя,выделяем<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; txt = txt.substr(0,i)+&quot;&nbsp;&lt;a
+  href=\&quot;asfunction:AddName,&quot; +<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  txt.substring(i+2,j)+&quot;\&quot;&gt;&quot;+<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  &quot;&lt;font color=\&quot;#&quot;+chatColors.name+&quot;\&quot;&gt;&quot;+<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  txt.substring(i+1,j+1)+&quot;&lt;/font&gt;&lt;/a&gt;&quot;+<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  txt.substr(j+1);<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// Выделяем цветом clr
+  первое слово/дату</font><br>
+  &nbsp;&nbsp;&nbsp; txt = &quot;&lt;font
+  color=\&quot;#&quot;+clr+&quot;\&quot;&gt;&quot;+txt.substr(0,i)+<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  &quot;&lt;/font&gt;&quot;+txt.substr(i);<br>
+  } </code>Пояснять вроде бы нечего, чистая
+  работа со строками (тяжело вздыхая по
+  любимому Perl-у, там вся эта функция
+  записывается в две строки). Единственное,
+  нам пришлось добавить выделение ссылки
+  цветом, т.к. Flash сам ссылки не подсвечивает.
+  Обратите внимание, перед тегом <i>&quot;&lt;a &quot;</i>
+  мы заменили пробел на &amp;nbsp; т.к. обычный
+  пробел (и два и три) перед ссылкой Flash
+  почему-то удаляет...<br>
+  Теперь можно выделить цветом весь
+  остальной текст. Если цвет не указан,
+  заменяем его на черный.<br>
+  <code><b>if</b> (color == undefined) { color=&quot;000000&quot; }<br>
+  <font color="#808080">// Выделяем цветом clr первое
+  слово/дату</font><br>
+  txt = &quot;&lt;font color=\&quot;#&quot;+clr+&quot;\&quot;&gt;&quot; +
+  txt.substr(0,i) + &quot;&lt;/font&gt;&quot; +<br>
+  &nbsp;&nbsp;&nbsp; &quot;&lt;font
+  color=\&quot;#&quot;+color+&quot;\&quot;&gt;&quot; + txt.substr(i) +
+  &quot;&lt;/font&gt;&quot;; </code>Вот уже наш чат
+  становится красивым разноцветным.<br>
+  Далее, для удобства общения желательно
+  выделять сообщения, которые писал я или
+  которые адресованы мне, сделаем это
+  выделением даты жирным шрифтом. Например,
+  так:<br>
+  <code><b>var</b> i=txt.indexOf(' ');<br>
+  <b>if</b> (i&gt;0) {<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> j, FromName;<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (txt.charAt(i+1)=='[' and
+  (j=txt.indexOf(']'))&gt;i){ //есть имя,выделяем<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FromName=txt.substring(i+2,j); //запомним,от
+  кого пришло сообщение<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; txt = txt.substr(0,i)+&quot;&nbsp;&lt;a
+  href=\&quot;asfunction:AddName,&quot;+<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  FromName+&quot;\&quot;&gt;&quot;+&quot;&lt;font
+  color=\&quot;#&quot;+chatColors.name+<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  &quot;\&quot;&gt;&quot;+txt.substring(i+1,j+1)+&quot;&lt;/font&gt;&lt;/a&gt;&quot;+<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  txt.substr(j+1);<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> clr = &quot;000000&quot;;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  цвет первого слова</font><br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// выделить строку?</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> from_me = (FromName == _global.mylogin); <font color="#808080">//
+  эту строчку писал я</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> to_me = ( txt.indexOf(&quot; to
+  [&quot;+_global.mylogin+&quot;] &quot;)&gt;0 or //ко мне
+  обращаются<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; txt.indexOf(&quot; private
+  [&quot;+_global.mylogin+&quot;] &quot;)&gt;0 ); //мне приватно<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> sel = to_me or from_me;<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (Filter == 3 and !sel) <b>return</b> ; <font color="#808080">//
+  фильтрация</font><br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (to_me) _root.mesSound.start(); <font color="#808080">//
+  звук по приходу сообщения для меня</font><br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (txt.charCodeAt(0) &lt; 58) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  первая цифра. это дата</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; clr = chatColors.date;<br>
+  &nbsp;&nbsp;&nbsp; } <b>else</b> { <font color="#808080">// первая
+  буква. это системное сообщение</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; clr = chatColors.system;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (color == undefined) { color=&quot;000000&quot; }<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// Выделяем цветом clr
+  первое слово/дату</font><br>
+  &nbsp;&nbsp;&nbsp; txt = &quot;&lt;font
+  color=\&quot;#&quot;+clr+&quot;\&quot;&gt;&quot; +
+  (sel?&quot;&lt;b&gt;&quot;:&quot;&quot;) +<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; txt.substr(0,i) +
+  (sel?&quot;&lt;/b&gt;&quot;:&quot;&quot;) + &quot;&lt;/font&gt;&quot; +<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;&lt;font
+  color=\&quot;#&quot;+color+&quot;\&quot;&gt;&quot; + txt.substr(i) +
+  &quot;&lt;/font&gt;&quot;;<br>
+  } </code>По хорошему, надо бы выделить фон даты
+  или системного сообщения, а не менять
+  жирность, но я так и не нашел возможности
+  смены фонового цвета, поэтому используем
+  жирность. Обратите внимание, мы здесь
+  добавили фильтрацию, если <b>Filter == 3</b>
+  оставлять только сообщения адресованные
+  лично мне. И добавили звук по приходу
+  сообщения для меня.<br>
+  Теперь приватные сообщения. Хорошо бы
+  выделить их из общего потока, чтобы
+  бросались в глаза и нужна возможность,
+  ответить отправителю приватно одним
+  щелчком мыши. Предлагаю выделить красным
+  цветом фразу <i>&quot; private [имя] &quot;</i> и
+  сделать из нее ссылку, причем ссылка
+  должна быть хитрая, туда подставляется:<br>
+  - если отправитель не я - имя отправителя<br>
+  - если отправитель я - имя того к кому я
+  обращался.<br>
+  Второй вариант поясню. Допустим, написал я
+  в чате:<br>
+  <code>01:01 [мое имя] private [Вася Пупкин] Привет!</code>
+  И хочу добавить фразу <i>&quot;Как дела?&quot;</i>,
+  удобнее будет щелкнуть по <i>&quot; private [Вася
+  Пупкин]&quot;</i> чтобы в строке ввода
+  появилось это именно <i>&quot;private [Вася Пупкин]&quot;</i>,
+  а не <i>&quot;private [мое имя] &quot;</i> ведь
+  отправитель сообщения я. Вот такая функция
+  получилась:<br>
+  <code><font color="#808080">// выделить строку?</font><br>
+  <b>var</b> from_me = (FromName == _global.mylogin); <font color="#808080">//
+  эту строчку писал я</font><br>
+  <b>var</b> to_me = ( txt.indexOf(&quot; to [&quot;+_global.mylogin+&quot;]
+  &quot;)&gt;0 ); //ко мне обращаются<br>
+  <br>
+  <b>if</b> ((j=txt.indexOf(&quot; private [&quot;))&gt;0)&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  это я пишу кому-то приват или ко мне
+  приватно</font><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> j2 = txt.indexOf(&quot;] &quot;,j);<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (j2&gt;0) { <font color="#808080">// если
+  не удалось найти &quot;]&quot; - текст не меняем</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> ToName =
+  txt.substring(j+10, j2);&nbsp;&nbsp;&nbsp; <font color="#808080">// кому
+  приват</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (ToName ==
+  _global.mylogin) { ToName = FromName; to_me = true; }&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  выделяем строку</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  делаем ссылку в тексте</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; txt = txt.substr(0,j)+&quot;&nbsp;&lt;a
+  href=\&quot;asfunction:AddPName,&quot;+<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  ToName+&quot;\&quot;&gt;&lt;font
+  color=\&quot;#&quot;+chatColors.prv+&quot;\&quot;&gt;&lt;u&gt;&quot;+<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  txt.substring(j+1, j2+1) + &quot;&lt;/u&gt;&lt;/font&gt;&lt;/a&gt;&quot; +<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  txt.substr(j2+1);<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  }<br>
+  <b>var</b> sel = to_me or from_me;<br>
+  <b>if</b> (Filter == 3 and !sel) <b>return</b> ; <font color="#808080">//
+  фильтрация</font><br>
+  <b>if</b> (to_me) _root.mesSound.start(); <font color="#808080">// звук
+  по приходу сообщения для меня</font><br>
+  </code>Ух... давайте теперь сделаем выделение
+  ссылок на Интернет странички, т.е. все что
+  начинается с <i>www.</i> и <i>http://</i> Здесь надо
+  учесть, что имя юзера может быть похоже на
+  ссылку, например, кто-то назовет себя <i>www.ru</i>
+  , во избежание путаницы надо отличать имя
+  от обычного текста. Т.к. в чате имя всегда
+  выделяется квадратными скобками с обоих
+  сторон, то при нахождении в тексте ссылки
+  достаточно будет проверить не содержится
+  ли после нее закрывающейся квадратной
+  скобки без открытой. Например, строку: <i>&quot;
+  www.ru что-то еще ]&quot;</i> считаем именем, а не
+  ссылкой. Перед ссылкой обязательно должен
+  быть пробел, после ссылки или конец строки,
+  или пробел, или точка, или запятая. Оформим
+  поиск и выделение ссылок в тексте
+  отдельной функции:<br>
+  <code><font color="#808080">// Ищет в тексте ссылки (URL) и
+  выделяет их</font><br>
+  <b>function</b> SelectURLs(txt:String) {<br>
+  <b>var</b> z=[&quot; www.&quot;,&quot; http://&quot;,&quot;
+  https://&quot;,&quot; ftp://&quot;];<br>
+  <b>for</b> (<b>var</b> i1 <b>in</b> z) {<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> i, j,j2,j3, last_i=0;<br>
+  &nbsp;&nbsp;&nbsp; <b>while</b> ((i=txt.indexOf(z[i1], last_i)) &gt; 0) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j = txt.indexOf(&quot; &quot;,
+  i+1);&nbsp;&nbsp;&nbsp; <font color="#808080">// ищем конец
+  ссылки</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (j&lt;0) j=txt.length;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j--;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">// точки
+  и запятые в конце пропускаем</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>while</b>
+  (txt.charAt(j)==&quot;.&quot; Or txt.charAt(j)==&quot;,&quot;) { j-- }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; j2=txt.indexOf(&quot;]&quot;,i);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (j2&gt;0) {&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// после ссылки есть
+  закрывающаяся квадратная скобка</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  j3=txt.indexOf(&quot;[&quot;,i);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b>
+  (j3&gt;0) { <font color="#808080">// там есть и
+  открывающаяся</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <b>if</b> (j3&gt;j2) { <font color="#808080">// но она
+  расположена дальше по тексту</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// эту ссылку не обрабатываем,
+  переходим дальше</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  last_i = j; continue;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } <b>else</b>
+  { <font color="#808080">// открывающейся нету, значит
+  эту ссылку не обрабатываем, переходим
+  дальше</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  last_i = j; continue;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  выделяем ссылку</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> url = txt.substring(i+1,
+  j+1);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  добавим вначале http:// если не указано</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b>
+  (url.indexOf(&quot;://&quot;)&lt;0) { url = &quot;http://&quot;+url; }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; txt = txt.substr(0, i+1) +<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;&nbsp;&lt;a
+  href=\&quot;&quot;+url+&quot;\&quot; target=\&quot;_blank\&quot;&gt;&quot;+<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  &quot;&lt;font
+  color=\&quot;#&quot;+chatColors.url+&quot;\&quot;&gt;&lt;u&gt;&quot;+<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  url+&quot;&lt;/u&gt;&lt;/font&gt;&lt;/a&gt;&quot;+txt.substr(j+1);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  продолжаем поиск ссылок, после этой</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; last_i = i + 34 + url.length*2;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  }<br>
+  <b>return</b> txt;<br>
+  }</code> Вот такая функция... Пояснять не буду,
+  есть комментарии, простая работа со
+  строчками. То, что на Perl записывается одной
+  строкой, тут выросло вот в такую жуткую
+  функцию... и почему во Flash нет regex??? Ладно,
+  отвлеклись от темы.<br>
+  Я добавил еще один цвет, для выделения
+  ссылок:<br>
+  <code><b>var</b> chatColors = {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// цвета в чате</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; date:&quot;00A000&quot;,
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// дата сообщения</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; system:&quot;A00000&quot;,&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// системные сообщения</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; name:&quot;0000CC&quot;,&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// подсветка имени</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; prv:&quot;F00000&quot;,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// приватные сообщения</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; url:&quot;0000FE&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// подсветка ссылок</font><br>
+  &nbsp;&nbsp;&nbsp; }; </code>Функцию <b>SelectURLs</b> надо
+  вызывать в самом начале <b>AppendText</b>, до того,
+  как будут обработаны <i>&quot;to&quot;</i>, <i>&quot;private&quot;</i>
+  и прочие навороты, иначе при наличии
+  сложного форматирования в строке функция
+  поиска ссылок может глючить.<br>
+  <br>
+  Сохраним текущие наработки: <a href="http://www.delphimaster.ru/articles/flash/chat_v4.zip">chat
+  v4.zip</a><br>
+<!--mstheme--></font>
+  <h4><!--mstheme--><font face="Arial" color="#CCCCCC">8. Смайлики.<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+  Итак, осталась самая &quot;малость&quot;,
+  показать графические смайлики в тексте. В
+  7-ой Flash ввели поддержку тега <i>&lt;img&gt;</i>, но!
+  Картинка не показывается в строке текста,
+  она может быть отображена слева или справа
+  от текста и текст будет ее &quot;обтекать&quot;,
+  что нам совсем не подходит... Если бы был
+  нормально реализован тег <i>&lt;img&gt;</i> показ
+  смайликов занял бы 10-15 строк кода, а так,
+  придется здорово попотеть...<br>
+  На мой взгляд, есть два приемлемых решения:<br>
+  1. Отказаться от показа произвольного
+  количества смайликов прямо в тексте,
+  сделать отображение одного смайла рядом с
+  ником. Например, так:<br>
+  <br>
+  <img border="0" src="../v10.gif" width="492" height="52"><br>
+  <br>
+  Т.е. возможность выбрать только один
+  смайлик, который и будет отображаться
+  рядом с именем в тексте, дату перенести
+  вправо, чтобы не мешалась (смайлик
+  показывать через тег <i>&lt;img&gt;</i>).<br>
+  Что сказать... решение вполне хорошее, но не
+  хочется идти на компромисс в этом вопросе...
+  ведь было заявлено, создание полноценного
+  чата!<br>
+  2. Заменить в тексте смайлики на количество
+  пробелов равное ширине смайлика, а
+  смайлики выводить поверх текста,
+  программно сдвигая их вверх/вниз при
+  скроллинге текста. Задача очень сложная,
+  главная проблема - это вычислить икс
+  координату, куда выводить смайлик. Если
+  имеем дело с короткой строкой текста, то
+  можно создать невидимый TextField, записать в
+  него нашу строку до смайлика, и TextField.textWidth
+  покажет нам ширину этого текста.<br>
+  <br>
+  <center><img alt src="../v6.gif" border="0" width="313" height="52"><br>
+  простая строка<br>
+  </center><br>
+  Но, если строка длинная, т.е. отображается
+  как две, тут выяснить ширину нижней части
+  текста почти невозможно.<br>
+  <br>
+  <center><img alt src="../v7.gif" border="0" width="488" height="73"><br>
+  длинная строка<br>
+  </center>&quot;Почти&quot; - потому что, ничего
+  невозможного нет ;) Можно сделать это в два
+  этапа, вычислить длину текста без переноса
+  на новую строку (сделать очень длинный
+  TextField), а потом считаем ширину с переносом,
+  и из первой ширины вычитаем вторую,
+  получается то, что осталось на второй
+  строке. Но, нижняя половина строки может
+  быть длиннее верхней! Это раз, а второе -
+  строка может быть разбита и на три части.
+  Так что надо идти другим путем.<br>
+  Для того чтобы выяснить длину нижней
+  половины строки, придется программно
+  выяснить, в каком месте произошел перевод
+  строки... Создаем невидимый TextField и в цикле
+  добавляем по одному слову из текста, до тех
+  пор, пока высота TextField равна высоте одной
+  строки, как только произошел переход
+  строки (высота увеличилась), делаем шаг
+  назад, на предыдущее слово, значит оно
+  последнее, следующее слово будет
+  отображаться на второй строке. Обрезаем
+  текст до этого слова и начинаем все
+  сначала. Фактически программно
+  обнаруживаем, где происходит переход на
+  другую строку, чтобы выяснить длину
+  оставшейся части текста. И опять не все
+  здесь так просто: придется разобраться, по
+  каким символам Flash режет текст, для
+  переноса на следующую строчку? Это пробел,
+  тире, запятая, точка и другая пунктуация,
+  кроме того, и слово вида &quot;слово123&quot; он
+  тоже разделит на две части: &quot;слово&quot;
+  оставит на первой строке, а &quot;123&quot;
+  перенесет на следующую (выяснил
+  экспериментально). В общем, все очень
+  сложно.<br>
+  Можно не разбираться в том, как Flash
+  переносит строчки, а делать это
+  самостоятельно, по своим правилам (например,
+  только по пробелу, но учтите, что у нас
+  строка с HTML форматированием, т.е. надо
+  будет пропускать теги &lt;...&gt; и символы
+  типа &amp;quot; считать за один) и в конце
+  первой строки ставим принудительно тег <i>&lt;BR&gt;</i>.
+  Теперь Flash сделает перевод на вторую
+  строчку именно там, где мы ему это указали.
+  На мой взгляд, это единственное приемлемое
+  решение.<br>
+  Закрываем проект с чатом, открываем новый,
+  где будем создавать свой TextField, заточенный
+  именно под наш чат и правильное
+  отображение текста с графическими
+  смайликами.<br>
+  Создаем новый документ, добавляем два
+  TextField один побольше (name: chat, Dynamic text, Multiline) -
+  это основное окно чата; второй в одну
+  строку (name: input_txt, Input Text, Single line) - это поле
+  для ввода текста.<br>
+  Кнопочки не нужны, сделаем, чтобы по
+  нажатию клавиши Enter происходило
+  добавление текста:<br>
+  <code>myListener = <b>new</b> Object();<br>
+  myListener.onKeyDown = <b>function</b>() {<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (Key.getCode() == Key.ENTER) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; addHTMLstring(input_txt.text);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; input_txt.text = &quot;&quot;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  &nbsp;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  }<br>
+  Key.addListener(myListener); </code>Шрифт и его размер
+  задаются в параметрах основного TextField (chat)
+  и считаем их неизменными. Итак, объявляем
+  константы, глобальные переменные и
+  функцию инициализации:<br>
+  <code><b>var</b> SmileName : Array = <b>new</b> Array&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  имена смайликов. smile0 == :) , smile1 == :rotate: и т.д.</font><br>
+  &nbsp;&nbsp;&nbsp; (&quot;:)&quot;, &quot;:rotate:&quot;, &quot;:yes:&quot;,
+  &quot;:no:&quot;, &quot;:P&quot;);<br>
+  <b>var</b> BaseSmileDepth : Number = 1200;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  базовая глубина (depth) смайлов&nbsp; &nbsp;</font><br>
+  <b>var</b> SmileWidth : Array = <b>new</b> Array();&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  Ширина каждого смайлика</font><br>
+  <b>var</b> SmileOnLine : Array =<b>new</b> Array();&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  перечень параметров всех смайлов, по
+  строчкам</font><br>
+  <b>var</b> SmileVisibled : Array = <b>new</b> Array(); <font color="#808080">//
+  перечень видимых смайлов</font><br>
+  <b>var</b> txtField : TextField; <font color="#808080">// ссылка на
+  TextField</font><br>
+  <b>var</b> txtFieldWidth : Number; <font color="#808080">// ширина
+  текстового поля</font><br>
+  <b>var</b> textFieldFormat : TextFormat; <font color="#808080">//
+  форматирование текста</font><br>
+  <b>var</b> BaseLineHeight : Number; <font color="#808080">// смещение
+  базовой линии текста</font><br>
+  <br>
+  <b>var</b> LineCounter : Number = 1;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  счетчик строк</font><br>
+  <b>var</b> ScaleSmileKf : Number = 1;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  коэф. сжатия смайлов под размер шрифта</font><br>
+  <br>
+  <font color="#808080">// Инициализация параметров</font><br>
+  <b>function</b> InitChatTextField(TextFieldLink : TextField):Void {<br>
+  &nbsp;&nbsp;&nbsp; txtField = TextFieldLink;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  запоминаем ссылку на TextField</font><br>
+  &nbsp;&nbsp;&nbsp; <b>with</b> (txtField) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  устанавливаем необходимые параметры</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; html = multiline = true;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; htmlText = &quot;Chat v0.1 (by
+  &lt;a href=\&quot;mailto:merlin@delphimaster.ru\&quot;&gt;&lt;u&gt;Aleksey
+  Merlin&lt;/u&gt;&lt;/a&gt;)&quot;;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; LineCounter = 2;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  счетчик строк в чате</font><br>
+  <br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> NormalSmileHeight : Number;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  высота обыкновенного смайла</font><br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// Нужно вычислить
+  ширину всех смайлов</font><br>
+  &nbsp;&nbsp;&nbsp; <b>for</b> (<b>var</b> i <b>in</b> SmileName) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  _root.attachMovie(&quot;smile&quot;+i, &quot;tmp_test_smile&quot;,
+  BaseSmileDepth);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SmileWidth[i] =
+  _root.tmp_test_smile._width;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (i==0) NormalSmileHeight
+  = _root.tmp_test_smile._height;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  _root.tmp_test_smile.removeMovieClip();<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  <br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// Запомним высоту
+  строки и смещение базовой линии</font><br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// подробнее см.
+  картинку в хелпе про getTextExtent</font><br>
+  &nbsp;&nbsp;&nbsp; textFieldFormat = txtField.getTextFormat();<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> metrics : Object =
+  textFieldFormat.getTextExtent(&quot;Wq&quot;);<br>
+  &nbsp;&nbsp;&nbsp; OneLineHeight = metrics.height + 1;<br>
+  &nbsp;&nbsp;&nbsp; BaseLineHeight = metrics.ascent + 2;<br>
+  &nbsp;&nbsp;&nbsp; ScaleSmileKf = metrics.ascent / NormalSmileHeight;<br>
+  &nbsp;&nbsp;&nbsp; txtFieldWidth = txtField._width - 4;<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (tf.leftMargin &gt; 0) txtFieldWidth -
+  tf.leftMargin;<br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (tf.rightMargin &gt; 0) txtFieldWidth -
+  tf.rightMargin;<br>
+  &nbsp; &nbsp;<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// При скроллинге,
+  нам надо смещать смайлики.</font><br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// Добавляем свой
+  Listener на скроллинг</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> myScrollListener = <b>new</b> Object();<br>
+  &nbsp;&nbsp;&nbsp; myScrollListener.onScroller = <b>function</b>() {
+  UpdateSmiles() }<br>
+  &nbsp;&nbsp;&nbsp; txtField.addListener(myScrollListener);<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// обнуление
+  массивов</font><br>
+  &nbsp;&nbsp;&nbsp; SmileOnLine = []; SmileVisibled = [];<br>
+  } </code>Функции инициализации передаем
+  ссылку на TextField. Она запоминает ширину всех
+  смайликов (чтобы не считать каждый раз при
+  добавлении нового) и параметры срок:
+  высота одной строки, коэффициент сжатия
+  смайликов в зависимости от размера шрифта
+  (не будем же мы выводить смайлики
+  одинакового размера при шрифте 10 и 20 ?),
+  максимальную допустимую ширину текста и
+  смещение базовой линии текста. О последнем
+  параметре подробнее. Для точного
+  позиционирования смайликов по вертикали,
+  нам необходимо знать высоту строки (т.к.
+  шрифт и размер считаем константами, то она
+  не должна меняться) и смещение до базовой
+  линии (<b>ascent</b> - подробнее см. Help про <b>getTextExtent</b>
+  для Flash MX 2004). Если выводить смайлик без
+  учета базовой линии, фактически от
+  верхнего края строки, то он будет
+  находиться немного выше букв (или ниже
+  зависит от размера смайлика), поэтому
+  необходимо привязать точку отсчета к
+  базовой линии, на которой &quot;лежат&quot;
+  буквы. Для этого мы запоминаем <b>ascent</b>, а в
+  библиотеке смайликов выравниваем их от
+  точки отсчета вверх и вправо, вот так:<br>
+  <center><img alt src="../v8.gif" border="0" lowsrc="v8.gif" width="118" height="104"><br>
+  </center>Теперь о массивах для смайликов. В
+  текстовой строке подменяем смайлик на
+  пробелы, выводим эти пробелы, вычисляем
+  икс позицию графического смайлика и
+  добавляем эти параметры в глобальный
+  массив. Информацию обо всех смайликах в
+  тексте будем хранить в двухмерном массиве,
+  первое измерение - номер строки в тексте (для
+  удобства нахождения нужных смайликов при
+  скроллинге), второе измерение -
+  непосредственно перечисление параметров
+  всех смайликов на этой строке.<br>
+  Т.е. примерно так:<br>
+  <code>строка 1: пусто<br>
+  строка 2: { link:&quot;smile7&quot;, x:20 }, { link: &quot;smile0&quot;,
+  x:90 }<br>
+  строка 3: { link: &quot;smile4&quot;, x:54 }<br>
+  строка 4: пусто<br>
+  . . .<br>
+  </code>Храним только параметры смайликов (имя
+  в библиотеке и икс координату), можно было
+  бы создать сразу все смайлики и только
+  включать/выключать их видимость (<b>visible</b>)
+  по мере необходимости. Но я боюсь, что
+  когда смайликов будет порядка нескольких
+  тысяч, все это начнет жутко тормозить, да и
+  расходовать оперативную память так
+  небрежно нельзя. Поэтому, мы будем удалять
+  Movie Clip со смайликами, которые ушли из зоны
+  видимости, и создавать для тех, кто только
+  что появился.<br>
+  При скроллинге текста, нужно будет
+  выяснить, какие смайлики удалить, а какие
+  создать. Для этого создаем массив, в
+  котором будут перечислены все смайлики,
+  которые созданы и видны на текущий момент.
+  Номер позиции в этом массиве определяет
+  имя Movie Clip со смайлом и глубину (depth). При
+  скроллинге мы получаем номер верхней и
+  нижней строки текста в текстовом поле.
+  Пробегаемся по массиву с видимыми
+  смайликами и удаляем те смайлики, которые
+  находятся на строчках выше или ниже
+  видимых. Заодно помечаем, смайлики каких
+  строчек уже отображены. После этого
+  создаем только те смайлики, которые
+  находятся на строчках, которых нет в
+  массиве видимых смайлов.<br>
+  Вот так выглядит функция, вызываемая при
+  добавлении новых смайлов и при скроллинге,
+  которая выполняет все вышеописанное.<br>
+  <code><font color="#808080">// Обновляет смайлики при
+  необходимости</font><br>
+  <b>function</b> UpdateSmiles():Void {<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// какие строчки
+  текста сейчас видны? (min/max)</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> min : Number = txtField.scroll;<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> max : Number = txtField.bottomScroll;<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// массив для
+  проверки, смайлики каких строчек
+  отображены, а какие надо создать</font><br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> CheckLines : Array = <b>new</b>
+  Array(max-min+1);<br>
+  &nbsp;&nbsp;&nbsp; <b>var</b> i,j : Number;<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// Проверяем, какие
+  смайлики нужно удалить</font><br>
+  &nbsp;&nbsp;&nbsp; <b>for</b> (i = 0; i &lt; SmileVisibled.length; i++) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (SmileVisibled[i] !=
+  undefined) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b>
+  (SmileVisibled[i].LineNum &lt; min or SmileVisibled[i].LineNum &gt; max) { <font color="#808080">//
+  удаляем</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  SmileVisibled[i].removeMovieClip();<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  delete SmileVisibled[i];<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } <b>else</b>
+  {&nbsp;&nbsp;&nbsp; <font color="#808080">// помечаем, какие
+  строчки отображены</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  CheckLines[SmileVisibled[i].LineNum - min] = true;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// корректируем _y координату
+  смайла</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  SmileVisibled[i]._y = txtField._y + BaseLineHeight + (SmileVisibled[i].LineNum
+  - min)*OneLineHeight;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; <font color="#808080">// Проверяем, есть ли
+  строчки, которые в зоне видимости, но еще
+  не отображены</font><br>
+  &nbsp;&nbsp;&nbsp; <b>for</b> (i=min; i&lt;=max; i++) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (SmileOnLine[i] !=
+  undefined and !CheckLines[i-min]) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  вот она, надо создавать смайлы</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for(j=0;
+  j&lt;SmileOnLine[i].length; j++) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  проходим по всем смайлам этой строки</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// ищем свободное место в
+  массиве SmileVisibled</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <b>var</b> empty : Number = 0;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <b>while</b> (SmileVisibled[empty] != undefined) empty++;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// создаем смайл</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  txtField._parent.attachMovie(SmileOnLine[i][j].link,
+  &quot;smiles_tmp_&quot;+empty, BaseSmileDepth+empty+1);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  SmileVisibled[empty] = txtField._parent[&quot;smiles_tmp_&quot;+empty];<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  SmileVisibled[empty].LineNum = i;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  запоминаем номер строки, на которой стоит
+  смайлик</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  SmileVisibled[empty]._x = txtField._x + SmileOnLine[i][j].x + 2;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  SmileVisibled[empty]._y = txtField._y + BaseLineHeight + (i -
+  min)*OneLineHeight;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  SmileVisibled[empty]._xscale = SmileVisibled[empty]._yscale =
+  ScaleSmileKf*100;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  } </code>На каждой строке комментарий, мне
+  добавить нечего. Остается написать парсер
+  строки. Алгоритм работы описан выше, там 90%
+  - это работа со строчками. Главное считать
+  ширину строки, как только она превышает
+  границы TextField вставляем тег <i>&lt;BR&gt;</i>.
+  Единственное интересное место -
+  преобразование смайликов.<br>
+  <code><b>for</b> (i <b>in</b> SmileName) {&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  проверяем, далее идет смайлик?</font><br>
+  &nbsp;&nbsp;&nbsp; <b>if</b> (ParseParam.s.substr(ParseParam.pos,
+  SmileName[i].length) == SmileName[i]) {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">// да,
+  нашли смайлик.</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; w =
+  textFieldFormat.getTextExtent(&quot; &quot;).width;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  вычисляем ширину пробела</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  сколько нужно нарисовать пробелов по
+  ширине смайлика?</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; c =
+  Math.floor(SmileWidth[i]*ScaleSmileKf / w)+1;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">// Смайл
+  влезет на текущую строку?</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (ParseParam.width + w*c
+  &gt;= txtFieldWidth) {&nbsp;&nbsp;&nbsp; <font color="#808080">// нет, не
+  помещается.</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  Делаем переход на новую строку</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EnterBR();<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ParseParam.width += w*c;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// увеличиваем счетчик ширины
+  строки</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>var</b> empty : String = &quot;
+  &quot;;&nbsp;&nbsp;&nbsp; <font color="#808080">// делаем пробелы</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>while</b> (--c &gt; 0)
+  empty+=&quot; &quot;;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  заменяем смайл на пробелы</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ParseParam.s =
+  ParseParam.s.substring(0, ParseParam.pos) + empty +<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  ParseParam.s.substr(ParseParam.pos+SmileName[i].length);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ParseParam.pos += empty.length;&nbsp;&nbsp;&nbsp;
+  <font color="#808080">// переходим к следующему
+  символу</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <font color="#808080">//
+  запоминаем позицию нового смайла</font><br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>if</b> (SmileOnLine[LineCounter]
+  == undefined) SmileOnLine[LineCounter] = <b>new</b> Array();<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; SmileOnLine[LineCounter].push(<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {&nbsp;&nbsp;&nbsp;
+  link : &quot;smile&quot;+i,<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  x : Math.max(ParseParam.width - SmileWidth[i]*ScaleSmileKf, 2)<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } );<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; break;<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  } </code>На каждой строке комментарий.
+  Полностью функцию парсера см. в исходнике (ссылка
+  ниже).<br>
+  Вот и все, остается только протестировать.
+  Вот так смотрится наше творение:<br>
+  <center><img alt src="../v9.gif" border="0" width="327" height="309"></center><br>
+  Cмайлики добавляются, скролятся, динамично
+  создаются и удаляются по мере
+  необходимости.<br>
+  То, что получилось, можно скачать здесь: <a href="http://www.delphimaster.ru/articles/flash/chatTextField_v1.zip">chatTextField
+  v1.zip</a><br>
+  Скроллбара нет, так что прокручивать текст
+  только колесиком мышки.<br>
+  Прямо здесь можно и потестировать:<br>
+  <embed name="chatTextField_testing" pluginspage="http://www.macromedia.com/go/getflashplayer" align="middle" src="../../CAР™РўР«/РЎС‚Р°С‚СЊРё%20РїРѕ%20Delphi/chatTextField_testing.swf" width="350" height="320" type="application/x-shockwave-flash" allowScriptAccess="sameDomain" bgcolor="#ffffff" quality="high"><br>
+  Важный момент. На то чтобы понять, почему
+  все работает не так, у меня ушло трое суток,
+  а причина, как всегда, банальна. У меня
+  постоянно смайлики сдвигались по
+  вертикали или горизонтали относительно
+  текста, чем дальше по тексту расположен
+  смайлик - тем больше сдвиг, такое
+  впечатление, что неверно рассчитывалась
+  ширина и высота букв... но как оказалось,
+  все считалось правильно, проблема в другом.
+  Как я обычно добавляю TextField? Ставлю курсор
+  мыши в левый верхний угол, клик, грубо
+  провожу до нижнего правого и далее уже в
+  Properies правлю числа X,Y и ширина,высота, чтобы
+  точно отпозиционировать поле. Так вот, при
+  изменении ширины и высоты TextField не
+  меняется его реальная высота и ширина, как
+  я ожидал, а меняется масштаб по ширине и
+  высоте!!! (для тех, кто начинал изучение Flash
+  с рисования мультиков и баннеров, это
+  наверное очевидно, для меня же было
+  открытием). И если у TextField масштаб не 100% по
+  вертикали или горизонтали, то смайлики
+  будут позиционировать неверно. Надо или
+  ввести учет масштаба TextField или требовать,
+  чтобы оно было только 100%. Второе гораздо
+  проще :)<br>
+  <br>
+  Теперь переносим все написанное в чат и,
+  собственно все. Осталось навести глянец, и
+  протестировать хорошенько. В конечном
+  варианте, я убрал стандартные компоненты
+  флэша TextInput, Button и List, т.к. с их
+  использованием размер флешки чата
+  получается 64кб., а без них 16кб. разница
+  существенная.<br>
+  Конечный вариант чата, скачать можно здесь:
+  <a href="http://www.delphimaster.ru/articles/flash/chat_final.zip">chat_final.zip</a><br>
+  <p>На этом и закончу. Совершенствовать
+  созданное можно бесконечно, но тогда эта
+  статья никогда не будет написана до конца
+  :)<br>
+  С уважением, Алексей (Merlin). </p>
+</blockquote>
+
+<!--mstheme--></font>
+
+</body>
+
+</html>

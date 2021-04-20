@@ -1,0 +1,1325 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Как писать DataSet</title>
+<meta name="Microsoft Theme" content="zero 011">
+</head>
+
+<body background="zertxtr.gif" bgcolor="#000000" text="#FFFFFF" link="#6699CC" vlink="#669966" alink="#999999">
+
+<!--mstheme--><font face="Arial"><!--mstheme--></font>
+<h3 align="center"><!--mstheme--><font face="Arial" color="#CCCCCC"><font size="5" color="#00FF00">Как
+писать DataSet</font><!--mstheme--></font></h3>
+<!--mstheme--><font face="Arial"><center><font size="4">Банников Н.А.</font></center><!--// BODY -->
+<p align="justify">&nbsp;&nbsp;Исходние тексты примера
+датасета проверялись на Delphi3 и Delphi4, скорее
+всего, проблемм не будет и на Delphi5 1Как
+писать DataSet.</p>
+<p align="justify">&nbsp;&nbsp;Практически каждый
+начинающий программист рано или поздно
+задается вопросом о том, насколько быстро
+будет работать тот или иной компонент
+доступа к БД на большом наборе данных. Если
+Вы зададите такой вопрос в конференциях для
+программистов, то будьте уверены, что Вам
+скажут, что у Вас что-то не так в постановке
+задачи, что большой набор на клиента тащить
+не стоит. Это совершенно верно. Но, бывают
+такие задачи, в которых нет возможности
+ограничить набор данных выкачиваемых на
+клиентскую часть. Типичный случай такой
+задачи – это построение отчетов. Например,
+распечатать отчет по недвижимости в
+крупной компании или оплаты за телефонные
+звонки. Еще один пример – это работа
+сервера приложений. Хоть он и может не
+открывать большие наборы данных, но при
+большом количестве подключенных клиентов
+объем открытых единовременно данных может
+превзойти все возможности железа. Что же
+происходит в программе, когда Вы открываете
+набор данных? Дело в том, что практически
+все компоненты доступа к БД, такие как IBX,
+FIBPlus и т.д. представляют собой как бы
+электронную таблицу, и все данные, которые
+поступили с сервера, хранятся в оперативной
+памяти. Понятно, что при больших объемах
+память расходуется не рационально.
+Например, пользователь работает с одной
+строкой, но в памяти хранятся все данные.В
+результате, программе начинает остро
+нехватать оперативной памяти, и работа
+компьютера замедляется. Если использовать
+компоненты наподобие FIBQuery, то затрудняется
+навигация в обоих направлениях, нельзя
+использовать сетки данных. Поэтому, мне
+было интересно поэкспериментировать с
+альтернативным способом хранения данных в
+DataSet, а именно хранить данные в файле на
+диске, а не в оперативной памяти. И, похоже,
+что это верное решение.</p>
+<p align="justify">&nbsp;&nbsp;Год назад в одном из
+проектов я переходил от компонентов
+доступа IBX к FIBPlus. Это стоило мне двух
+месяцев работы. Чтобы такого впредь не
+повторялось, нужно было сделать так, чтобы
+сам DataSet не зависил от методов доступа к БД.
+В результате появился набор DataSet ов от
+электронной таблицы до Query, у которого
+механизм доступа к данным в БД вынесен в
+отдельный компонент. Этот компонент я
+назвал Fetcher. Теперь можно было наследовать
+Fetcher для разных библиотек доступа. Если
+нужно сменить сервер или компоненты
+доступа, то нужно было только удалить все
+фечеры и поставить новые. Все же Fild ы, на
+которые завязано до 90% кода работы с DataSet
+оставались нетронутыми.</p>
+<p align="justify">&nbsp;&nbsp;Когда я уже писал эту
+статью, то выслал некоторым моим друзьям
+почитать предварительную версию. В
+результате, получил еще одну бесценную идею,
+которая потребовала переписать все заново,
+но результат стоил такой работы. Идея
+состоит в том, чтобы вынести механизм
+хранения данных в DataSet в отдельный класс.
+Теперь, мы можем сменить сам принцип
+хранения данных на новый не меняя DataSet. Т.е.
+даже во время выполнения программы перейти
+от хранения в памяти к хранению на диске и
+наоборот. Теперь DataSet становится
+универсальным компонентом управления
+хранилищами и не только данных. А чего
+именно – это Вам решать.</p>
+<p align="justify">&nbsp;&nbsp;В данной статье мы
+рассмотрим построение потомка TDataSet,
+который будет хранить набор данных в файле
+на диске. Заодно рассмотрим основные
+принципы построения любого потомка TDataSet,
+так что Вы сможете строить свои компоненты
+и по другому принципу. Основная идея – это
+выделить как самостоятельный компонент сам
+набор данных, т.е. сделать класс на манер
+TMemoryDataSet, только хранящий данные в файле. И
+сделать абстрактный класс для скачивания
+данных с любого сервера. В свою очередь,
+наследники от этого компонента смогут
+работать с разными серверами. Для примера,
+рассмотрим доступ через FIBPlus.</p>
+<!--mstheme--></font>
+<h4><!--mstheme--><font face="Arial" color="#CCCCCC">Беглое
+знакомство с TDataSet<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Начиная с Delphi3, любой набор
+данных в Delphi порождается от абстрактного
+класса TDataSet. Это позволяет создавать свои
+классы доступа к данным для различных
+серверов. Вам достаточно переопределить 23
+метода, чтобы DataSet смог нормально
+функционировать. Все методы можно
+разделить на несколько групп.</p>
+<b>Методы буферизации.</b><!--mstheme--></font>
+<pre><font color="#00FFFF"><i>// Выделяет новый буфер в памяти, размером с запись и возвращает указатель на него</i>
+</font><b>function</b> AllocRecordBuffer: PChar;
+<font color="#00FFFF"><i>// Освобождает буфер, переданный в параметре</i>
+</font><b>procedure</b> FreeRecordBuffer(<b>var</b> Buffer: PChar);
+<font color="#00FFFF"><i>// Метод получения записи. Довольно сложный механизм – рассмотрим далее</i>
+</font><b>function</b> GetRecord(Buffer: PChar; GetMode: TGetMode; DoCheck: <b>Boolean</b>): TGetResult;
+<font color="#00FFFF"><i>// Метод забивает новую запись значениями по умолчанию, например, нулями или NULL</i>
+</font><b>procedure</b> InternalInitRecord(Buffer: PChar);
+<font color="#00FFFF"><i>// Возвращает размер записи</i>
+</font><b>function</b> GetRecordSize: Word;
+<font color="#00FFFF"><i>// Отдает данные текущей записи, принадлежащие Field в буфере Buffer</i>
+</font><b>function</b> GetFieldData(Field: TField; Buffer: <b>Pointer</b>): <b>Boolean</b>;
+<font color="#00FFFF"><i>// Данные из буфера Buffer помещает в текущую запись, в место, отведенное для Field</i>
+</font><b>procedure</b> SetFieldData(Field: TField; Buffer: <b>Pointer</b>);
+</pre>
+<!--mstheme--><font face="Arial"><b>Методы навигации по
+набору данных.</b><!--mstheme--></font>
+<pre><b>procedure</b> InternalFirst;
+<b>procedure</b> InternalLast;
+</pre>
+<!--mstheme--><font face="Arial"><b>Методы изменения данных.</b><!--mstheme--></font>
+<pre><b>procedure</b> InternalAddRecord(Buffer: <b>Pointer</b>; Append: <b>Boolean</b>);
+<b>procedure</b> InternalDelete;
+<b>procedure</b> InternalPost;
+</pre>
+<!--mstheme--><font face="Arial"><b>Методы работы с
+закладками.</b><!--mstheme--></font>
+<pre><b>procedure</b> GetBookmarkData(Buffer: PChar; Data: <b>Pointer</b>);
+<b>function</b> GetBookmarkFlag(Buffer: PChar): TBookmarkFlag;
+<b>procedure</b> SetBookmarkFlag(Buffer: PChar; Value: TBookmarkFlag);
+<b>procedure</b> SetBookmarkData(Buffer: PChar; Data: <b>Pointer</b>);
+<font color="#00FFFF"><i>// …GoToBookmark и …SetToRecord переходят на выставленную закладку, но первый</i>
+<i>// получает указатель на закладку, а второй – буфер данных поля.</i>
+<i>// Обычно, в конце этого буфера закладка J</i>
+</font><b>procedure</b> InternalGotoBookmark(Bookmark: <b>Pointer</b>);
+<b>procedure</b> InternalSetToRecord(Buffer: PChar);
+</pre>
+<!--mstheme--><font face="Arial"><b>Методы управления
+набором данных.</b><!--mstheme--></font>
+<pre><b>procedure</b> InternalClose;
+<b>procedure</b> InternalOpen;
+<font color="#00FFFF"><i>// Обработчик исключительной ситуации.</i>
+</font><b>procedure</b> InternalHandleException;
+<font color="#00FFFF"><i>// Этот метод создает набор FieldDefs.</i>
+</font><b>procedure</b> InternalInitFieldDefs;
+<b>function</b> IsCursorOpen: <b>Boolean</b>;
+</pre>
+<!--mstheme--><font face="Arial"><b>Дополнительные (необязательные)
+методы.</b><!--mstheme--></font>
+<pre><b>function</b> GetRecordCount: <b>Integer</b>;
+<font color="#00FFFF"><i>// RecNo – это номер активной записи по порядку в нашем DataSet с текущей фильтрацией</i>
+<i>// или без неё. Хотя, Вам никто не мешает сделать как угодно.</i>
+</font><b>function</b> GetRecNo: <b>Integer</b>;
+<font color="#00FFFF"><i>// Присваивание RecNo приведет к установки активной записи, у которой указанный RecNo.</i>
+</font><b>procedure</b> SetRecNo(Value: <b>Integer</b>);
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Все эти методы виртуальные,
+все их нужно перегрузить в секции <b>protected</b>.
+Бывает, что методы Get/SetFieldData выносят в
+секцию <b>public</b>.</p>
+<!--mstheme--></font>
+<h4><!--mstheme--><font face="Arial" color="#CCCCCC"><font color="#FFFFFF">Основные
+положения и стратегия разработки</font><!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Мы будем писать TUnDataSet –
+это DataSet, на манер электронной таблицы. Его
+особенностью будет то, что он не может
+самостоятельно хранить какие бы то ни было
+данные. Для этого у него есть отдельный
+класс TUnCustomRecordSet, который является
+абстрактным, чтобы мы могли переопределить
+механизмы хранения данных так, как нам
+нужно. Этот класс TUnDataSet перед открытием
+должен получить извне. Для этого, мы
+создадим еще один класс TUnCustomRecordSetDispatcher,
+который тоже является абстрактным. Мы будем
+наследовать диспетчер так, чтобы он мог
+давать RecordSet нужного типа. На весь модуль
+данных, или даже на всю программу будет
+достаточно одного диспетчера, который
+будет всем DataSet_ам раздовать RecordSet_ы. Как
+только мы напишем эти классы, у нас будет
+полнофункциональная электронная таблица.
+Далее, мы будем наследовать наш TUnDataSet так,
+чтобы у него появился как поле механизм
+доступа к данных, т.е. Fetcher. Сам Fetcher тоже
+будет абстрактным. Наследуя его, мы сможем
+получить разные механизмы доступа к данных
+од нужный сервер БД. Вот упрощенная схема
+того, что мы должны сделать.</p>
+<img src="../image001.png" width="634" height="467"><br>
+<!--mstheme--></font>
+<h4><!--mstheme--><font face="Arial" color="#CCCCCC">Record Set<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Задача, которая стоит
+перед TUnCustomRecordSet – хранить данные TDataSet_а.
+Этот класс должен дать удобный интерфейс
+TDataSet_у. Но, уже сейчас можно определить
+несколько ключевых моментов, которые
+позволят нам часть реализации все-таки
+вынести в наш абстрактный класс. Во первых,
+это применение TList в качестве списка с
+указателями на структуры ключей. TList, по
+моему опыту, достаточно эффективно
+работает с количеством указателей где-то до
+единиц миллионов. Этого достаточно. Вот,
+объявление структур:</p>
+<!--mstheme--></font>
+<pre><font color="#00FFFF"><i>// Описание для Blob</i>
+</font>TUnBlobQuad = <b>packed</b> <b>record</b>
+ QuardHight: <b>Integer</b>;
+ QuardLow: Cardinal;
+<b>end</b>;
+
+<font color="#00FFFF"><i>// Структура, организующая закладку</i>
+</font>TUnBookmarkInfo = <b>packed</b> <b>record</b>
+ BookmarkData: <b>Integer</b>;
+ BookmarkFlag: TBookmarkFlag;
+<b>end</b>;
+
+PUnBookmarkInfo = ^TUnBookmarkInfo;
+
+<font color="#00FFFF"><i>// Структура, инкапсулирующая данные о записи. В потомках мы будем её расширять</i>
+</font>TUnRecordData = <b>packed</b> <b>record</b>
+ Id: <b>Integer</b>;        <i><font color="#00FFFF">// Код</font></i>
+ Position: <b>Integer</b>;  <i><font color="#00FFFF">// Позиция в списке</font></i>
+<b>end</b>;
+
+PUnRecordData = ^TUnRecordData;  <i><font color="#00FFFF">// Указатель на эту структуру</font></i>
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Вот объявление TUnCustomRecordSet:</p>
+<!--mstheme--></font>
+<pre>TUnCustomRecordSet = <b>class</b>(TObject)
+ <b>private</b>
+  FListId: TList;
+  FDataSet: TDataSet;
+  FNextId: <b>Integer</b>;
+ <b>protected</b>
+  FData: TList;
+  <b>function</b> GetItem(Index: <b>Integer</b>): PUnRecordData;
+  <b>function</b> GetCapasity: <b>Integer</b>;
+  <b>procedure</b> SetCapasity(Value: <b>Integer</b>); <b>virtual</b>;
+  <b>function</b> GetCount: <b>Integer</b>;
+  <b>procedure</b> DeleteItem(P: <b>Pointer</b>); <b>virtual</b>; <b>abstract</b>;
+  <b>function</b> CreateItem: <b>Pointer</b>; <b>virtual</b>; <b>abstract</b>;
+ <b>public</b>
+  <b>constructor</b> Create;
+  <b>destructor</b> Destroy; <b>override</b>;
+  <b>procedure</b> Clear;
+  <b>procedure</b> Open; <b>virtual</b>;
+  <b>procedure</b> Pack; <b>virtual</b>;
+  <b>procedure</b> RecalckPosition;
+  <b>procedure</b> Delete(Index: <b>Integer</b>);
+  <b>function</b> AddNewItem(Buffer: <b>Pointer</b>; Position: <b>Integer</b>): PUnRecordData; <b>virtual</b>;
+  <b>procedure</b> CopyRecordToBuffer(Item: <b>Pointer</b>; Buffer: PChar); <b>virtual</b>; <b>abstract</b>;
+  <b>procedure</b> CopyBufferToRecord(Item: <b>Pointer</b>; Buffer: PChar); <b>virtual</b>; <b>abstract</b>;
+  <b>function</b> FindRecordByID(ID: <b>Integer</b>): PUnRecordData;
+  <b>procedure</b> Exchange(Index1, Index2: <b>Integer</b>);
+  <b>function</b> GetStream(AsCopy: <b>boolean</b>): TStream; <b>virtual</b>; <b>abstract</b>;
+  <b>property</b> Item[Index: <b>Integer</b>]: PUnRecordData <b>read</b> GetItem; <b>default</b>;
+  <b>property</b> Count: <b>Integer</b> <b>read</b> GetCount;
+  <b>property</b> Capasity: <b>Integer</b> <b>read</b> GetCapasity <b>write</b> SetCapasity;
+  <b>property</b> DataSet: TDataSet <b>read</b> FDataSet <b>write</b> FDataSet;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Полный текст реализации я
+здесь приводить не буду, а рассмотрю только
+ключевые моменты. Ключевые данные, т.е то,
+что нужно хранить для организации работы
+набора данных, а это что-то вроде TUnRecordData
+будет храниться в списке FData в порядке
+сортировки и FListId в порядке создания, т.е.
+сортировка не будет менять местами
+указатели в этом списке, а при удалении в
+список FListId на места удаленных строк будет
+записываться <b>nil</b>. FNextId хранит Id следующей
+структуры. При каждой вставке записи FNextId
+увеличивается на единицу. Реальное
+создание ключевой структуры происходит в
+методах:</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> DeleteItem(P: <b>Pointer</b>); <b>virtual</b>; <b>abstract</b>;
+<b>function</b> CreateItem: <b>Pointer</b>; <b>virtual</b>; <b>abstract</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Это абстрактные методы, т.к.
+структура, объявленная в этом модуле, а
+именно TUnRecordData нам недостаточна в потомках,
+и там мы будем создавать немного другие
+структуры, но повторяющие нашу TUnRecordData по
+всем полям, которые в ней объявлены, т.е.
+первые поля такие же, а расширяющие - после
+них. Это нам даст некоторую гибкость в
+реализации, т.к. TUnCustomRecordSet будет работать с
+этими структурами по своему, а потомки – по
+своему.</p>
+<p align="justify">&nbsp;&nbsp;Однако, уже сейчас понятно,
+что нужно сделать при вставке записи,
+поэтому мы можем реализовать метод AddNewItem:</p>
+<!--mstheme--></font>
+<pre><b>function</b> TUnCustomRecordSet.AddNewItem(Buffer: <b>Pointer</b>; Position: <b>Integer</b>): PUnRecordData;
+<b>begin</b>
+ Result:=PUnRecordData(CreateItem);
+ FListId.Add(Result);  <i><font color="#00FFFF">// Добавили в список по Id</font></i>
+ Result.Id:=FNextId;
+ Inc(FNextId, 1);
+ <b>if</b> FData.Count = Position <b>then</b>   
+  Position:=FData.Add(Result)  <i><font color="#00FFFF">// Добавим вконец</font></i>
+ <b>else</b>
+  FData.Insert(Position, Result); <font color="#00FFFF"> <i>// Вставим</i></font>
+ Result.Position:=Position;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;При удалении:</p>
+<!--mstheme--></font>
+<pre> 
+<b>procedure</b> TUnCustomRecordSet.Delete(Index: <b>Integer</b>);
+<b>var</b> Id: <b>Integer</b>;
+<b>begin</b>
+ Id:=PUnRecordData(FData[Index]).Id;
+ DeleteItem(FData[Index]);
+ FData.Delete(Index);
+ FListId[Id-Low(<b>Integer</b>)]:=<b>nil</b>;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Поиск записи по его Id – это
+нужно для реализации работы закладки:</p>
+<!--mstheme--></font>
+<pre><b>function</b> TUnCustomRecordSet.FindRecordByID(ID: <b>Integer</b>): PUnRecordData;
+<b>begin</b>
+ <b>try</b>
+  Result:=FListId[ID-Low(<b>Integer</b>)];
+ <b>except</b> <b>on</b> Exception <b>do</b>
+  Result := <b>nil</b>; <i><font color="#00FFFF">// Это произойдет, если Id выйдет за пределы допустимого, но этого не произойдет J</font></i>
+ <b>end</b>;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Теперь, поговорим о том,
+как эти RecordSet создавать. Дело в том, что DataSet
+его создавать не должен, т.к. мы делаем
+универсальный, который может и в памяти, и
+на диске хранить данные, соответственно, у
+него они могут быть разные RecordSet_ы. Способ,
+который мы будем использовать – это
+небольшой элемент, скорее, аспектного
+программирования. Мы создадим компонент –
+фабрику классов, которая будет <b>property</b> у
+нашего DataSet_а. Эта фабрика и будет давать
+разные RecordSet_ы. Вот объявление абстрактного
+класса TUnCustomRecordSetDispatcher:</p>
+<!--mstheme--></font>
+<pre>TUnCustomRecordSetDispatcher = <b>class</b>(TComponent)
+ <b>private</b>
+  FCapasity: <b>Integer</b>;
+ <b>public</b>
+  <b>function</b> GetRecordSet(DataSet: TDataSet): TUnCustomRecordSet; <b>virtual</b>; <b>abstract</b>;
+ <b>published</b>
+  <b>property</b> Capasity: <b>Integer</b> <b>read</b> FCapasity <b>write</b> FCapasity;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Собственно,
+предварительная подготовка закончена.
+Можно думать о самом DataSet. Стоит только
+заметить, что т.к. понятия «друзья класса» в
+паскале реализуется помещением классов в
+один модуль, то, ясное дело, диспетчер для
+нужного RecordSet должен быть в одном модуле с
+самим RecordSet. TUnDataSet.</p>
+<p align="justify">&nbsp;&nbsp;Итак, данные хранятся в
+наследнике от TUnCustomRecordSet. Значит, этот
+TUnCustomRecordSet должен присутствовать в TUnDataSet.
+Чтобы его получить при открытии, нам нужно
+попросить его от потомка TUnCustomRecordSetDispatcher,
+значит TUnCustomRecordSetDispatcher должен быть <b>property</b>
+в нашем TUnDataSet. Для хранения Blob применяется
+потомок от Tstream. Не принято сразу выкачивать
+данные для Blob. Обычно это делается по мере
+необходимости. Возможно, Вы бы предпочли
+хранить данные BLOB на клиенте для всех строк,
+которые хотя бы раз были считаны в DataSet. Но,
+наученный горьким опытом, я даже не буду
+пытаться сделать так. Мы просто
+предусмотрим пару событий, в которых можно
+будет получить данные для блоб и, если
+пользователь их изменил, записать их в БД и
+забыть. Вот объявление нашего TUnDataSet:</p>
+<p align="justify">&nbsp;&nbsp;Никогда не мешает создать
+свой тип Exception, хотя бы для того, чтобы
+любители <b>case</b> в <b>Except</b> могли
+воспользоваться им.</p>
+<!--mstheme--></font>
+<pre>   TUnDbException = <b>class</b>(Exception);
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Это указатели на массивы
+со смещениями данных полей в записи, список
+указателей на Blob данные:</p>
+<!--mstheme--></font>
+<pre>TOffsetsArray = <b>array</b>[0..MaxListSize] <b>of</b> Word;
+
+POffsetsArray = ^TOffsetsArray;
+
+TStreamsArray = <b>array</b>[0..MaxListSize] <b>of</b> TStream;
+
+PStreamsArray = ^TStreamsArray;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Метод для получения и
+записи Blob:</p>
+<!--mstheme--></font>
+<pre>TUnGetSetBlob = <b>procedure</b>(DataSet: TDataSet; Field: TBlobField; <b>var</b> Data: TStream) <b>of</b> <b>Object</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Событие – сигнал:</p>
+<!--mstheme--></font>
+<pre>TUnDbNotifyEvent = <b>procedure</b>(DataSet: TDataSet) <b>of</b> <b>Object</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Объявление типа функции
+для сравнения данных во время сортировки:
+<p>&nbsp;<!--mstheme--></font>
+<pre>  
+TCompareData = <b>function</b>(Buffer1, Buffer2: PChar): <b>Integer</b> <b>of</b> <b>Object</b>;</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Обьявление типа функции
+для сравнения полей:</p>
+<!--mstheme--></font>
+<pre>TUnFieldCompare = <b>function</b>(ListFields: TList; P1, P2: <b>Pointer</b>; I1, I2: <b>Integer</b>): <b>Integer</b> <b>of</b> <b>Object</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;И наконец, сам TUnDataSet:</p>
+<!--mstheme--></font>
+<pre>   TUnDataSet = <b>class</b>(TDataSet)
+    <b>private</b>
+     FRealRecordPos: <b>Integer</b>;      <font color="#00FFFF"> <i>// Номер активной записи</i></font>
+     FListBlobs: TList;             <i><font color="#00FFFF">// Список блобов</font></i>
+     FIsFetchAll: <b>boolean</b>;           <i><font color="#00FFFF">// Признак, что все сфечено[1]</font></i>
+     FListOffsets: POffsetsArray;   <i><font color="#00FFFF">// Список смещений данных полей в буфере</font></i>
+     FMemBlobArray: PStreamsArray;  <i><font color="#00FFFF">// Список потоков для Blob</font></i>
+     FOldBlobArray: PStreamsArray;  <i><font color="#00FFFF">// Список потоков для Blob перед редактированием</font></i>
+     FIsDeleted: <b>boolean</b>;           <i><font color="#00FFFF">// Флаг необходимости упаковки данных, т.е. удалялись строки.</font></i>
+     FOnGetBlob: TUnGetSetBlob;
+     FOnSetBlob: TUnGetSetBlob;
+     FGetFieldDef: TUnDbNotifyEvent;   <i><font color="#00FFFF">// Указатель на процедуру определения списка полей</font></i>
+            …
+     FShowCursor: <b>boolean</b>;
+     FCursor: TCursor;
+     FRecordSetDispatcher: TUnCustomRecordSetDispatcher; <i><font color="#00FFFF">// Поле с диспетчером</font></i>
+     FRecordSet: TUnCustomRecordSet;     <i><font color="#00FFFF">// Поле с RecordSet, который даст диспетчер при открытии</font></i>
+     FIsOpen: <b>boolean</b>;
+            …
+     <b>procedure</b> _CheckPositionCursor(CurPos: <b>Integer</b>);
+     <b>function</b> _RecordFilter: <b>Boolean</b>;
+     <b>function</b> _GetActiveRecBuf(<b>var</b> RecBuf: PChar): <b>Boolean</b>;
+     <b>function</b> _FindFieldData(Buffer: <b>Pointer</b>; Field: TField): <b>Pointer</b>;
+     <b>procedure</b> _CheckWriteMode;
+     <b>procedure</b> _FetchAll;
+     <b>procedure</b> _SetBlobsToServer;
+     <b>procedure</b> _ClearFieldsWitoutOwner;
+           …
+     <b>procedure</b> SetRecordPosition(AValue: <b>Integer</b>);
+    <b>protected</b>
+     FBufferSize: Word;            <font color="#00FFFF"> <i>// Размер буфера с записью</i></font>
+     FRecordSize: Word;             <i><font color="#00FFFF">// Размер записи без учета информации о закладке</font></i>
+     FClearBuffer: PChar;           <i><font color="#00FFFF">// Буфер с данными по умолчанию. Используется для инициализации новой записи</font></i>
+     FIsRunAllFetcher: <b>boolean</b>;         <i><font color="#00FFFF">// Флаг для сигнализации о процессе феча в потомках</font></i>
+     FisSetFieldsFromFetcher: <b>boolean</b>; <i><font color="#00FFFF">// Флаг того, что филды предоставил потомок</font></i>
+     FBlobPresents: <b>boolean</b>;           <i><font color="#00FFFF">// Флаг, что есть блобы</font></i>
+     <b>procedure</b> _CheckNextFetch; <b>virtual</b>;
+     <b>procedure</b> _OpenData; <b>virtual</b>;
+     <b>procedure</b> _InternalAddFetchData(Buffer: PChar);
+     <b>procedure</b> Clear; <b>virtual</b>;
+     <b>procedure</b> ClearBlobBufers; <b>virtual</b>;
+     <b>function</b> AllocRecordBuffer: PChar; <b>override</b>;
+     <b>procedure</b> FreeRecordBuffer(<b>var</b> Buffer: PChar); <b>override</b>;
+     <b>function</b> GetRecord(Buffer: PChar; GetMode: TGetMode; DoCheck: <b>Boolean</b>): TGetResult; <b>override</b>;
+     <b>procedure</b> InternalInitRecord(Buffer: PChar); <b>override</b>;
+     <b>function</b> GetRecordSize: Word; <b>override</b>;
+     <b>procedure</b> InternalFirst; <b>override</b>;
+     <b>procedure</b> InternalLast; <b>override</b>;
+     <b>procedure</b> InternalAddRecord(Buffer: <b>Pointer</b>; Append: <b>Boolean</b>); <b>override</b>;
+     <b>procedure</b> InternalDelete; <b>override</b>;
+     <b>procedure</b> InternalPost; <b>override</b>;
+     <b>procedure</b> GetBookmarkData(Buffer: PChar; Data: <b>Pointer</b>); <b>override</b>;
+     <b>procedure</b> SetBookmarkData(Buffer: PChar; Data: <b>Pointer</b>); <b>override</b>;
+     <b>function</b> GetBookmarkFlag(Buffer: PChar): TBookmarkFlag; <b>override</b>;
+     <b>procedure</b> SetBookmarkFlag(Buffer: PChar; Value: TBookmarkFlag); <b>override</b>;
+     <b>procedure</b> InternalGotoBookmark(Bookmark: <b>Pointer</b>); <b>override</b>;
+     <b>procedure</b> InternalSetToRecord(Buffer: PChar); <b>override</b>;
+     <b>procedure</b> InternalClose; <b>override</b>;
+     <b>procedure</b> InternalOpen; <b>override</b>;
+     <b>procedure</b> InternalHandleException; <b>override</b>;
+     <b>procedure</b> InternalInitFieldDefs; <b>override</b>;
+     <b>function</b> IsCursorOpen: <b>Boolean</b>; <b>override</b>;
+     <b>function</b> GetRecordCount: <b>Integer</b>; <b>override</b>;
+     <b>function</b> GetRecNo: <b>Integer</b>; <b>override</b>;
+     <b>procedure</b> SetRecNo(Value: <b>Integer</b>); <b>override</b>;
+     <b>function</b> GetIsLoaded: <b>boolean</b>; <b>virtual</b>;
+     <b>property</b> RecordPos: <b>Integer</b> <b>read</b> FRealFRecordPos <b>write</b> SetRecordPosition;
+     <b>property</b> OnGetBlob: TUnGetSetBlob <b>read</b> FOnGetBlob <b>write</b> FOnGetBlob;
+     <b>property</b> OnSetBlob: TUnGetSetBlob <b>read</b> FOnSetBlob <b>write</b> FOnSetBlob;
+    <b>public</b>
+     <b>constructor</b> Create(AOwner: TComponent); <b>override</b>;
+     <b>destructor</b> Destroy; <b>override</b>;
+      …
+     <b>function</b> GetFieldData(Field: TField; Buffer: <b>Pointer</b>): <b>Boolean</b>; <b>override</b>;
+     <b>procedure</b> SetFieldData(Field: TField; Buffer: <b>Pointer</b>); <b>override</b>;
+      …
+     <b>property</b> IsLoaded: <b>boolean</b> <b>read</b> GetIsLoaded;
+     <b>property</b> IsDeleted: <b>boolean</b> <b>read</b> FIsDeleted;
+      …
+    <b>published</b>
+     <b>property</b> Cursor: TCursor <b>read</b> FCursor <b>write</b> FCursor;
+     <b>property</b> ShowCursor: <b>boolean</b> <b>read</b>  FShowCursor <b>write</b> FShowCursor;
+     <b>property</b> RecordSetDispetcher: TUnCustomRecordSetDispatcher <b>read</b> FRecordSetDispatcher 
+       <b>write</b> FRecordSetDispatcher;
+…
+   <b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Для начала, рассмотрим
+наши 23 виртуальных метода, которые
+обязательно нужно реализовать при создании
+своего потомка TDataSet. Самое простое и
+очевидное – это выделение, освобождение и
+инициализация буфера:</p>
+<!--mstheme--></font>
+<pre><b>function</b> TUnDataSet.AllocRecordBuffer: PChar;
+<b>begin</b>  <i><font color="#00FFFF">// Выделение буфера для DataSet</font></i>
+ GetMem(Result, FBufferSize);
+<b>end</b>;
+
+<b>procedure</b> TUnDataSet.FreeRecordBuffer(<b>var</b> Buffer: PChar);
+<b>begin</b>   <i><font color="#00FFFF">// Уничтожение буфера</font></i>
+ FreeMem(Buffer, FBufferSize);
+ Buffer := <b>nil</b>;
+<b>end</b>;
+
+<b>procedure</b> TUnDataSet.InternalInitRecord(Buffer: PChar);
+<b>begin</b> <i><font color="#00FFFF">// Очистим шаблоном</font></i>
+ Move(FClearBuffer^, Buffer^, FBufferSize);
+<b>end</b>;
+
+<b>function</b> TUnDataSet.GetRecordSize: Word;
+<b>begin</b> <i><font color="#00FFFF">// Размер записи без учета данных закладки</font></i>
+ Result:=FRecordSize;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Обратите внимание, что при
+открытии DataSet, вы могли бы инициализировать
+буфер FClearBuffer значениями по умолчанию. Можно
+и нулями, но могут быть проблемы с датой и
+временем. FRecordSize будет инициализирована в
+методе InternalInitFieldDefs. Самый сложный метод во
+всем этом тексте – это GetRecord. Особенно
+сложно, т.к. его практически невозможно
+дебажить, т.к. он вызывается постоянно,
+когда перерисовывается DbGrid, например.</p>
+<!--mstheme--></font>
+<pre><b>function</b> TUnDataSet.GetRecord(Buffer: PChar; GetMode: TGetMode; DoCheck: <b>Boolean</b>): TGetResult;
+<b>var</b> Accept: <b>Boolean</b>;
+<b>begin</b>   <i><font color="#00FFFF">// Дать запись.</font></i>
+  Result := grOk;
+  Accept := <b>True</b>;
+  _CheckPositionCursor(RecordPos);
+  <b>case</b> GetMode <b>of</b>
+   gmPrior: <b>begin</b>   <i><font color="#00FFFF">// Предыдущую</font></i>
+      <b>if</b> RecordPos &lt;= 0 <b>then</b>
+       <b>begin</b> <font color="#00FFFF"> <i>// Предыдущих нет</i></font>
+        Result:=grBof;
+        RecordPos:=-1;
+       <b>end</b>
+      <b>else</b>
+       <b>begin</b>
+        <b>repeat</b> <i><font color="#00FFFF">// Пролистаем отфильтрованые</font></i>
+         RecordPos:=RecordPos-1;
+         <b>if</b> Filtered <b>then</b> Accept := _RecordFilter;
+        <b>until</b> Accept <b>or</b> (RecordPos &lt; 0);
+        <b>if</b> <b>not</b> Accept <b>then</b>
+         <b>begin</b>
+          Result := grBOF;
+          RecordPos := -1;
+        <b>end</b>;
+       <b>end</b>;
+    <b>end</b>;
+   gmCurrent: <b>begin</b>  <i><font color="#00FFFF">// Текущую</font></i>
+     <b>if</b> (RecordPos &lt; 0) <b>or</b> (RecordPos &gt;= RecordCount) <b>then</b>
+      Result:=grError
+     <b>else</b> <b>if</b> Filtered <b>then</b>
+      <b>if</b> <b>not</b> _RecordFilter <b>then</b> Result := grError;
+    <b>end</b>;
+   gmNext: <b>begin</b>  <i><font color="#00FFFF">// Следующую</font></i>
+      <b>if</b> (RecordPos &gt;= RecordCount - 1) <b>then</b>
+        Result:=grEof
+      <b>else</b>
+       <b>begin</b>
+        <b>repeat</b>  <i><font color="#00FFFF">// Пролистаем отфильтрованные</font></i>
+         RecordPos:=RecordPos+1;
+         <b>if</b> Filtered <b>then</b> Accept := _RecordFilter;
+        <b>until</b> Accept <b>or</b> (RecordPos &gt; RecordCount - 1) <b>or</b> FIsFetchAll;
+        <b>if</b> <b>not</b> Accept <b>then</b>
+         <b>begin</b>
+          Result := grEOF;
+          RecordPos := RecordCount - 1;
+         <b>end</b>;
+       <b>end</b>;
+    <b>end</b>;
+  <b>end</b>;
+  <b>if</b> Result = grOk <b>then</b>
+   <b>begin</b> <i><font color="#00FFFF">// Проверки на здравый смысл</font></i>
+    <b>if</b> RecordPos &gt;= FRecordSet.Count <b>then</b>
+     FRecordSet.CopyRecordToBuffer(FRecordSet[RecordPos-1], Buffer)
+    <b>else</b>
+     <b>begin</b>
+      <b>if</b> (RecordPos &lt; 0) <b>and</b> (RecordCount &gt; 0) <b>then</b> RecordPos := 0;
+       FRecordSet.CopyRecordToBuffer(FRecordSet[RecordPos], Buffer);
+     <b>end</b>;
+   <b>end</b>
+  <b>else</b>
+   <b>if</b> (Result = grError) <b>and</b> DoCheck <b>then</b>
+    DatabaseError(str_No_Record);
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Абсолютно тривиальный код:</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnDataSet.InternalFirst;
+<b>begin</b>
+ RecordPos:=-1;
+<b>end</b>;
+
+<b>procedure</b> TUnDataSet.InternalLast;
+<b>begin</b>
+ <b>if</b> <b>not</b> FIsFetchAll <b>then</b>
+  _FetchAll; <i><font color="#00FFFF">// Т.е. если не все данные с сервера поступили в DataSet, то загружаем все.</font></i>
+ FRealRecordPos:=RecordCount;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;При добавлении новой
+записи, само действие по добавлению мы
+может поручить RecordSet, но ему только нужно
+указать позицию, куда нужно вставить запись.</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnDataSet.InternalAddRecord(Buffer: <b>Pointer</b>; Append: <b>Boolean</b>);
+<b>begin</b>  <i><font color="#00FFFF">// Добавить строку данных</font></i>
+ <b>if</b> Append <b>then</b>
+  <b>begin</b>
+   FRecordSet.AddNewItem(Buffer, FRecordSet.Count);
+   InternalLast;
+  <b>end</b>
+ <b>else</b>
+  FRecordSet.AddNewItem(Buffer, RecordPos);
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Удаление, тоже производит
+RecordSet, но ему, опять, нужно передать позицию
+строки, которую нужно удалить.</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnDataSet.InternalDelete;
+<b>var</b> Index: <b>Integer</b>;
+<b>begin</b> <i><font color="#00FFFF">// Удалить запись</font></i>
+ <b>if</b> RecordPos &lt; 0 <b>then</b>
+  Index:=0
+ <b>else</b> <b>if</b> RecordPos &gt; RecordCount - 1 <b>then</b>
+  Index:=RecordCount - 1
+ <b>else</b>
+  Index:=RecordPos;
+ FRecordSet.Delete(Index);
+ RecordPos:=FRealRecordPos; <i><font color="#00FFFF">// Передернем затвором :-)</font></i>
+ FIsDeleted:=<b>true</b>; <i><font color="#00FFFF">// Да, строки удалялись</font></i>
+ FRecordSet.RecalckPosition;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Post может быть после
+редактирования или после вставки, поэтому,
+нам нужно сначала определить что именно
+происходит. Если была вставка, то нужно
+вызвать InternalAddRecord и передать этому методу
+активный буфер (строки в RecordSet, пока, нет !), а
+если было редактирование, то просто
+записать данные.</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnDataSet.InternalPost;
+<b>var</b> RecData: <b>Pointer</b>;
+    Index: <b>Integer</b>;
+<b>begin</b> <i><font color="#00FFFF">// Запостим</font></i>
+ <b>if</b> (State &lt;&gt; dsInsert) <b>then</b>
+  <b>begin</b>
+   <b>if</b> RecordPos &gt;= FRecordSet.Count <b>then</b>
+    Index:=RecordPos-1
+   <b>else</b>
+    Index:=RecordPos;
+   RecData:=FRecordSet[Index];
+   <b>if</b> State = dsEdit <b>then</b>
+     FRecordSet.CopyBufferToRecord(RecData, ActiveBuffer);
+  <b>end</b>
+ <b>else</b>
+  InternalAddRecord(ActiveBuffer, Eof);
+ _SetBlobsToServer;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Закладка будет хранится
+после данных, т.е. буфер с данными, который
+будет записываться в RecordSet. Здесь мы будем
+вольно обращаться с указателями. Если кого-то
+это смущает, то советую почитать
+соответствующую литературу. Но сам принцип
+прост. Если Вы к адресу, который хранится в
+указателе прибавляете 1, то это значит, что
+полученное число указывает на один байт
+дальше. Методы работы с закладками:</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnDataSet.GetBookmarkData(Buffer: PChar; Data: <b>Pointer</b>);
+<b>begin</b> <i><font color="#00FFFF">// Прочитать данные закладки</font></i>
+ Move(PUnBookmarkInfo(Buffer + FRecordSize)^.BookmarkData, Data^, BookmarkSize);
+<b>end</b>;
+
+<b>procedure</b> TUnDataSet.SetBookmarkData(Buffer: PChar; Data: <b>Pointer</b>);
+<b>begin</b>  <i><font color="#00FFFF">// Записать данные закладки</font></i>
+ <b>if</b> Data &lt;&gt; <b>nil</b> <b>then</b>
+  PUnBookmarkInfo(Buffer + FRecordSize)^.BookmarkData := PInteger(Data)^;
+<b>end</b>;
+
+<b>function</b> TUnDataSet.GetBookmarkFlag(Buffer: PChar): TBookmarkFlag;
+<b>begin</b> <i><font color="#00FFFF">// Прочитать флаг закладки</font></i>
+ Result:=PUnBookmarkInfo(Buffer + FRecordSize)^.BookmarkFlag;
+<b>end</b>;
+
+<b>procedure</b> TUnDataSet.SetBookmarkFlag(Buffer: PChar;
+  Value: TBookmarkFlag);
+<b>begin</b> <font color="#00FFFF"> <i>// Установить флаг закладки</i></font>
+ PUnBookmarkInfo(Buffer + FRecordSize)^.BookmarkFlag:=Value;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Здесь, если закладка не
+найдена, то можно было бы и ругнутся. Если
+Вам это нужно, то сделайте свои изменения в
+коде.</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnDataSet.InternalGotoBookmark(Bookmark: <b>Pointer</b>);
+<b>var</b> Rec: PUnRecordData;
+    SavePos: <b>Integer</b>;
+    Accept: <b>Boolean</b>;
+<b>begin</b> <i><font color="#00FFFF">// Перейти на закладку</font></i>
+  Rec:=FRecordSet.FindRecordByID(<b>Integer</b>(Bookmark^)); <i><font color="#00FFFF">// Вот зачем они эти Id нужны...</font></i>
+  <b>if</b> (Rec &lt;&gt; <b>nil</b>) <b>then</b>
+   <b>begin</b>
+    Accept:=<b>True</b>;
+    SavePos:=RecordPos;
+    <b>try</b>
+     RecordPos:=Rec.Position;
+     <b>if</b> Filtered <b>then</b> Accept:=_RecordFilter;
+    <b>finally</b>
+      <b>if</b> <b>not</b> Accept <b>then</b> RecordPos:=SavePos;
+    <b>end</b>;
+   <b>end</b>;
+<b>end</b>;
+
+<b>procedure</b> TUnDataSet.InternalSetToRecord(Buffer: PChar);
+<b>begin</b>
+ InternalGotoBookmark(@PUnBookmarkInfo(Buffer+ FRecordSize)^.BookmarkData);
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Методы открытия / закрытия
+DataSet:</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnDataSet.InternalClose;
+<b>begin</b><font color="#00FFFF"> <i>// Закрыть набор</i></font>
+ FIsOpen:=<b>false</b>;
+ Clear;<font color="#00FFFF"> <i>// Очищаемся</i></font>
+ FRecordSet.Free;
+ FRecordSet:=<b>nil</b>;
+ FBufferSize:=0;
+ RecordPos:=-1;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Открытие набора
+значительно интереснее. Во первых, мы
+проверяем, есть ли диспетчер, который даст
+нам RecordSet, и если он не указан, то дальнейшая
+работа невозможна. Если указан, то просим
+создать диспетчер. Далее, важный момент –
+это создать Field_ы. Наконец, идет реальное
+открытие данных.</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnDataSet.InternalOpen;
+<b>begin</b> <i><font color="#00FFFF">// Открыть таблицу</font></i>
+ <b>if</b> FRecordSetDispatcher = <b>nil</b> <b>then</b>
+  <b>raise</b> TUnDbException.Create(str_Not_Set_RecorsSetDisp);
+ FRecordSet:=FRecordSetDispatcher.GetRecordSet(Self);
+ FIsRunAllFetcher:=<b>false</b>;
+ RecordPos:=-1;
+ FIsFetchAll:=<b>false</b>;
+ InternalInitFieldDefs;<font color="#00FFFF"> <i>// Создаем поля</i></font>
+ _ClearFieldsWitoutOwner;
+ FSortBy:=<font color="#2a28bd">''</font>;
+ _OpenData;
+ <b>if</b> FieldCount = 0 <b>then</b>
+  CreateFields; <i><font color="#00FFFF">// Если полей нет, то создаем их на лету</font></i>
+ BindFields(<b>true</b>);
+ FIsDeleted:=<b>false</b>; <i><font color="#00FFFF">// Пока, ничего не удалялось</font></i>
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Не мудрствуя долго,
+определяем последний обработчик
+исключительной ситуации:</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnDataSet.InternalHandleException;
+<b>begin</b>
+ Application.HandleException(Self);
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Инициализация полей во
+время открытия набора данных достаточно
+громоздкий метод. Ключевые моменты – это то,
+что Field_ы могут быть разные. Первое и
+очевидное, что программист их сам поставит
+на форму и настроит, но их может
+предоставить и Fetcher, если они не заданы явно.
+Далее, нужно пройтись по всем им и посчитать
+размер буфера под хранение их данных, и
+заполнить TFieldDef.</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnDataSet.InternalInitFieldDefs;
+<b>var</b> I: <b>Integer</b>;
+    Fld: TField;
+    Offs: <b>Integer</b>;
+    BlobCount: <b>Integer</b>;
+<b>begin</b>  <i><font color="#00FFFF">// Определить поля</font></i>
+ BlobCount:=0;
+ <b>try</b>
+  FieldDefs.Clear; <i><font color="#00FFFF">// Очистим</font></i>
+  Offs:=0;
+  <b>if</b> Assigned(FGetFieldDef) <b>then</b>
+   <b>begin</b>  <i><font color="#00FFFF">// Если можно, то попросим поля</font></i>
+    FGetFieldDef(Self);
+    FisSetFieldsFromFetcher:=<b>true</b>;
+   <b>end</b>;
+  <i><font color="#00FFFF">// Инициализируем размер списков</font></i>
+  <b>if</b> FListOffsets &lt;&gt; <b>nil</b> <b>then</b>
+   FreeMem(FListOffsets);
+  GetMem(FListOffsets, FieldCount*Sizeof(Word));
+  <b>for</b> I:=0 to FieldCount-1 <b>do</b>
+   <b>begin</b> <i><font color="#00FFFF">// Пройдемся по полям</font></i>
+    Fld:=Fields[I];
+    TFieldDef.Create(FieldDefs, Fld.FieldName, Fld.DataType, Fld.Size, <b>false</b>, I+1);
+    FListOffsets[I]:=Offs;
+    Offs:=Offs+Fld.Size+SizesFields[Byte(Fld.DataType)];
+    <b>if</b> Fld.IsBlob  <b>then</b>
+     <b>begin</b>   <i><font color="#00FFFF">// Если оно blob, то добавим в список blob ов</font></i>
+      FListBlobs.Add(Fld);
+      BlobCount:=BlobCount+1;
+     <b>end</b>;
+   <b>end</b>;
+  FRecordSize:=Offs; <i><font color="#00FFFF">// Посчитаем размер записи</font></i>
+  FBufferSize:=FRecordSize+Sizeof(TUnBookmarkInfo); <i><font color="#00FFFF">// Размер буфера</font></i>
+  GetMem(FClearBuffer, FBufferSize); <i><font color="#00FFFF">// Получили пустой буфер</font></i>
+  FillChar(FClearBuffer^, FBufferSize, 0); <i><font color="#00FFFF">// Заполнили нулями</font></i>
+<font color="#00FFFF">  <i>// Установили размер списков для Blob полей</i>
+</font>  <b>if</b> FMemBlobArray &lt;&gt; <b>nil</b> <b>then</b>
+   FreeMem(FMemBlobArray);
+  GetMem(FMemBlobArray, FieldCount*Sizeof(TStream));
+  FillChar(FMemBlobArray^, FieldCount*Sizeof(TStream), 0);
+  <b>if</b> FOldBlobArray &lt;&gt; <b>nil</b> <b>then</b>
+   FreeMem(FOldBlobArray);
+  GetMem(FOldBlobArray, FieldCount*Sizeof(TStream));
+  FillChar(FOldBlobArray^, FieldCount*Sizeof(TStream), 0);
+ <b>finally</b>
+  FBlobPresents:=BlobCount &gt; 0;
+ <b>end</b>;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Метод получения
+количества строк, конечно, элементарен.
+Количество возвращает класс, который их
+хранит, т.е. RecordSet:</p>
+<!--mstheme--></font>
+<pre><b>function</b> TUnDataSet.GetRecordCount: <b>Integer</b>;
+<b>begin</b>
+ _CheckPositionCursor(RecordPos);
+  Result:=FRecordSet.Count;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;RecNo, как мы договорились –
+это номер строки. Но, особенность состоит в
+том, что номер должен начинаться не с нуля, а
+с единицы:</p>
+<!--mstheme--></font>
+<pre><b>function</b> TUnDataSet.GetRecNo: <b>Integer</b>;
+<b>begin</b> <i><font color="#00FFFF">// Дать номер по порядку активной записи</font></i>
+ CheckActive;
+ _CheckPositionCursor(RecordPos);
+ UpdateCursorPos;
+ <b>if</b> (RecordPos = -1) <b>and</b> (RecordCount &gt; 0) <b>then</b>
+  Result:= 1
+ <b>else</b>
+  Result:=RecordPos+1;
+<b>end</b>;
+
+<b>procedure</b> TUnDataSet.SetRecNo(Value: <b>Integer</b>);
+<b>begin</b>  <i><font color="#00FFFF">// Номер записи в списке - установить, т.е. перейти к записи с этим номером</font></i>
+  CheckBrowseMode;
+  <b>if</b> (Value &lt; 1) <b>then</b>
+    Value := 1
+  <b>else</b> <b>if</b> Value &gt; RecordCount <b>then</b> <b>begin</b>
+    InternalLast;
+    Value := _Min(RecordCount, Value);
+  <b>end</b>;
+  <b>if</b> (Value &lt;&gt; RecNo) <b>then</b> <b>begin</b>
+    DoBeforeScroll;
+    RecordPos := Value - 1;
+    Resync([]);
+    DoAfterScroll;
+  <b>end</b>;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;И последний метод:</p>
+<!--mstheme--></font>
+<pre><b>function</b> TUnDataSet.IsCursorOpen: <b>Boolean</b>;
+<b>begin</b>
+ Result:=FIsOpen;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Чтобы увидеть полную
+картину, Вам лучше обратится к исходным
+текстам, которые идут с этой статьей.</p>
+<!--mstheme--></font>
+<h4><!--mstheme--><font face="Arial" color="#CCCCCC">Дополнительная
+функциональность<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Дополнительной
+функциональностью можно назвать
+сортировку по одному или нескольким
+столбикам и намного быстрый Locate, который
+использует метод половинного деления, если
+DataSet уже отсортирован по нужным столбикам.
+Эта тема выходит за рамки данной статьи, но
+Вы можете посмотреть прилагаемые тексты,
+чтобы разобраться самостоятельно как
+именно это можно сделать. Давайте
+рассмотрим RecordSet, способный хранить данные
+в файле и диспетчер для него.</p>
+<!--mstheme--></font>
+<h4><!--mstheme--><font face="Arial" color="#CCCCCC">TUnStreamRecordSet<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Во первых, мы можем,
+наконец-то определить структуру ключа так,
+как он есть на самом деле:</p>
+<!--mstheme--></font>
+<pre>  <i><font color="#00FFFF">// Структура, инкапсулирующая данные о записи.</font></i>
+  TUnStrRecordData = <b>packed</b> <b>record</b>
+   Id: <b>Integer</b>;        <i><font color="#00FFFF">// Код</font></i>
+   Position: <b>Integer</b>;  <i><font color="#2a28bd">/</font><font color="#00FFFF">/ Позиция в списке</font></i>
+   Offset: Longint;    <i><font color="#00FFFF">// Смещение в файле</font></i>
+  <b>end</b>;
+
+  PUnStrRecordData = ^TUnStrRecordData; <font color="#00FFFF"> <i>// Указатель на эту структуру</i></font>
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Вот объявление класса:</p>
+<!--mstheme--></font>
+<pre>TUnStreamRecordSet = <b>class</b>(TUnCustomRecordSet)
+ <b>private</b>
+  FStream: TStream;           <i><font color="#00FFFF">// Поток, в котором будут хранится данные</font></i>
+  FCashMode: <b>boolean</b>;
+  FBufferSize: <b>Integer</b>;       <i><font color="#00FFFF">// Размер буфера в строках</font></i>
+  FNextOffset: Longint;       <i><font color="#00FFFF">// Смещение для новой записи</font></i>
+  FCash: PChar;               <i><font color="#00FFFF">// Буфер данных</font></i>
+  FCashOfset: Longint;        <i><font color="#00FFFF">// Смещение, которое отображает буфер данных в байтах</font></i>
+  FCashWriten: <b>boolean</b>;       <i><font color="#00FFFF">// В буфер писали данные ?</font></i>
+  FCashSize: <b>Integer</b>;         <i><font color="#00FFFF">// Размер буфера данных в байтах</font></i>
+  FRecordSize: <b>Integer</b>;      <font color="#00FFFF"> <i>// Размер записи</i></font>
+  FDispetcher: TUnStreamRecordSetDispatcher;
+  CopyBufferToRecordMethod: TCopyBufferRecordSet; <i><font color="#00FFFF">// Указатель на метод</font></i>
+  CopyRecordToBufferMethod: TCopyBufferRecordSet;<font color="#00FFFF"> <i>// Указатель на метод</i></font>
+  <b>procedure</b> CopyBufferToRecordWizBubber(Offset: <b>Integer</b>; Buffer: PChar);
+  <b>procedure</b> CopyRecordToBufferWizBuffer(Offset: <b>Integer</b>; Buffer: PChar);
+  <b>procedure</b> CopyBufferToRecordBubber(Offset: <b>Integer</b>; Buffer: PChar);
+  <b>procedure</b> CopyRecordToBufferBuffer(Offset: <b>Integer</b>; Buffer: PChar);
+  <b>procedure</b> ResetCash;
+  <b>procedure</b> ClearCash;
+  <b>procedure</b> CheckFileOffset(AOffset: Longint);
+ <b>protected</b>
+  <b>procedure</b> DeleteItem(P: <b>Pointer</b>); <b>override</b>;
+  <b>function</b> CreateItem: <b>Pointer</b>; <b>override</b>;
+ <b>public</b>
+  <b>constructor</b> Create;
+  <b>destructor</b> Destroy; <b>override</b>;
+  <b>function</b> AddNewItem(Buffer: <b>Pointer</b>; Position: <b>Integer</b>): PUnRecordData; <b>override</b>;
+  <b>procedure</b> CopyRecordToBuffer(Item: <b>Pointer</b>; Buffer: PChar); <b>override</b>;
+  <b>procedure</b> CopyBufferToRecord(Item: <b>Pointer</b>; Buffer: PChar); <b>override</b>;
+  <b>function</b> GetStream(AsCopy: <b>boolean</b>): TStream; <b>override</b>;
+  <b>procedure</b> Open; <b>override</b>;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Этот RecordSet может
+использовать буфер для работы с потоком.
+Надо сказать, что буфер не должен быть
+слишком маленьким, но и не очень большим. Во
+первых, маленький буфер все-таки
+провоцирует слишком частое обращение к
+диску, но большой буфер тоже плохо, и не
+только потому, что занимает большой размер
+памяти. Дело в том, что если отсортировать
+строки по другому, то велика вероятность,
+что в буфере, считанном с диска будет мало
+строк, необходимых в данный момент, или даже
+одна строка. Из-за этого явления, происходит
+частая продувка буфера, а это уже излишне
+частое чтение с диска, причем не как в
+первом варианте – маленького буфера, а
+большого. Лучше провести несколько опытов
+для подбора оптимального размера, но по
+опыту я знаю, что буфер не должен превышать
+64 Кб, а лучше – 4 - 32 Кб. Тогда и становится
+возможным параллельность работы с диском, т.к.
+UDMA может писать и читать с диска не
+задействуя процессор, правда, это
+становится эффективным, в основном, для
+серверов приложений, где используются нити
+во многопользовательском режиме работы.
+Для начала, рассмотрим методы выделения и
+освобождения памяти под запись:</p>
+<!--mstheme--></font>
+<pre><b>function</b> TUnStreamRecordSet.CreateItem: <b>Pointer</b>;
+<b>begin</b>
+ GetMem(Result, Sizeof(TUnStrRecordData));
+<b>end</b>;
+
+<b>procedure</b> TUnStreamRecordSet.DeleteItem(P: <b>Pointer</b>);
+<b>begin</b>
+ FreeMem(PUnStrRecordData(P));
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Как видите, код так же
+тривиален, как и для TUnDataSet. Вот как
+переопределен метод создания новой записи:</p>
+<!--mstheme--></font>
+<pre><b>function</b> TUnStreamRecordSet.AddNewItem(Buffer: <b>Pointer</b>; Position: <b>Integer</b>): PUnRecordData;
+<b>begin</b>
+ Result:=<b>inherited</b> AddNewItem(Buffer, Position);
+ PUnStrRecordData(Result).Offset:=FNextOffset;
+ Inc(FNextOffset, FRecordSize);
+ CopyBufferToRecord(Result, Buffer);
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Здесь, ключевым моментом
+является то, что запись под ключ имеет поле
+Offset, которое хранит смещение от начала
+файла, куда записана запись. Вот методы
+записи-чтения буферов:</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnStreamRecordSet.CopyRecordToBuffer(Item: <b>Pointer</b>; Buffer: PChar);
+<b>begin</b>
+ CopyRecordToBufferMethod(PUnStrRecordData(Item).Offset, Buffer);
+<b>end</b>;
+
+<b>procedure</b> TUnStreamRecordSet.CopyBufferToRecord(Item: <b>Pointer</b>; Buffer: PChar);
+<b>begin</b>
+ PUnBookmarkInfo(Buffer + DataSet.RecordSize)^.BookmarkFlag:=bfCurrent;
+ PUnBookmarkInfo(Buffer + DataSet.RecordSize)^.BookmarkData:=PUnStrRecordData(Item).Id;
+ CopyBufferToRecordMethod(PUnStrRecordData(Item).Offset, Buffer);
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Здесь главное – это то, что
+методы чтения-записи вызываются через
+указатель, а не напрямую. Эти указатели
+заполняются во время открытия набора в
+зависимости от режима работы, т.е. если
+через буфер, то одни, а если без буфера – то
+другие. Вот их реализация:</p>
+<!--mstheme--></font>
+<pre><font color="#00FFFF"><i>// Методы реальной работы со стримом</i>
+</font><b>procedure</b> TUnStreamRecordSet.CopyBufferToRecordWizBubber(Offset: <b>Integer</b>; Buffer: PChar);
+<b>begin</b>  <i><font color="#00FFFF">// Без буфера</font></i>
+ FStream.Position:=Offset;
+ FStream.<b>Write</b>(Buffer^, FRecordSize);
+<b>end</b>;
+
+<b>procedure</b> TUnStreamRecordSet.CopyRecordToBufferWizBuffer(Offset: <b>Integer</b>; Buffer: PChar);
+<b>begin</b>  <i><font color="#00FFFF">// Без буфера</font></i>
+ FStream.Position:=Offset;
+ FStream.<b>Read</b>(Buffer^, FRecordSize);
+<b>end</b>;
+
+<b>procedure</b> TUnStreamRecordSet.CopyBufferToRecordBubber(Offset: <b>Integer</b>; Buffer: PChar);
+<b>begin</b>   <i><font color="#00FFFF">// С буфером</font></i>
+ CheckFileOffset(Offset);
+ Move(Buffer^, (FCash + (Offset - FCashOfset))^, FRecordSize);
+ FCashWriten:=<b>true</b>;
+<b>end</b>;
+
+<b>procedure</b> TUnStreamRecordSet.CopyRecordToBufferBuffer(Offset: <b>Integer</b>; Buffer: PChar);
+<b>begin</b> <font color="#00FFFF"> <i>// С буфером</i></font>
+ CheckFileOffset(Offset);
+ Move((FCash + (Offset - FCashOfset))^, Buffer^, FRecordSize);
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Если без буфера, то там все
+тривиально, а если с буфером, то нам
+постоянно нужно следить, что смещение не
+вышло за пределы буфера. Вот как это можно
+сделать:</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnStreamRecordSet.CheckFileOffset(AOffset: Longint);
+<b>begin</b> <i><font color="#00FFFF">// Проверить, что буфер не вышел за границы</font></i>
+ <b>if</b> AOffset &gt; (FCashOfset + FCashSize - FRecordSize) <b>then</b>
+  <b>begin</b>
+   ResetCash;
+   FCashOfset:=AOffset;
+   <b>if</b> FStream.Size &lt; (FCashOfset + FCashSize) <b>then</b>
+    FStream.Size:=FCashOfset + FCashSize;
+   FStream.Position:=FCashOfset;
+   FStream.<b>Read</b>(FCash^, FCashSize);
+  <b>end</b>
+ <b>else</b> <b>if</b> AOffset &lt; FCashOfset <b>then</b>
+  <b>begin</b>
+   ResetCash;
+   FCashOfset:=AOffset - FCashSize + FRecordSize;
+   <b>if</b> FCashOfset &lt; 0 <b>then</b>
+    FCashOfset:=0;
+   FStream.Position:=FCashOfset;
+   FStream.<b>Read</b>(FCash^, FCashSize);
+  <b>end</b>;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Здесь нет ничего сложного,
+просто нужно аккуратно следить за
+смещением. Рассматриваются два варианта:
+буфер выше, и буфер ниже смещения. Если выше
+или ниже, то нужно продуть буфер – метод
+ResetCash, передвинуть смещение стрима, и задуть
+буфер. Вот метод продувки буфера:</p>
+<!--mstheme--></font>
+<pre><b>procedure</b> TUnStreamRecordSet.ResetCash;
+<b>begin</b>
+ <b>if</b> FCashWriten <b>then</b>
+  <b>begin</b>
+   FStream.Position:=FCashOfset;
+   FStream.<b>Write</b>(FCash^, FCashSize);
+   FCashWriten:=<b>false</b>;
+  <b>end</b>;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Здесь, если была запись в
+буфер, то он сбрасывается на диск, если нет,
+то ничего не делается. Остальной код
+тривиален, и Вы можете посмотреть его
+самостоятельно. Теперь, определим фабрику
+классов для TUnStreamRecordSet.</p>
+<!--mstheme--></font>
+<pre>TUnStreamRecordSetDispatcher = <b>class</b>(TUnCustomRecordSetDispatcher)
+ <b>private</b>
+  FBufferSize: <b>Integer</b>;
+  FCashMode: <b>boolean</b>;
+  FInMemory: <b>boolean</b>;
+  FOnGetTempStream: TGetSetTempFile;
+  FOnCloseTempStream: TGetSetTempFile;
+ <b>public</b>
+  <b>function</b> GetRecordSet(DataSet: TDataSet): TUnCustomRecordSet; <b>override</b>;
+ <b>published</b>
+  <b>property</b> BufferSize: <b>Integer</b> <b>read</b> FBufferSize <b>write</b> FBufferSize;
+  <b>property</b> CashMode: <b>boolean</b>  <b>read</b> FCashMode <b>write</b> FCashMode;
+  <b>property</b> InMemory: <b>boolean</b> <b>read</b> FInMemory <b>write</b> FInMemory;
+  <b>property</b> OnGetTempStream: TGetSetTempFile <b>read</b> FOnGetTempStream <b>write</b> FOnGetTempStream;
+  <b>property</b> OnCloseTempStream: TGetSetTempFile <b>read</b> FOnCloseTempStream <b>write</b> FOnCloseTempStream;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Мы видим, что в фабрике
+есть настройки RecordSet, т.е. Вы можете либо раз
+и навсегда определить эти настройки для
+всех RecordSet во время разработки, либо
+переопределять их перед открытием TUnDataSet. Не
+забудем еще, что фабрика должна быть в одном
+модуле с RecordSet, тобы иметь полный доступ к
+его полям. Вот реализация метода получения
+RecordSet_а:</p>
+<!--mstheme--></font>
+<pre><b>function</b> TUnStreamRecordSetDispatcher.GetRecordSet(DataSet: TDataSet): TUnCustomRecordSet;
+<b>begin</b>
+ Result:=TUnStreamRecordSet.Create;
+ <b>if</b> FInMemory <b>or</b> <b>not</b> Assigned(FOnGetTempStream) <b>then</b>
+  TUnStreamRecordSet(Result).FStream:=TMemoryStream.Create
+ <b>else</b>
+  FOnGetTempStream(DataSet, TUnStreamRecordSet(Result).FStream);
+ Result.DataSet:=DataSet;
+ Result.Capasity:=Capasity;
+ TUnStreamRecordSet(Result).FcashMode:=FCashMode;
+ TUnStreamRecordSet(Result).Fdispetcher:=Self;
+ TUnStreamRecordSet(Result).FBufferSize:=FBufferSize;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Мы видим, что фабрике нужен
+обработчик на получение TStream. Если его нет,
+то создается TMemoryStream. Вообще, на больших
+наборах данных его использовать не
+рекомендуется, да и не затем мы делали такой
+RecordSet, чтобы все хранить в памяти, т.к. если
+сделать специализированный, который будет
+хранить строки в памяти, а не в TStream, то он
+будет намного эффективнее, чем в TMemoryStream.
+Далее, создается сам RecordSet, настраивается,
+согласно настройкам фабрики и отдается
+TUnDataSet_у. Все. Собственно, на этом можно было
+бы закончить. Но, давайте проведем
+тестирование. А что же мы получили?</p>
+<!--mstheme--></font>
+<h4><!--mstheme--><font face="Arial" color="#CCCCCC">Стресс тест<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Создадим небольшую
+программулинку для проверки нашего TUnDataSet_а.
+Вот как могла бы выглядеть форма:</p>
+<img src="../image003.png" align="center" width="641" height="480"><br>
+<br>
+На Add:<!--mstheme--></font>
+<pre><b>procedure</b> TForm1.Button5Click(Sender: TObject);
+<b>var</b> I: <b>Integer</b>;
+<b>begin</b>
+ UnDataSet1.DisableControls;
+ <b>for</b> I:=1 to SpinEdit1.Value <b>do</b>
+  <b>begin</b>
+   UnDataSet1.Append;
+   UnDataSet1a.Value:=I;
+  <b>end</b>;
+ UnDataSet1.EnableControls;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">На Find:<!--mstheme--></font>
+<pre><b>procedure</b> TForm1.FindClick(Sender: TObject);
+<b>begin</b>
+ UnDataSet1.Locate(Edit2.Text, Edit4.Text, []);
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">На Sort:<!--mstheme--></font>
+<pre><b>procedure</b> TForm1.Button4Click(Sender: TObject);
+<b>begin</b>
+ UnDataSet1.SortOnFields(Edit2.Text, <b>false</b>, <b>false</b>, <b>false</b>);
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Сделаем поле с именем a –
+целое число. Добавьте еще пару-тройку полей
+по своему усмотрению. Тестовая платформа: AMD
+Athlon 1000, 256 Mb RAM, IBM 5400 20 Gb. Добавление 1 000 000
+записей – 7 секунд. Сортировка 100 000 записей
+– 15 секунд (сравните – сортировка миллиона
+записей занимает уже несколько минут…).
+Поиск в 1 000 000 записей не более 2 секунд.
+Буфер и Capasity были установлены в 100. Общий
+размер записи был 46 байт.</p>
+<!--mstheme--></font>
+<h4><!--mstheme--><font face="Arial" color="#CCCCCC">Благодарности<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+<p align="justify">&nbsp;&nbsp;Особая благодарность Naviy
+за идею выделения RecordSet в отдельный класс.</p>
+<p align="justify">&nbsp;&nbsp;Дмитриию Коннову за
+тестирование компонентов и предложения по
+архитектуре.</p>
+<p align="justify">&nbsp;&nbsp;Дмитрий Шумко -
+портирование до пятой версии Delphi.</p>
+<p align="justify">&nbsp;&nbsp;Продолжение следует. В
+следующей статье мы подробно познакомимся
+с методами работы с базами данных, в
+частности, создадим TUnFectherDataSet и Fetcher для
+него, который можно наследовать для любых
+БД.</p>
+<!--mstheme--></font>
+
+</body>
+
+</html>

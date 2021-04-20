@@ -1,0 +1,1182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0043)http://delphigfx.mastak.ru/2d/013/2d_13.htm -->
+<HTML><HEAD><TITLE>Delphi GFX - Учимся работать с DelphiX</TITLE>
+<META http-equiv=Content-Type content="text/html; charset=windows-1251">
+<META 
+content="Delphi, DelphiX, документация, FAQ, directx, обучение, tutorial, пример, com, интерфейс, directdraw, directplay, directsound, введение, процессор, графика, системное, игры, математическая библиотека, компоненты, блиттинг, клиппинг, рейтинг, Flip" 
+name=keywords>
+<META content="Учимся работать с DelphiX. " name=Description>
+<META content=Dynamic name=Document-state>
+<META content="180 days" name=revizit-after><LINK 
+href="../CAЙТЫ/Статьи%20по%20Delphi/Delphi%20GFX%20-%20Учимся%20работать%20с%20DelphiX.files/style.css" rel=stylesheet>
+<META content="Microsoft FrontPage 4.0" name=GENERATOR>
+<meta name="Microsoft Theme" content="zero2 111">
+</HEAD>
+<BODY leftMargin=0 topMargin=0 marginheight="0" marginwidth="0" background="zertxtr.gif" bgcolor="#FFFFFF" text="#000000" link="#990000" vlink="#99CCCC" alink="#000099">
+<!--mstheme--></font>
+<table cellSpacing="10" cellPadding="0" width="908" bgColor="#112863" background="../../CAР™РўР«/РЎС‚Р°С‚СЊРё%20РїРѕ%20Delphi/Delphi%20GFX%20-%20Учимся%20работать%20с%20DelphiX.files/back_0.gif" border="0" height="25">
+  <tbody>
+    <tr>
+      <td height="72" width="905">
+      <!--mstheme--></font>
+        <h3 align="center"><!--mstheme--><font color="#006666"><b><font color="#00FF00" size="5">Учимся
+        работать с DelphiX</font></b><!--mstheme--></font></h3>
+        <p>&nbsp;<!--mstheme--></font></td>
+    </tr>
+  </tbody>
+</table>
+<!--mstheme--></font>
+<table cellSpacing="10" cellPadding="0" width="912" align="center" border="0" height="7497">
+  <tbody>
+    <tr>
+      <td vAlign="top" align="middle" height="7487" width="890">
+      <!--mstheme--></font>
+        <table class="table1" cellSpacing="1" cellPadding="0" width="874" border="0" height="9001">
+          <tbody>
+            <tr>
+              <td bgColor="#ffffff" height="8999" width="899">
+              <!--mstheme--></font>
+                <table cellSpacing="5" cellPadding="0" width="883" border="0" height="8988">
+                  <tbody>
+                    <tr>
+                      <td height="8982" width="869">
+                      <!--mstheme--></font>
+                        <h5><!--mstheme--><font color="#000000"><b><a name="1"></a>Краткий обзор DirectX</b><!--mstheme--></font></h5>
+                        <p>Говоря техническим языком,
+                        DirectX - набор объектов COM (Component
+                        Object Model), которые реализуют
+                        интерфейсы для облегчения
+                        работы с видеоаппаратурой,
+                        звуком, межкомпьютерными
+                        соединениями и некоторыми
+                        системными сервисами.</p>
+                        <p>DirectX был создан для решения
+                        проблемы совместимости
+                        аппаратуры, пополняющейся все
+                        новыми образцами с новыми
+                        возможностями и функциями, и
+                        программ, этой аппаратурой
+                        управляющих. Также применение
+                        DirectX с аппаратурой, имеющей
+                        функции аппаратного ускорения
+                        (3Dfx, NVidia и подобные) позволяет
+                        разгрузить основной процессор.</p>
+                        <p>DirectX состоит из 7 основных
+                        компонент:</p>
+                    <!--mstheme--></font>
+                    <!--msthemelist--><table border="0" cellpadding="0" cellspacing="0" width="100%">
+                      <!--msthemelist--><tr>
+                        <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+                        <td valign="top" width="100%">DirectDraw - позволяет напрямую
+                            работать с видеопамятью и
+                            аппаратными функциями
+                            оборудования, при этом
+                            сохраняя совместимость с
+                            Windows-приложениями.<!--mstheme--></font><!--msthemelist--></td>
+                    </tr>
+                    <!--msthemelist--><tr>
+                      <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+                      <td valign="top" width="100%">DirectInput - интерфейс для
+                            устройств ввода (мышь,
+                            клавиатура, джойстик и т.д.)<!--mstheme--></font><!--msthemelist--></td>
+                  </tr>
+                  <!--msthemelist--><tr>
+                    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+                    <td valign="top" width="100%">DirectPlay - интерфейс для
+                            многопользовательских
+                            приложений (TCP/IP, Direct Dial,
+                            локальное подключение)<!--mstheme--></font><!--msthemelist--></td>
+              </tr>
+              <!--msthemelist--><tr>
+                <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+                <td valign="top" width="100%">DirectSound - интерфейс для
+                            звуковой аппаратуры (WAV, MIDI и
+                            др.)<!--mstheme--></font><!--msthemelist--></td>
+            </tr>
+            <!--msthemelist--><tr>
+              <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+              <td valign="top" width="100%">DirectSound3D - позвляет
+                            позиционировать звуковые
+                            источники в любой точке
+                            трехмерного пространства,
+                            создавая таким образом
+                            реальный объемный звук.<!--mstheme--></font><!--msthemelist--></td>
+          </tr>
+          <!--msthemelist--><tr>
+            <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+            <td valign="top" width="100%">Direct3D - интерфейс к 3D -
+                            аппаратуре<!--mstheme--></font><!--msthemelist--></td>
+      </tr>
+    <!--msthemelist--></table>
+                        <p>Все эти компоненты
+                        спроектированы таким образом,
+                        чтобы дать програмисту прямой
+                        доступ к аппаратуре.</p>
+  <!--mstheme--></font>
+                        <h5><!--mstheme--><font color="#000000"><b><a name="2"></a>Терминология</b><!--mstheme--></font></h5>
+                        <p>Перед началом работы с DirectX
+                        необходимо остановиться на
+                        терминологии.</p>
+                        <p><b>Поверхность (surface)</b> -
+                        участок видеопамяти, который
+                        используется для хранения
+                        различных картинок. Все
+                        видеобуферы ссылаются на
+                        поверхности. Поверхность,
+                        которая отображается на
+                        экране в текущий момент
+                        называется основной (primary)
+                        поверхностью. Эта поверхность
+                        занимает столько памяти,
+                        сколько нужно для текущего
+                        разрешения и глубины цвета.
+                        Так, если установлен
+                        видеорежим 640 x 480 x 256 цветов (8
+                        bpp), тогда основная поверхность
+                        будет занимать 307200 байт
+                        видеопамяти. Обычно вам нужна
+                        еще одна поверхность такого же
+                        размера, что и основная,
+                        используемая для флиппинга (что
+                        это такое будет объяснено чуть
+                        позже). Это значит, что нужно
+                        614400 байт видеопамяти просто
+                        чтобы начать работать, не
+                        загружая никаких картинок.
+                        Если количества видеопамяти
+                        не хватает, поверхности будут
+                        создаваться в системной
+                        памяти, теряя преимущества
+                        аппаратного ускорения. В
+                        настоящий момент вам
+                        необходима видеокарта с 2MB
+                        видеопамяти - это абсолютный
+                        минимум для простых игр.</p>
+                        <p><b>Двойная буферизация (double
+                        buffering)</b> - техника, применяемая
+                        для получения быстрой, плавной
+                        анимации. Обычно используется
+                        дополнительный буфер, где
+                        создается сцена, которая затем
+                        отображается на экране.</p>
+                        <p><b>Анимация с флиппингом
+                        страниц (page flipping animation)</b> - для
+                        понимания этой техники вам
+                        достаточно нарисовать что-нибудь
+                        в блокноте и быстро пролистать
+                        страницы. При этом получится
+                        изменяющаяся картинка. В нашем
+                        случае сцена создается
+                        копированием картинок и
+                        спрайтов на поверхность (буфер),
+                        которая затем отображается на
+                        экране. Флиппинг - очень
+                        быстрая операция из-за того,
+                        что реально не происходит
+                        копирования больших объемов
+                        информации. При флиппинге
+                        происходит изменение одного
+                        регистра видеокарты, который
+                        содержит адрес участка памяти,
+                        отображающегося в текущий
+                        момент. В основном флиппинг
+                        состоит из 3-х шагов:<br>
+                        1. Создание сцены в буфере.<br>
+                        2. Переключение буфера для
+                        отображения, при этом
+                        поверхность, которая
+                        отображалась до этого
+                        становится буфером.<br>
+                        3. Повторяем с шага 1.</p>
+                        <p><b>Кадры в секунду (frames per second)</b>
+                        - обычно записывается как FPS, и
+                        обозначает количество кадров
+                        анимации, необходимое для
+                        получения плавного реального
+                        движения. Обычно для игр
+                        достаточно 24-25 FPS для получения
+                        приемлемых результатов (хотя
+                        для некоторых игр это значение
+                        может быть еще меньше).</p>
+                        <p><b>Эффект разрывания экрана
+                        (tearing)</b> - Большинство
+                        мониторов обновляют экран с
+                        частотой примерно 70 раз/сек (70
+                        Гц) сверху вниз. Проблема
+                        возникает когда вы пытаетесь
+                        отобразить новую картинку где-то
+                        в середине процесса
+                        обновления экрана. При этом
+                        верхняя половина экрана
+                        отображает старую картинку, а
+                        нижняя - новую. Во время
+                        существования DOS для
+                        предотвращения этого эффекта
+                        вам нужно было бы
+                        синхронизироваться с
+                        вертикальной разверткой. DirectX
+                        освобождает вас от этой
+                        процедуры.</p>
+                        <p><b>Картинки (битмапы) и
+                        спрайты</b> - спрайты отличаются
+                        от битмапов тем, что они имеют
+                        прозрачные области. Термин &quot;спрайт&quot;
+                        также используется для
+                        анимированных изображений в
+                        играх. Обычно спрайт состоит
+                        из нескольких фреймов (кадров),
+                        как в ледующем примере:</p>
+                        <p align="center"><img src="../d1.gif" width="244" height="197"></p>
+                        <p>Отметим, что каждый фрейм
+                        отображает определенный угол
+                        поворота объекта. Если
+                        показывать эти картинки одна
+                        за другой, то получится что-то
+                        тип этого:</p>
+                        <p align="center"><img src="../d2.gif" width="80" height="48"></p>
+                        <p>Также отметим, что
+                        прозрачный цвет спрайта -
+                        черный, поэтому фон
+                        получающегося спрайта - белый.</p>
+                        <p><b>Клиппинг (clipping)</b> - эта
+                        техника применяется для того,
+                        чтобы приложение смогло
+                        рисовать только в отведенный
+                        ему прямоугольник на экране.
+                        Если клиппинг не применяется,
+                        приложение может рисовать на
+                        всем экране. Это прекрасно
+                        работает если ваше приложение
+                        полноэкранное, но если оно
+                        оконное - клиппинг должен
+                        применяться обязательно.</p>
+                        <p>Теория цвета - цвет в Windows
+                        обычно представляется моделью
+                        RGB (красный, зеленый, синий).
+                        Используя эти три основных
+                        цвета позволяет получить все
+                        мыслимые оттенки комбинацией
+                        основных. Обычно цвет хранится
+                        в виде 3-х байтов - каждый байт
+                        представляет относительную
+                        интенсивность основного цвета
+                        (от 0 до 255 включительно).</p>
+                        <p>В Delphi цвет представляется в
+                        виде класса TColor, объявленном в
+                        модуле Graphics. Вы можете
+                        определить цвет используя
+                        консттанты типа clBlue, clLime и т.п.
+                        или определяя TColor как 4-хбайтовое
+                        число, где 3 младших байта
+                        представляют RGB цвет. Так,
+                        0x00FF0000 - синий, 0x0000FF00 - зеленый, 0х000000FF
+                        - красный, 0x00000000 - черный, 0х00FFFFFF
+                        - белый и т.д. По поводу
+                        старшего байта в помощи по VCL
+                        сказано: &quot;Если старший байт
+                        равен $00, получаемый цвет -
+                        ближайший подходящий цвет
+                        системной палитры, если он
+                        равен $01 - берется ближайший
+                        цвет из текущей палитры, если
+                        $02 - подбирается ближайший цвет,
+                        соответствующий контексту
+                        устройства&quot;.</p>
+<!--mstheme--></font>
+                        <h5 align="left"><!--mstheme--><font color="#000000"><b><a name="3"></a>Обзор DelphiX</b><!--mstheme--></font></h5>
+                        <p>Для работы с DelphiX необходимы
+                        следующие компоненты:</p>
+<!--mstheme--></font>
+<!--msthemelist--><table border="0" cellpadding="0" cellspacing="0" width="100%">
+                          <li>DirectX Run-time
+                          <li>Delphi 3, 4, 5, 6
+                          <li>DelphiX</li>
+<!--msthemelist--></table>
+                        <p>DelphiX - набор бесплатных
+                        компонент для Delphi для
+                        упрощения использования DirectX.
+                        Компоненты и их назначение
+                        представлены ниже:</p>
+                        <p align="center"><img src="../d3.gif" width="431" height="55"></p>
+<!--mstheme--></font>
+                        <table class="table1" cellSpacing="1" cellPadding="2" width="90%" align="center" border="0">
+                          <tbody>
+                            <tr align="middle">
+                              <td width="30%">
+                                <div align="center">
+                                  <b>Название<br>
+                                  компоненты</b>
+                                </div>
+                              <!--mstheme--></font>
+                              </td>
+                              <td width="70%">
+                                <div align="center">
+                                  <b>Описание<br>
+                                  компоненты</b>
+                                </div>
+                            <!--mstheme--></font>
+                              </td>
+                            </tr>
+                            <tr bgColor="#ffffff">
+                              <td vAlign="top" width="30%"><b><img src="../d4.gif" align="absMiddle" width="24" height="24">TDXDraw</b><!--mstheme--></font></td>
+                              <td width="70%">Дает доступ к
+                                поверхностям DirectDraw и
+                                включает весь код,
+                                необходимый для работы с
+                                DirectDraw и DirectDraw.<!--mstheme--></font></td>
+                            </tr>
+                            <tr bgColor="#ffffff">
+                              <td vAlign="top" width="30%"><b><img src="../d5.gif" align="absMiddle" width="24" height="24">TDXDib</b><!--mstheme--></font></td>
+                              <td width="70%">Позволяет хранить
+                                DIB (Device Independent Bitmap) <a href="http://delphigfx.mastak.ru/2d/007/2d_7.htm">подробне</a><!--mstheme--></font></td>
+                            </tr>
+                            <tr bgColor="#ffffff">
+                              <td vAlign="top" width="30%"><img border="0" src="../d6.gif" width="24" height="24"><b>TDXImageList</b><!--mstheme--></font></td>
+                              <td width="70%">Позволяет хранить
+                                серии DIB-файлов, что очень
+                                удобно для программ,
+                                содержащих спрайты.
+                                Позволяет загружать серию
+                                с диска во время
+                                выполнения программы.<!--mstheme--></font></td>
+                            </tr>
+                            <tr bgColor="#ffffff">
+                              <td vAlign="top" width="30%"><b><img src="../d7.gif" align="absMiddle" width="24" height="24">TDX3D</b><!--mstheme--></font></td>
+                              <td width="70%">Оставлен для
+                                совместимости с
+                                предыдущими версиями DelphiX,
+                                используйте TDXDraw.<!--mstheme--></font></td>
+                            </tr>
+                            <tr bgColor="#ffffff">
+                              <td vAlign="top" width="30%"><b><img src="../d8.gif" align="absMiddle" width="24" height="24">TDXSound</b><!--mstheme--></font></td>
+                              <td width="70%">Позволяет легко
+                                проигрывать wav-файлы.<!--mstheme--></font></td>
+                            </tr>
+                            <tr bgColor="#ffffff">
+                              <td vAlign="top" width="30%"><b><img src="../d9.gif" align="absMiddle" width="24" height="24">TDXWave</b><!--mstheme--></font></td>
+                              <td width="70%">&quot;Хранилище&quot;
+                                для wav-файла.<!--mstheme--></font></td>
+                            </tr>
+                            <tr bgColor="#ffffff">
+                              <td vAlign="top" width="30%"><b><img src="../d10.gif" align="absMiddle" width="24" height="24">TDXWaveList</b><!--mstheme--></font></td>
+                              <td width="70%">&quot;Хранилище&quot;
+                                для серии wav-файлов.<!--mstheme--></font></td>
+                            </tr>
+                            <tr bgColor="#ffffff">
+                              <td vAlign="top" width="30%"><b><img src="../d11.gif" align="absMiddle" width="24" height="24">TDXInput</b><!--mstheme--></font></td>
+                              <td width="70%">Позволяет
+                                получить доступ к объекту
+                                DirectInput и, соответственно, к
+                                мыши, клавиатуре и т.д.<!--mstheme--></font></td>
+                            </tr>
+                            <tr bgColor="#ffffff">
+                              <td vAlign="top" width="30%"><b><img src="../d12.gif" align="absMiddle" width="24" height="24">TDXPlay</b><!--mstheme--></font></td>
+                              <td width="70%">Позволяет
+                                разработчику легко
+                                подсоединить данные,
+                                находящиеся на другом
+                                компьютере, в том числе
+                                через Internet или LAN.<!--mstheme--></font></td>
+                            </tr>
+                            <tr bgColor="#ffffff">
+                              <td vAlign="top" width="30%"><b><img src="../d13.gif" align="absMiddle" width="24" height="24">TDXSpriteEngine</b><!--mstheme--></font></td>
+                              <td width="70%">Облегчает и
+                                автоматизирует работу со
+                                спрайтами. Поддержка
+                                методов Move, Kill и т.д.<!--mstheme--></font></td>
+                            </tr>
+                            <tr bgColor="#ffffff">
+                              <td vAlign="top" width="30%"><b><img src="../d14.gif" align="absMiddle" width="24" height="24">TDXTimer</b><!--mstheme--></font></td>
+                              <td width="70%">Дает более высокую
+                                точность, чем при
+                                использовании обычного
+                                таймера (TTimer).
+                                Используются потоки,
+                                синхронизация.<!--mstheme--></font></td>
+                            </tr>
+                            <tr bgColor="#ffffff">
+                              <td vAlign="top" width="30%"><b><img border="0" src="../d15.gif" width="24" height="24">TDXPaintBox</b><!--mstheme--></font></td>
+                              <td width="70%">DIB-версия
+                                стандартной компоненты
+                                TImage<!--mstheme--></font></td>
+                            </tr>
+                          </tbody>
+                        </table>
+<!--mstheme--></font>
+                        <h5 align="left"><!--mstheme--><font color="#000000"><b><a name="4"></a>Замечания
+                        по инсталляции</b><!--mstheme--></font></h5>
+                        <p>Предположим, вы уже
+                        распаковали DelphiX на жесткий
+                        диск и готовы инсталлировать
+                        ее на палитру компонент. Если
+                        библиотека пришла в виде
+                        исходников, желательно
+                        перекомпилировать ее. В любом
+                        случае для инсталляции
+                        выберите из меню File пункт Open и
+                        найдите каталог, в который вы
+                        распаковали библиотеку. Там
+                        должны быть файлы Delphi_for3.dpk,
+                        Delphi_for4.dpk и Delphi_for5.dpk, для
+                        соответствующей версии Delphi.
+                        Появится диалог подобный
+                        следующему:</p>
+                        <div align="center">
+                          <img alt="DelphiX project" src="../d16.gif" width="184" height="231">
+                        </div>
+                        <p>Нажмите кнопку Compile и после
+                        компиляции нажмите кнопку
+                        Install. Если все прошло успешно,
+                        появится диалог, сообщающий об
+                        этом. Все готово для
+                        экспериментов с DirectX.</p>
+                        <p>Если у Вас имеется каталог
+                        DelphiX\Bin то для подключения
+                        компонент проще использовать
+                        утилитки Install_for3.exe, Install_for4.exe и
+                        Install_for5.exe - они не только
+                        установят DelphiX, но и подключат
+                        файл помощи.</p>
+<!--mstheme--></font>
+                        <h5><!--mstheme--><font color="#000000"><b><a name="5"></a>Начало
+                        программирования</b><!--mstheme--></font></h5>
+                        <p>В качестве примера создадим
+                        следующий эффект:</p>
+                        <div align="center">
+                          <p><img alt="Animated hole" src="../d17.gif" width="152" height="112"></p>
+<!--mstheme--></font>
+                          <h5 align="left"><!--mstheme--><font color="#000000"><b><a name="6"></a>Создание
+                          поверхности</b><!--mstheme--></font></h5>
+                          <p align="left">Для использования
+                          DirectDraw нужно создать
+                          поверхность, на которой мы
+                          бдем рисовать. Просто
+                          перетащите компоненту <img src="d18.gif" align="absMiddle" width="24" height="24">TDXDraw
+                          на вашу форму. Дайте ей имя
+                          DXDraw. В инспекторе объектов вы
+                          увидите 4 свойства, которые
+                          нас интересуют. Это Align,
+                          Autoinitialize, Display и Options.</p>
+                          <p align="left">Установите свойство
+                          Align в alClient, т.к. мы хотим, чтобы
+                          весь экран стал поверхностью
+                          DirectDraw.</p>
+                          <p align="left">Autoinitialize всегда
+                          должно быть установлено в true,
+                          только если мы не хотим
+                          инициализировать
+                          поверхность вручную, для чего,
+                          наверное, нужно использовать
+                          метод DXDraw.Initialize в обработчике
+                          OnCreate формы.</p>
+                          <p align="left">Свойство Display
+                          поможет вам выбрать размер
+                          области рисования.
+                          Допустимые видеорежимы
+                          показаны в выпадающем списке.
+                          Для нашего примера
+                          установите свойство в 640x480x8.</p>
+                          <p align="left">Свойство Options дает
+                          доступ к 18 атрибутам. Таблица
+                          объясняет их назначение.</p>
+<!--mstheme--></font>
+                          <table class="table1" cellSpacing="1" cellPadding="2" width="90%" align="center" border="0">
+                            <tbody>
+                              <tr align="middle">
+                                <td width="30%">
+                                  <div align="center">
+                                    <b>Атрибут</b>
+                                  </div>
+                                <!--mstheme--></font>
+                                </td>
+                                <td width="70%">
+                                  <div align="center">
+                                    <b>Описание</b>
+                                  </div>
+                              <!--mstheme--></font>
+                                </td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doFullScreen</b><!--mstheme--></font></td>
+                                <td width="70%">Запускает
+                                  приложение в
+                                  полноэкранном режиме.
+                                  Видеорежим может быть
+                                  указан в свойстве Display.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doNoWindowChange</b><!--mstheme--></font></td>
+                                <td width="70%">Если выбрана эта
+                                  опция и doFullScreen,
+                                  приложение сначала
+                                  максимизирует свое окно,
+                                  а затем устанавливает
+                                  режим, указанный в
+                                  свойстве Display.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doAllowReboot</b><!--mstheme--></font></td>
+                                <td width="70%">Определяет, можно
+                                  ли в программе
+                                  использовать комбинацию
+                                  Alt+Ctrl+Del. Это полезно во
+                                  время отладки.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doWaitForBlank</b><!--mstheme--></font></td>
+                                <td width="70%">Определяет, будет
+                                  ли ожидаться
+                                  вертикальная развертка
+                                  при выполнении операции
+                                  флиппинга. Опция немного
+                                  уменьшает FPS.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doAllowPalette256</b><!--mstheme--></font></td>
+                                <td width="70%">Будет ли
+                                  использоваться 256-цветная
+                                  палитра<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doSystemMemory</b><!--mstheme--></font></td>
+                                <td width="70%">Определяет,
+                                  использовать ли
+                                  системную память вместо
+                                  видеопамяти. Опция
+                                  немного уменьшает FPS.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doStretch</b><!--mstheme--></font></td>
+                                <td width="70%">Если ваша игра
+                                  использует область
+                                  отображения большую (или
+                                  меньшую), чем указано в
+                                  свойстве Display, с помощью
+                                  этой опции можно сжать (растянуть)
+                                  изображение на весь
+                                  экран.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doCenter</b><!--mstheme--></font></td>
+                                <td width="70%">Поверхность
+                                  отобразится в центре
+                                  экрана.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doFlip</b><!--mstheme--></font></td>
+                                <td width="70%">Применяется
+                                  только для полноэкранных
+                                  режимов. Если
+                                  используется двойная
+                                  буферизация и требуется
+                                  отобразить буфер, то в
+                                  случае установленной
+                                  опции это происходит
+                                  очень быстро (применяется
+                                  операция флиппинга).<br>
+                                  Замечание: размер буфера
+                                  должен равняться размеру
+                                  основной поверхности.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>do3D</b><!--mstheme--></font></td>
+                                <td width="70%">Позволено ли
+                                  использовать 3D
+                                  акселерацию<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doHadrware</b><!--mstheme--></font></td>
+                                <td width="70%">
+                                  <p>Если видеоадаптер
+                                  поддерживает аппаратное
+                                  ускорение типа 3D или 2D, то
+                                  полезно установить опцию
+                                  в true.<br>
+                                  Замечание: Если опция
+                                  установлена в true, а
+                                  видеокарта не
+                                  поддерживает
+                                  акселерацию, опция будет
+                                  установлена в false. это
+                                  можно использовать для
+                                  определения поддержки
+                                  аппаратного ускорения.</p>
+<!--mstheme--></font>
+                                </td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doRetainedMode</b><!--mstheme--></font></td>
+                                <td width="70%">Опция имеет
+                                  эффект только если
+                                  установлена опция do3D.
+                                  Если опция равна true,
+                                  используется режим Direct3D
+                                  Retained, иначе - Immediate.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doSelectDriver</b><!--mstheme--></font></td>
+                                <td width="70%">В полноэкранном
+                                  режиме определяет будет
+                                  ли использоваться
+                                  драйвер DirectDraw. Для Voodoo и
+                                  подобных видеоадаптеров
+                                  опция должна быть
+                                  установлена в True.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doDrawPrimitive</b><!--mstheme--></font></td>
+                                <td width="70%">Использовать
+                                  рисование примитивов.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doZBuffer</b><!--mstheme--></font></td>
+                                <td width="70%">Использовать ли Z-буфер.
+                                  Эта опция может
+                                  устранить некоторые
+                                  проблемы с пропаданием
+                                  объектов или наоборот, с
+                                  появлением объектов,
+                                  которые должны
+                                  находиться на заднем
+                                  плане. Требует часть
+                                  процессорного времени.
+                                  Некоторые карты
+                                  поддерживают эту функцию
+                                  аппаратно.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doTexture</b><!--mstheme--></font></td>
+                                <td width="70%">Будем ли мы
+                                  использовать текстуры на
+                                  3D объектах?<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doRGB</b><!--mstheme--></font></td>
+                                <td width="70%">Определяет,
+                                  станет ли использоваться
+                                  цветовая модель RGB. Может
+                                  улучшить внешний вид 3D
+                                  объектов, но отнимает
+                                  процессорное время. Если
+                                  карта аппаратно
+                                  поддерживает эту функцию,
+                                  опция не влияет на работу.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doMono</b><!--mstheme--></font></td>
+                                <td width="70%">Использовать ли
+                                  черно-белую цветовую
+                                  модель.<!--mstheme--></font></td>
+                              </tr>
+                              <tr bgColor="#ffffff">
+                                <td vAlign="top" width="30%"><b>doDither</b><!--mstheme--></font></td>
+                                <td width="70%">Определяет будет
+                                  ли подбираться ближайший
+                                  цвет из палитры, если в
+                                  ней не окажется
+                                  запрашиваемого нами
+                                  цвета. В основном
+                                  используется с атрибутом
+                                  doAllowPalette256.<!--mstheme--></font></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          <p align="left">Наши установки буду
+                          выглядеть следующим образом:</p>
+<!--mstheme--></font>
+<!--msthemelist--><table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%">
+                              <div align="left">
+                                doFullScreen=False (программа
+                                будет стартовать в
+                                обычном окне)
+                              </div>
+    <!--mstheme--></font><!--msthemelist--></td>
+</tr>
+<!--msthemelist--><tr>
+  <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+  <td valign="top" width="100%">
+                              <div align="left">
+                                doAllowReboot=True (Возможно,
+                                возникнет ситуация, когда
+                                нам нужно будет снять
+                                задачу из-за ошибок)
+                              </div>
+  <!--mstheme--></font><!--msthemelist--></td>
+</tr>
+<!--msthemelist--><tr>
+  <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+  <td valign="top" width="100%">
+                              <div align="left">
+                                doWaitVBlank=True/False (Попробуйте
+                                оба значения. Возможно, вы
+                                получите приемлемое
+                                качество при установке
+                                False, при этом возрастет FPS)
+                              </div>
+  <!--mstheme--></font><!--msthemelist--></td>
+</tr>
+<!--msthemelist--><tr>
+  <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+  <td valign="top" width="100%">
+                              <div align="left">
+                                do3D=False (Наше приложение
+                                будет использовать только
+                                2D)
+                              </div>
+  <!--mstheme--></font><!--msthemelist--></td>
+</tr>
+<!--msthemelist--><tr>
+  <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+  <td valign="top" width="100%">
+                              <div align="left">
+                                doHardware=True (Нам нужно
+                                определить, поддерживает
+                                ли аппаратура акселерацию.)
+                              </div>
+  <!--mstheme--></font><!--msthemelist--></td>
+</tr>
+<!--msthemelist--></table>
+                          <p align="left">Остальные атрибуты
+                          оставлены как есть.</p>
+<!--mstheme--></font>
+                          <h5 align="left"><!--mstheme--><font color="#000000"><b><a name="7"></a>Добавление
+                          в программу изображений</b><!--mstheme--></font></h5>
+                          <p align="left">Работа с битмапами в
+                          DelphiX обычно трудностей не
+                          вызывает. Все, что вам нужно
+                          сделать - создать картинку и
+                          затем добавить компоненту <img src="../d19.gif" align="absMiddle" width="24" height="24">TDXDib
+                          или <img src="../d20.gif" align="absMiddle" width="24" height="24">TDXImageList.
+                          Для нашего примера перетащим
+                          на форму TDXImageList (и назовем ее
+                          DXImageList). В инспекторе объектов
+                          вы увидите 2 свтойства: DXDraw и
+                          Items.</p>
+                          <p align="left">DXDraw определяет
+                          поверхность DirectDraw, на которой
+                          будет рисоваться эта
+                          картинка (или серия картинок).
+                          Возможно использование
+                          нескольких поверхностей. В
+                          нашем случае просто выберите
+                          уже созданную поверхность
+                          DXDraw.</p>
+                          <p align="left">Items содержит все
+                          изображения в серии. Для
+                          добавления новых изображений
+                          нажмите на кнопку &quot;...&quot; и
+                          добавьте свои картинки.</p>
+<!--mstheme--></font>
+                          <h5 align="left"><!--mstheme--><font color="#000000"><b><a name="8"></a>Изучаем
+                          таймер</b><!--mstheme--></font></h5>
+                          <p align="left">Следующий шаг в
+                          нашем простом примере -
+                          добавление таймера <img src="../d21.gif" align="absMiddle" width="24" height="24">(назовем
+                          его DXTimer). Как вы наверное
+                          знаете, SystemTimer, входящий в
+                          стандартный набор компонент
+                          Delphi, не очень точен для
+                          использования в играх. DXTimer
+                          имеет разрешение, близкое к
+                          миллисекунде, что вполне
+                          достаточно для наших (и более
+                          серьезных) целей. Установите
+                          его свойства следующим
+                          образом:</p>
+                          <div align="left">
+<!--mstheme--></font>
+<!--msthemelist--><table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%">ActiveOnly = true (таймер всегда
+                                активен)<!--mstheme--></font><!--msthemelist--></td>
+</tr>
+<!--msthemelist--><tr>
+  <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+  <td valign="top" width="100%">Enabled=false (мы сами будем
+                                управлять им - запукать и
+                                останавливать)<!--mstheme--></font><!--msthemelist--></td>
+</tr>
+<!--msthemelist--><tr>
+  <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+  <td valign="top" width="100%">Interval=0 (максимальная
+                                частота срабатывания
+                                таймера)<!--mstheme--></font><!--msthemelist--></td>
+</tr>
+<!--msthemelist--></table>
+                          </div>
+                          <p align="left">Еще одна очень
+                          приятная фича DXTimer'а -
+                          свойство DXTimer.FrameRate. Оно
+                          позволяет получить значение
+                          FPS в любой момент времени.
+                          Событие таймера обычно
+                          используется для методов
+                          типа DXDraw.Flip, DXDraw.Render, DXDraw.Update и
+                          др. В нашем примере
+                          используется метод DXDraw.Flip.</p>
+<!--mstheme--></font>
+                          <h5 align="left"><!--mstheme--><font color="#000000"><b><a name="9"></a>Подготовительные
+                          действия</b><!--mstheme--></font></h5>
+                          <p align="left">Перед тем как
+                          собственно что-нибудь
+                          нарисовать, нужно
+                          подготовить кое-какую
+                          информацию для нормальной
+                          работы приложения.</p>
+                          <p align="left">Во-первых, в закрытую
+                          секцию необъодимо добавить
+                          некоторые переменные и
+                          процедуры:</p>
+                        </div>
+                        <p>&nbsp;</p>
+<!--mstheme--></font>
+                        <table class="tablecode" cellPadding="10" width="100%" border="0">
+                          <tbody>
+                            <tr>
+                              <td>SineMove : <b>array</b>[0..255] <b>of</b>
+                                integer; <font color="#000099">{ Таблица
+                                синусов для движения }</font><br>
+                                CosineMove : <b>array</b>[0..255] <b>of</b>
+                                integer; <font color="#000099">{ Таблица
+                                косинусов }</font><br>
+                                SineTable : <b>array</b>[0..449] <b>of</b>
+                                integer; { Таблица синусов }<br>
+                                CenterX, CenterY : Integer; <font color="#000099">{
+                                Для координат центра
+                                черной дыры, которую мы
+                                будем рисовать }</font><br>
+                                <br>
+                                <b>procedure</b> CalculateTables; <font color="#000099">{
+                                Заполнение таблиц синусов
+                                и косинусов }</font><br>
+                                <b>procedure</b> PlotPoint( XCenter, YCenter,
+                                Radius, Angle : Word); <font color="#000099">{
+                                Рисование точки на бэк-буфере
+                                }</font><!--mstheme--></font></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <p>Таблицы содержат заранее
+                        рассчитываемые значения
+                        синусов и косинусов,
+                        используемые для
+                        моделирования волн при
+                        движении. Зачем эти значения
+                        рассчитываются заранее?
+                        Вообще, в программировании игр
+                        всегда существует компромисс
+                        между скоростью и объемом.
+                        Если приложение занимает
+                        немного памяти, то оно все
+                        просчитывает само,
+                        следовательно, отнимается
+                        какое-то время. Либо можно
+                        просчитать все до цикла
+                        рисования, сохранить
+                        результаты и затем
+                        использовать их, выиграв в
+                        скорости. Процедура
+                        заполнения таблиц может
+                        выглядеть следующим образом (хотя
+                        ваша реализация, несомненно,
+                        будет работать намного лучше):</p>
+<!--mstheme--></font>
+                        <table class="tablecode" cellPadding="10" width="100%" border="0">
+                          <tbody>
+                            <tr>
+                              <td><b>procedure</b> TMainForm.CalculateTables;<br>
+                                <b>var</b><br>
+                                &nbsp;&nbsp;&nbsp;wCount : Word;<br>
+                                <b>begin</b><br>
+                                <font color="#000099">{ Precalculted Values for
+                                movement }</font><br>
+                                &nbsp;&nbsp;&nbsp;<b>for</b> wCount := 0 <b>to</b>
+                                255 <b>do</b><br>
+                                &nbsp;&nbsp;&nbsp;<b>begin</b><br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SineMove[wCount]
+                                := round( sin( pi*wCount/128 ) * 45 );<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CosineMove[wCount]
+                                := round( cos( pi*wCount/128 ) * 60 );<br>
+                                &nbsp;&nbsp;&nbsp;<b>end</b>;<br>
+                                <font color="#000099">{ Precalculated Sine
+                                table. Only One table because cos(i) = sin(i +
+                                90) }</font><br>
+                                &nbsp;&nbsp;&nbsp;<b>for</b> wCount := 0 <b>to</b>
+                                449 <b>do</b><br>
+                                &nbsp;&nbsp;&nbsp;<b>begin</b><br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SineTable[wCount]
+                                := round( sin( pi*wCount/180 ) * 128);<br>
+                                &nbsp;&nbsp;&nbsp;<b>end</b>;<br>
+                                <b>end</b>;<!--mstheme--></font></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <p>К процедуре построения точки
+                        мы вернемся позже. Следующее,
+                        что нужно сделать - это
+                        добавить кое-какой код в
+                        событие OnCreate формы:<br>
+                        </p>
+<!--mstheme--></font>
+                        <table class="tablecode" cellPadding="10" width="100%" border="0">
+                          <tbody>
+                            <tr>
+                              <td><b>procedure</b> TMainForm.FormCreate(Sender:
+                                TObject);<br>
+                                <b>begin</b><br>
+                                &nbsp;&nbsp;&nbsp;CenterX := Width div 2;<br>
+                                &nbsp;&nbsp;&nbsp;CenterY := Height div 2;<br>
+                                &nbsp;&nbsp;&nbsp;CalculateTables;<br>
+                                <b>end</b>;<!--mstheme--></font></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <p>И для того, чтобы форма
+                        завершилась по нажатию на
+                        клавишу ESC, нужно добавить код
+                        в обработчик события OnKeyDown:</p>
+<!--mstheme--></font>
+                        <table class="tablecode" cellPadding="10" width="100%" border="0">
+                          <tbody>
+                            <tr>
+                              <td><b>procedure</b> TMainForm.FormKeyDown(Sender:
+                                TObject; var Key: Word; Shift: TShiftState);<br>
+                                <b>begin</b><br>
+                                &nbsp;&nbsp;&nbsp;<b>if</b> Key=VK_ESCAPE <b>then</b>
+                                Close;<br>
+                                <b>end</b>;<!--mstheme--></font></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <p>Теперь выбираем компоненту
+                        DXDraw, которую мы поместили на
+                        форму и создаем обработчик
+                        события OnFinalize:</p>
+<!--mstheme--></font>
+                        <table class="tablecode" cellPadding="10" width="100%" border="0">
+                          <tbody>
+                            <tr>
+                              <td>DXTimer.Enabled := False;</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <p>Этот кусок кода
+                        останавливает таймер.
+                        Создайте обработчик события
+                        OnInitialize и добавьте в него
+                        строчку:<br>
+                        </p>
+<!--mstheme--></font>
+                        <table class="tablecode" cellPadding="10" width="100%" border="0">
+                          <tbody>
+                            <tr>
+                              <td>DXTimer.Enabled := True;</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <p>что запускает таймер, т.е.
+                        начинает отображение картинки
+                        (конечно, если поверхность
+                        готова к этому)</p>
+<!--mstheme--></font>
+                        <h5><!--mstheme--><font color="#000000"><b><a name="10"></a>Самое главное -
+                        это время</b><!--mstheme--></font></h5>
+                        <p>Как видно, для подготовки к
+                        работе с DirectX нужно совсем
+                        немного. Теперь перейдем
+                        собственно к рисованию.
+                        Создайте обработчик события
+                        OnTimer таймера и добавьте в него
+                        следующий код:</p>
+<!--mstheme--></font>
+                        <table class="tablecode" cellPadding="10" width="100%" border="0">
+                          <tbody>
+                            <tr>
+                              <td><b>procedure</b>
+                                TMainForm.DXTimerTimer(Sender: TObject;
+                                LagCount: Integer);<br>
+                                <b>const</b><br>
+                                &nbsp;&nbsp;x : Word = 0;<br>
+                                &nbsp;&nbsp;y : Word = 0;<br>
+                                &nbsp;&nbsp;IncAngle = 12;<br>
+                                &nbsp;&nbsp;XMove = 7;<br>
+                                &nbsp;&nbsp;YMove = 8;<br>
+                                <b>var</b><br>
+                                &nbsp;&nbsp;CountAngle : Word;<br>
+                                &nbsp;&nbsp;CountLong : Word;<br>
+                                &nbsp;&nbsp;IncLong :Word;<br>
+                                <b>begin</b><br>
+                                &nbsp;&nbsp;<b>if not</b> DXDraw.CanDraw <b>then</b>
+                                exit;<br>
+                                &nbsp;&nbsp;IncLong := 2;<br>
+                                &nbsp;&nbsp;CountLong := 20;<br>
+                                &nbsp;&nbsp;DXDraw.Surface.Fill( 0 );<br>
+                                &nbsp;&nbsp;<b>repeat</b><br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;CountAngle := 0;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<b>repeat</b><br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PlotPoint(CosineMove[(
+                                x + ( 200 - CountLong )) <b>mod</b> 255],<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SineMove[( y
+                                + ( 200 - CountLong )) mod 255], CountLong,
+                                CountAngle);<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>inc</b>(CountAngle,
+                                IncAngle);<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<b>until</b> CountAngle
+                                &gt;= 360;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<b>inc</b>(CountLong,
+                                IncLong);<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;<b>if</b> ( CountLong
+                                mod 3 ) = 0 <b>then</b> <b>inc</b>(IncLong);<br>
+                                &nbsp;&nbsp;<b>until</b> CountLong &gt;= 270;<br>
+                                &nbsp;&nbsp;x := XMove + x mod 255;<br>
+                                &nbsp;&nbsp;y := YMove + y mod 255; &nbsp;&nbsp;<br>
+                                &nbsp; <b>with</b> DXDraw.Surface.Canvas <b>do</b><br>
+                                &nbsp;&nbsp;<b>begin</b><br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;Brush.Style := bsClear;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;Font.Color := clWhite;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;Font.Size := 12;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;Textout( 0, 0, 'FPS:
+                                '+inttostr( DXTimer.FrameRate ) );<br>
+                                &nbsp;&nbsp;&nbsp; Release;<br>
+                                &nbsp;&nbsp;<b>end</b>;<br>
+                                DXDraw.Flip;<br>
+                                <b>end</b>;<!--mstheme--></font></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <p>Это основной код нашего
+                        приложения. Рассмотрим
+                        некторые важные моменты:</p>
+                        <p>Вызов процедуры Fill
+                        поверхности DXDraw.Surface
+                        (DXDraw.Surface.Fill(0);) заполняет буфер
+                        цветом, который передается ей
+                        в качестве параметра (в нашем
+                        случае - черный).</p>
+                        <p>Рассмотрим теперь процедуру
+                        PlotPoint. Все таблицы для ее
+                        работы были заполнены на
+                        подготовительном этапе, так
+                        что ничто не мешает нам
+                        нарисовать все, что мы хотим.
+                        Итак,</p>
+<!--mstheme--></font>
+                        <table class="tablecode" cellPadding="10" width="100%" border="0">
+                          <tbody>
+                            <tr>
+                              <td><b>procedure</b> TMainForm.PlotPoint(XCenter,
+                                YCenter, Radius, Angle: Word);<br>
+                                <b>var</b><br>
+                                &nbsp;&nbsp;&nbsp;X, Y : Word;<br>
+                                <b>begin</b><br>
+                                &nbsp;&nbsp;&nbsp;X := ( Radius * SineTable[90 +
+                                Angle]);<br>
+                                &nbsp;&nbsp;<b>&nbsp;asm</b><br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sar x,7<br>
+                                &nbsp;&nbsp;&nbsp;<b>end</b>;<br>
+                                &nbsp;&nbsp;&nbsp;X := CenterX + XCenter + X;<br>
+                                &nbsp;&nbsp;&nbsp;Y := ( Radius *
+                                SineTable[Angle] );<br>
+                                &nbsp;&nbsp;&nbsp;<b>asm</b><br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sar y,7<br>
+                                &nbsp;&nbsp;&nbsp;<b>end</b>;<br>
+                                &nbsp;&nbsp;&nbsp;Y := CenterY + YCenter + Y;<br>
+                                &nbsp;&nbsp;&nbsp;<b>if</b> (X &lt; Width ) <b>and</b>
+                                ( Y &lt; Height ) <b>then</b><br>
+                                &nbsp;&nbsp;&nbsp;<b>begin</b><br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DXDraw.Surface.Canvas.Pixels[X,
+                                Y] := clBlue;<br>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DXImageList.Items[0].Draw(
+                                DXDraw.Surface, X, Y, 0 );<br>
+                                &nbsp;&nbsp;&nbsp;<b>end</b>;<br>
+                                <b>end</b>;<!--mstheme--></font></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <p>Основная строка в этой
+                        процедуре:</p>
+<!--mstheme--></font>
+                        <table class="tablecode" cellPadding="10" width="100%" border="0">
+                          <tbody>
+                            <tr>
+                              <td>DXImageList.Items[0].Draw( DXDraw.Surface, X,
+                                Y, 0 );</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <p>Как было сказано выше DXImageList
+                        содержит массив картинок, с
+                        которыми мы работаем. Доступ к
+                        элементам осуществляется
+                        через индекс, начинающийся с 0.
+                        Т.е. указывая DXImageList.Items[0], мы
+                        получаем первую картинку, и т.д.
+                        Свойство Items имеет метод Draw, в
+                        который нужно передать 4
+                        параметра. Первый параметр
+                        определяет поверхность, на
+                        которой будет рисоваться эта
+                        картинка. Второй и третий
+                        параметры - X и Y - определяют
+                        позицию, в которую будет
+                        выведено изображение.
+                        Последний параметр - флаг,
+                        определяющий прозрачность
+                        выводимой картинки. Так что
+                        строка кода, приведенная выше
+                        может прочитаться как &quot;Вывести
+                        картинку с индексом 0 на
+                        поверхность DXDraw.Surface в позицию
+                        X, Y со значением прозрачности
+                        0&quot;.</p>
+                        <p>Также можно использовать
+                        свойство Pixels объекта Canvas для
+                        указания цвета определенной
+                        точки на экране (эта строка
+                        закоментирована, так как в
+                        нашем случае используется
+                        картинка. Эксперименты со
+                        свойством Pixels даются вам в
+                        качестве домашнего задания).<br>
+                        </p>
+                        <p>После того, как мы нарисовали
+                        нашу картинку, мы выводим
+                        значение FPS используя свойство
+                        FrameRate таймера. Вывод
+                        производится с помощью
+                        свойства Canvas объекта DXDraw.Surface.<br>
+                        </p>
+                        <p>Наконец вызывается метод
+                        DXDraw.Flip для отображения
+                        картинки на экране. При этом
+                        основная поверхность
+                        становится буфером.<br>
+                        </p>
+                        <p>Все, компилируйте и
+                        запускайте ваше приложение. На
+                        P120 получается порядка 12-15FPS (в
+                        зависимости от полноэкранного/оконного
+                        режима).</p>
+<!--mstheme--></font>
+                        <h5><!--mstheme--><font color="#000000"><!--mstheme--></font></h5>
+<!--mstheme--></font>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+<!--mstheme--></font>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+<!--mstheme--></font>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<!--mstheme--></font>
+</BODY></HTML>

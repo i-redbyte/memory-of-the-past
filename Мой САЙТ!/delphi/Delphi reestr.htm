@@ -1,0 +1,605 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0045)http://www.proglib.ru/articles/art0000040.asp -->
+<HTML><HEAD><TITLE>Delphi 4. Использование реестра</TITLE><!-- #BeginTemplate "/Templates/default.dwt" --><!-- DW6 --><!-- #BeginEditable "doctitle" --><!-- #EndEditable -->
+<META http-equiv=Content-Type content="text/html; charset=windows-1251">
+<META http-equiv=Content-Style-Type content=text/css>
+<META content=INDEX,FOLLOW name=robots>
+<META content="30 days" name=revisit-after><!-- #BeginEditable "docmetas" -->
+<META 
+content="Мир программирования - крупнейший архив исходников и документации. Системное программирование, DirectX и OpenGL, разработка игр - всему этому можно научиться очень быстро!" 
+name=description>
+<META 
+content="delphi работа с реестром registry tregistry tinifile regedit сохранение настроек программы в реестре" 
+name=keywords><!-- #EndEditable -->
+<SCRIPT language=Javascript type=text/javascript>
+<!--
+    if (navigator.appName == "Netscape") {
+      sCSS = '<link rel="stylesheet" type="text/css" href="http://www.proglib.ru/_c/nn.css">' 
+	} else {
+	  sCSS = '<link rel="stylesheet" type="text/css" href="http://www.proglib.ru/_c/ie.css">'
+	}
+  document.write(sCSS)
+//-->
+</SCRIPT>
+
+<META content="Microsoft FrontPage 4.0" name=GENERATOR>
+<meta name="Microsoft Theme" content="zero 011">
+</HEAD>
+<BODY text=#FFFFFF bgcolor=#000000 leftMargin=1 topMargin=1 background="zertxtr.gif" link="#6699CC" vlink="#669966" alink="#999999">
+<!--mstheme--><font face="Arial"><!-- #BeginEditable "1" -->
+<!--mstheme--></font>
+<H3 align=center><!--mstheme--><font face="Arial" color="#CCCCCC"><B><font color="#00FF00" size="6">Delphi 4. Использование реестра</font></B><!--mstheme--></font></H3>
+<!--mstheme--><font face="Arial">
+<P><B>Алексей Федоров</B></P>
+<P>Реестр - это центральное хранилище информации о параметрах системы и 
+установленных программах. В версиях Windows до Windows 95 программисты сохраняли 
+параметры программ либо в INI-файлах WIN.INI и SYSTEM.INI, либо в дополнительных 
+INI-файлах. Хотя использование INI-файлов поддерживается и в Win32, Microsoft 
+настоятельно рекомендует для хранения необходимых в работе программы параметров 
+пользоваться реестром. Реестр представляет собой иерархическую базу данных, 
+cостоящую из секций, подсекций и элементов. Каждая секция имеет свое назначение. 
+Хранить данные о пользовательских программах Microsoft рекомендует в секции 
+HKEY_CURRENT_USER и подсекции Software. В этой подсекции вы создаете подсекцию, 
+идентифицирующую вашу программу или фирму, и уже внутри нее располагаете данные. 
+</P>
+<!--mstheme--></font>
+<H4 align=justify><!--mstheme--><font face="Arial" color="#CCCCCC"><B>Модуль Registry</B><!--mstheme--></font></H4>
+<!--mstheme--><font face="Arial">
+<P>Для упрощения работы с регистратором в состав Delphi (начиная с версии 2.0) 
+входит модуль REGISTRY, содержащий реализацию трех классов, - TRegistry, 
+TRegistryIniFile и TRegIniFile. </P>
+<P><B>Внимание</B>! Чтобы использовать свойства и методы классов TRegistry, 
+TRegistryIniFile и TRegIniFile, необходимо включить в список uses модуль 
+Registry.</P>
+<!--mstheme--></font>
+<H4 align=justify><!--mstheme--><font face="Arial" color="#CCCCCC"><B>TRegIniFile</B><!--mstheme--></font></H4>
+<!--mstheme--><font face="Arial">
+<P>Собственно говоря, задача класса TRegIniFile - упростить перенос 16-битных 
+программ в среду Windows 95. Методы этого класса эквивалентны методам класса 
+TIniFile в 16-битной версии Delphi. Класс TRegIniFile позволяет обращаться к 
+секции HKEY_CURRENT_USER, считывать и записывать строки (методы ReadString и 
+WriteString), целочисленные значения (методы ReadInteger и WriteInteger), 
+логические значения (методы ReadBool и WriteBool), секции (методы ReadSection, 
+ReadSections и ReadSectionValues), удалять секции (метод EraseSection) и 
+элементы (метод DeleteKey). Рассмотрим на примерах, как используются функции 
+этого класса. </P>
+<P>Microsoft рекомендует записывать данные, относящиеся к вашей программе, в 
+подсекции секции HKEY_CURRENT_USER_Software. Предположим (не особенно фантазируя 
+на эту тему), что ваша программа называется RegDemo, и данные для нее 
+располагаются в секции Software\RegDemo. Ниже мы покажем, как поместить в 
+регистратор строчные, целочисленные и логические данные, а затем считать их, - 
+этих операций будет достаточно для того, чтобы сохранить в регистраторе 
+параметры нашей программы, а затем считать их. </P>
+<P>Прежде чем записать данные в определенную секцию, ее необходимо создать. Это 
+происходит при вызове конструктора объекта TRegIniFile. В качестве параметра вы 
+указываете название секции, и если таковой не существует, она создается:</P><!--mstheme--></font><PRE><CODE> 
+  </pre>
+<!--mstheme--><font face="Arial"> 
+  <P>RegFile := TRegIniFile.Create(SubKey);</P> </CODE>
+<P>После того как файл регистратора открыт (и создана определенная секция), мы 
+можем записать данные. Поддерживаются три типа данных: целочисленные, логические 
+и строчные данные. Для записи этих данных существуют методы WriteInteger, 
+WriteBool и WriteString. В качестве параметров указываются:</P>
+<!--mstheme--></font>
+<!--msthemelist--><table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">название подсекции;<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">название элемента;<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">записываемые данные.<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+<!--msthemelist--></table>
+<!--mstheme--><font face="Arial">
+<P>Так, чтобы записать значение элемента MyIntVal в подсекции IntKey, следует 
+выполнить код</P><!--mstheme--></font><PRE><CODE> 
+  </pre>
+<!--mstheme--><font face="Arial"> 
+  <P>RegFile.WriteInteger(IntKey, 'Int_Val', 32000);</P> </CODE>
+<P>а для того чтобы прочесть значение, необходимо вызвать метод ReadInteger (в 
+качестве параметров указываются название подсекции, название элемента и значение 
+по умолчанию):</P><!--mstheme--></font><PRE><CODE> 
+  </pre>
+<!--mstheme--><font face="Arial"> 
+  <P>RegFile.ReadInteger(IntKey, 'Int_Val', 0));</P> </CODE>
+<P>Для чтения логических и строчных данных используются соответственно методы 
+ReadBool и ReadStr, а для их записи – методы WriteBool и WriteString. </P>
+<P>Расссмотрим пример использования перечисленных выше методов класса 
+TRegIniFile. Расположим в форме компонент Memo, две группы GroupBox и шесть 
+кнопок – три в группе Write и три в группе Read. Нажатие каждой кнопки в группе 
+Write приведет к записи соответствующего значения в реестр, нажатие каждой 
+кнопки в группе Read – к чтению этого значения. </P>
+<P><IMG height=300 src="../Image104.gif" 
+width=434></P>
+<P>Ниже приведен исходный текст модуля, в котором содержатся обработчики нажатия 
+кнопок, использующие методы класса TRegIniFile. </P><!--mstheme--></font><PRE><CODE> 
+  </pre>
+<!--mstheme--><font face="Arial"> 
+  <P>unit RDUnit;</P><P>interface</P><P>uses
+    &nbsp;&nbsp;&nbsp; Windows, Messages, SysUtils, Classes, Graphics, Controls,Forms, Dialogs, StdCtrls, Registry;</P><P>type
+    &nbsp;&nbsp;&nbsp;</P><P>&nbsp;TForm1 = class(TForm)
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P><P>&nbsp;Memo1: TMemo;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<CODE>GroupBox1: TGroupBox;
+    &nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE>GroupBox2: TGroupBox;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE>Label1: TLabel;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE>Button1: TButton;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE>Button2: TButton;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE> Button3: TButton;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE> Button4: TButton;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE> Button5: TButton;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE> Button6: TButton;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE> procedure FormCreate(Sender: TObject);
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE>&nbsp; procedure Button1Click(Sender: TObject);
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE>&nbsp;procedure Button2Click(Sender: TObject);
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE> procedure Button3Click(Sender: TObject);
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE> procedure Button4Click(Sender: TObject);
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE>&nbsp;procedure Button5Click(Sender: TObject);
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE> procedure Button6Click(Sender: TObject);
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE> procedure FormClose(Sender: TObject; 
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE>&nbsp;var Action: TCloseAction);
+    &nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE> private
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { Private declarations }
+    &nbsp;&nbsp;&nbsp;&nbsp;</CODE></P><P><CODE> public
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { Public declarations }
+    &nbsp;&nbsp;&nbsp;</CODE></P><P><CODE>&nbsp;end;</P><P>var
+    &nbsp;&nbsp;&nbsp; Form1 : TForm1;</P><P>implementation</P><P>{$R *.DFM}</P><P>var
+    &nbsp;&nbsp;&nbsp; RegFile : TRegIniFile;&nbsp;</P><P>
+    const
+    //Подсекция
+    &nbsp;&nbsp;&nbsp;&nbsp;</P><P> SubKey : String = 'Software\RegDemo';
+    // Элемент для хранения логических данных
+    &nbsp;&nbsp;&nbsp;&nbsp;</P><P> BoolKey : String = 'BoolKey';
+    // Элемент для хранения целочисленных данных
+    &nbsp;&nbsp;&nbsp;&nbsp;</P><P> IntKey : String = 'IntKey';
+    // Элемент для хранения строчных данных
+    &nbsp;&nbsp;&nbsp; StrKey : String = 'StrKey';</P><P>procedure TForm1.FormCreate(Sender: TObject);
+    begin
+    // Создать экземпляр класса
+    &nbsp;&nbsp;&nbsp;</P><P>RegFile := TRegIniFile.Create(SubKey);&nbsp;</P><P>
+    end;</P><P>procedure TForm1.Button1Click(Sender: TObject);&nbsp;</P><P>
+    begin
+    // Записать целочисленное значение
+    &nbsp;&nbsp;&nbsp;&nbsp;</P><P> RegFile.WriteInteger(IntKey, 'Value', 1998);&nbsp;</P><P>
+    end;</P><P>procedure TForm1.Button2Click(Sender: TObject);&nbsp;</P><P>
+    begin
+    // Записать булево значение
+    &nbsp;&nbsp;&nbsp;</P><P>&nbsp;RegFile.WriteBool(BoolKey, 'Value', True);&nbsp;</P><P>
+    end;</P><P>procedure TForm1.Button3Click(Sender: TObject);&nbsp;</P><P>
+    begin
+    // Записать строку
+    &nbsp;&nbsp;&nbsp;&nbsp;</P><P> RegFile.WriteString(StrKey, 'Value', 'Demo');&nbsp;</P><P>
+    end;</P><P>procedure TForm1.Button4Click(Sender: TObject);&nbsp;</P><P>
+    begin
+    // Считать целочисленное значение
+    &nbsp;&nbsp;&nbsp;</P><P>&nbsp;Memo1.Lines.Add('Int Value = ' + IntToStr(RegFile.ReadInteger(IntKey, 
+    'Value', 0)));</P><P>&nbsp;end;</P><P>procedure TForm1.Button5Click(Sender: TObject);&nbsp;</P><P>
+    begin
+    // Считать булево значение
+    &nbsp;&nbsp;&nbsp;&nbsp;</P><P> if RegFile.ReadBool(BoolKey, 'Value', False)
+then&nbsp;</P><P>Memo1.Lines.Add('Bool 
+    Value = True')
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P><P>else
+    &nbsp;Memo1.Lines.Add('Bool 
+    Value = False');
+    end;</P><P>procedure TForm1.Button6Click(Sender: TObject);&nbsp;</P><P>
+    begin
+    // Считать строку
+    &nbsp;&nbsp;&nbsp;&nbsp;</P><P> Memo1.Lines.Add(RegFile.ReadString(StrKey, 'Value', ''));&nbsp;</P><P>
+    end;</P><P>procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);&nbsp;</P><P>
+    begin
+    // Удалить секцию
+    &nbsp;&nbsp;&nbsp;&nbsp;</P><P> RegFile.EraseSection(SubKey);
+    // Освободить память
+    &nbsp;&nbsp;&nbsp; RegFile.Free;&nbsp;</P><P>
+    end;</P><P>end.</P></CODE>
+<P>На приведенном ниже рисунке показано, как выглядит созданная нами подсекция в 
+редакторе REGEDIT.</P>
+<P><IMG height=386 src="../Image105.gif" 
+width=744></P>
+<P>Отметим, что рассмотренных выше функций вполне достаточно для того чтобы 
+обеспечить минимальную функциональность приложения. Если же вам требуется читать 
+и записывать данные из других секций реестра, вы можете воспользоваться методами 
+класса TRegistry или (что мене удобно) непосредственно функциями Win32 API.</P>
+<!--mstheme--></font>
+<H4 align=justify><!--mstheme--><font face="Arial" color="#CCCCCC"><B>Класс TRegistry</B><!--mstheme--></font></H4>
+<!--mstheme--><font face="Arial">
+<P>Прежде чем рассмотреть пример использования свойств и методов класса 
+TRegistry, давайте кратко перечислим их. </P>
+<P>В следующей таблице перечислены свойства класса TRegistry.</P>
+<!--mstheme--></font>
+<TABLE cellSpacing=1 cellPadding=7 width=568 border=1 bordercolorlight="#CCCCCC" bordercolordark="#666666">
+  <TBODY>
+  <TR>
+    <TD vAlign=top width="20%" bgColor=#000000><!--mstheme--><font face="Arial"><B>
+      <P>Свойство </B></P><!--mstheme--></font></TD>
+    <TD vAlign=top width="80%" bgColor=#000000><!--mstheme--><font face="Arial"><B>
+      <P>Описание </B></P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="20%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>CurrentKey </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="80%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Позволяет узнать текущую подсекцию, в которой проводятся операции по 
+      чтению и записи. Для изменения подсекции следует использовать методы 
+      OpenKey и OpenKeyReadOnly </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="20%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>CurrentPath </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="80%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Позволяет узнать полное название текущей подсекции </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="20%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>LazyWrite </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="80%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Задает способ обновления информации в реестре – непосредственно или 
+      после вызова метода CloseKey. </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="20%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>RootKey </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="80%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Задает корневую секцию в реестре. По умолчанию установлено значение 
+      HKEY_CURRENT_USER </P><!--mstheme--></font></TD></TR></TBODY></TABLE>
+<!--mstheme--><font face="Arial">
+<P>В следующей таблице перечислены методы класса TRegistry.</P>
+<!--mstheme--></font>
+<TABLE cellSpacing=1 cellPadding=7 width=568 border=1 bordercolorlight="#CCCCCC" bordercolordark="#666666">
+  <TBODY>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#000000><!--mstheme--><font face="Arial"><B>
+      <P>Метод </B></P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#000000><!--mstheme--><font face="Arial"><B>
+      <P>Описание </B></P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>CloseKey </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Записывает внесенные изменения и закрывает текущую подсекцию </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Create </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Создает экземпляр класса TRegistry и задает значение корневой секции - 
+      HKEY_CURRENT_USER </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>CreateKey </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Создает подсекцию </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>DeleteKey </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Удаляет подсекцию </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>DeleteValue </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Удаляет значение элемента </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Destroy </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Уничтожает ранее созданный экземпляр класса TRegistry </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>GetDataInfo </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Возвращает тип данных для указанного элемента </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>GetDataSize </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Возвращает размер данных для указанного элемента </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>GetDataType </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Возвращает тип данных для указанного элемента </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>GetKeyInfo </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Возвращает информацию о текущем элементе </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>GetKeyNames </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Возвращает имена подсекций для указанной секции </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>GetValueNames </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Возвращает названия элементов для указанной подсекции </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>HasSubKeys </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Позволяет узнать, имеются ли подсекции для указанной секции </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>KeyExists </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Позволяет узнать, существует ли элемент </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>LoadKey </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Создает новую подсекцию и загружает в нее информацию из указанного 
+      файла </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>MoveKey </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Перемещает указанную подсекцию и все вложенные подсекции в заданное 
+      место </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>OpenKey </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Открывает подсекцию </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>OpenKeyReadOnly </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Открывает подсекцию только для чтения </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>ReadBinaryData </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Считывает данные в бинарном формате </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>ReadBool </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Считывает данные в булевом формате </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>ReadCurrency </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Считывает данные в формате валюты </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>ReadDate </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Считывает данные в формате даты </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>ReadDateTime </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Считывает данные в формате “дата/время” </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>ReadFloat </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Считывает данные в формате с плавающей точкой </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>ReadInteger </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Считывает данные в целочисленном формате </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>ReadString </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Считывает данные в строчном формате </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>ReadTime </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Считывает данные в формате времени </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>RegistryConnect </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Устанавливает соединение с реестром на другом компьютере </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>RenameValue </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Переименовывает элемент </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>ReplaceKey </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Замещает значение элемента значениями из файла </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>RestoreKey </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Восстанавливает значение элемента из файла </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>SaveKey </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Сохраняет значение элемента в файле </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>UnLoadKey </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Удаляет подсекцию, загруженную методом LoadKey </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>ValueExists </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Позволяет узнать, существует ли значение у элемента </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>WriteBinaryData </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Записывает данные в бинарном формате </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>WriteBool </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Записывает данные в булевом формате </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>WriteCurrency </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Записывает данные в формате валюты </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>WriteDate </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Записывает данные в формате даты </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>WriteDateTime </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Записывает данные в формате “дата/время” </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>WriteExpandString </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Записывает данные в формате "расширенно" строки </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>WriteFloat </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Записывает данные в формате с плавающей точкой </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>WriteInteger </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Записывает данные в целочисленном формате </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>WriteString </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#c0c0c0>
+      <!--mstheme--><font face="Arial">
+      <P>Записывает данные в строчном формате </P><!--mstheme--></font></TD></TR>
+  <TR>
+    <TD vAlign=top width="30%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>WriteTime </P><!--mstheme--></font></TD>
+    <TD vAlign=top width="70%" bgColor=#808080>
+      <!--mstheme--><font face="Arial">
+      <P>Записывает данные в формате времени </P><!--mstheme--></font></TD></TR></TBODY></TABLE>
+<!--mstheme--><font face="Arial">
+<P>После того как мы кратко познакомились со свойствами и методами класса 
+TRegistry, давайте рассмотрим несколько примеров их использования.</P>
+<P><B>Инициализация</B></P>
+<P>Перед использованием свойств и методов класса TRegistry, необходимо создать 
+экземпляр этого класса. Например:</P><!--mstheme--></font><PRE><CODE>var &nbsp;&nbsp;&nbsp; R : TRegistry; ...</pre>
+<!--mstheme--><font face="Arial"><P>R := TRegistry.Create;</P></CODE>
+<P><B>Задание корневой секции</B></P>
+<P>Если вы собираетесь работать с секцией, отличной от HKEY_CURRENT_USER (это 
+значение задается по умолчанию), то после инициализации вы должны изменить 
+значение свойства RootKey. Возможны следующие значения:</P><!--mstheme--></font><PRE><CODE>HKEY_CLASSES_ROOT </CODE>										</pre>
+<!--mstheme--><font face="Arial"><!--mstheme--></font><PRE><CODE>HKEY_CURRENT_USER </CODE></pre>
+<!--mstheme--><font face="Arial"><!--mstheme--></font><PRE><CODE>HKEY_LOCAL_MACHINE </CODE></pre>
+<!--mstheme--><font face="Arial"><!--mstheme--></font><PRE><CODE>HKEY_USERS </CODE></pre>
+<!--mstheme--><font face="Arial"><!--mstheme--></font><PRE><CODE>HKEY_PERFORMANCE_DATA </CODE></pre>
+<!--mstheme--><font face="Arial"><!--mstheme--></font><PRE><CODE>HKEY_CURRENT_CONFIG </CODE></pre>
+<!--mstheme--><font face="Arial"><!--mstheme--></font><PRE><CODE>HKEY_DYN_DATA</pre>
+<!--mstheme--><font face="Arial">
+</CODE>
+<P>Например:&nbsp;</P> 
+<P>&nbsp;<CODE>with R do</CODE>&nbsp; <CODE>begin&nbsp;</CODE></P> 
+<P>&nbsp;<CODE>RootKey := HKEY_LOCAL_MACHINE; //
+    &nbsp;&nbsp;&nbsp; // Продолжаем работу с реестром
+    &nbsp;&nbsp;&nbsp; //&nbsp;&nbsp;&nbsp;&nbsp;</CODE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P> 
+<P>
+<CODE>end;</P> </CODE>
+<p align="right">&nbsp;</p>
+<p align="right"><b><a href="Delphi%20reestr1.htm"><font size="4" color="#FFFF00">Следующая
+страница&gt;&gt;</font></a></b></p>
+<!--mstheme--></font></BODY></HTML>

@@ -1,0 +1,344 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0047)http://www.proglib.ru/articles/art0000040_1.asp -->
+<HTML><HEAD><TITLE>Delphi 4. Использование реестра</TITLE><!-- #BeginTemplate "/Templates/default.dwt" --><!-- DW6 --><!-- #BeginEditable "doctitle" --><!-- #EndEditable -->
+<META http-equiv=Content-Type content="text/html; charset=windows-1251">
+<META http-equiv=Content-Style-Type content=text/css>
+<META content=INDEX,FOLLOW name=robots>
+<META content="30 days" name=revisit-after><!-- #BeginEditable "docmetas" -->
+<META 
+content="Мир программирования - крупнейший архив исходников и документации. Системное программирование, DirectX и OpenGL, разработка игр - всему этому можно научиться очень быстро!" 
+name=description>
+<META 
+content="delphi работа с реестром registry tregistry tinifile regedit сохранение настроек программы в реестре" 
+name=keywords><!-- #EndEditable -->
+<SCRIPT language=Javascript type=text/javascript>
+<!--
+    if (navigator.appName == "Netscape") {
+      sCSS = '<link rel="stylesheet" type="text/css" href="http://www.proglib.ru/_c/nn.css">' 
+	} else {
+	  sCSS = '<link rel="stylesheet" type="text/css" href="http://www.proglib.ru/_c/ie.css">'
+	}
+  document.write(sCSS)
+//-->
+</SCRIPT>
+
+<META content="Microsoft FrontPage 4.0" name=GENERATOR>
+<meta name="Microsoft Theme" content="zero 011">
+</HEAD>
+<BODY text=#FFFFFF bgcolor=#000000 leftMargin=1 topMargin=1 background="zertxtr.gif" link="#6699CC" vlink="#669966" alink="#999999">
+<!--mstheme--><font face="Arial"><!--mstheme--></font>
+<H4 align=left><!--mstheme--><font face="Arial" color="#CCCCCC"><B><font color="#00FF00" size="4">Чтение данных</font></B><!--mstheme--></font></H4>
+<!--mstheme--><font face="Arial">
+<P>Для чтения данных в том или ином формате используются методы ReadXXX, 
+перечисленные в приведенной выше таблице. Здесь нет каких-либо тонкостей, за 
+исключением случая, когда данные представлены в формате binary data. Пример 
+таких данных приведен для элемента Capabilities на следующем рисунке.</P>
+<P><IMG height=446 src="../Image106.gif" 
+width=774></P>
+<P>Как прочитать такие данные? Вспомним, что в нашем распоряжении есть метод 
+GetDataType, позволяющий определить тип данных, метод GetDataSize, возвращающий 
+размер данных и метод ReadBinaryData для чтения данных. Так как нам известен 
+размер данных, мы можем воспользоваться динамическим массивом, устанавливая его 
+размер с помощью метода SetLength. После считывания бинарных данных каждый 
+элемент массива будет хранить один элемент данных. Нам останется только 
+выполнить цикл, в каждой интерации которого мы будем извлекать один элемент 
+данных, форматировать его и отображать на экране.</P>
+<P>Ниже показан пример получения данных для элемента Capabilities.</P><!--mstheme--></font><PRE><CODE> 
+  </pre>
+<!--mstheme--><font face="Arial"> 
+  <P>procedure TForm1.Button1Click(Sender: TObject);&nbsp;</P> <P>
+    const Key : String = '\Enum\Network\Family\0000\';</P> <P>Val : String = 'Capabilities';</P> <P>var
+    &nbsp;&nbsp;&nbsp; Data : Array of Byte; // Динамический массив!&nbsp;</P> <P>S : String;
+    &nbsp;&nbsp;&nbsp;&nbsp;</P> <P> sz : Word;
+    &nbsp;&nbsp;&nbsp;</P> <P>I : Word;&nbsp;</P> <P>
+    begin
+    &nbsp;&nbsp;&nbsp;&nbsp;</P> <P> R := TRegistry.Create;
+    &nbsp;&nbsp;&nbsp;&nbsp;</P> <P> with R do begin
+    //
+    // Задать корневую секцию
+    //</P> <P>RootKey 
+    := HKEY_LOCAL_MACHINE;
+    //
+    // Открыть подсекцию
+    //</P> <P>OpenKey(Key, False);
+    //
+    // Если это – бинарные данные
+    //</P> <P>if GetDataType(Val) = rdBinary then begin
+    //
+    // Определить их размер
+    //
+    &nbsp;&nbsp;</P> <P>sz := GetDataSize(Val);&nbsp;</P> <P>if sz &gt; 0 then begin
+    //
+    // Установить размер динамического массива
+    //
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P> <P>SetLength(Data, sz);
+    //
+    // Прочитать данные в массив
+    //
+    &nbsp;&nbsp;</P> <P>ReadBinaryData(Val, Data[0], sz);</P> <P>S := Val + ' = ';</P> <P>For I := 0 to sz - 1 do
+begin
+    //
+    // Сформатировать
+    //</P> <P>S := S + Format('%2x',[Data[I]]);</P> <P>end;
+    //
+    // Показать
+    //
+    &nbsp;</P> <P>Edit1.Text := S;</P> <P>end;</P> <P>end;</P> 
+<p>Free;</p>
+<p>end;</p>
+<p>end;</p>
+ </CODE>
+<P><IMG height=120 src="../Image107.gif" 
+width=340></P>
+<P><B>Чтение всей подсекции</B></P>
+<P>Иногда бывает необходимо прочитать всю подсекцию. Для выполнения этой задачи 
+мы должны воспользоваться методами GetValueNames и уже занкомыми нам методами 
+GetDataType и GetDataSize. После того как мы получили имена элементов подсекции, 
+мы, в цикле, определяем тип хранимой в элементе информации и считываем ее. На 
+приведенном ниже примере показано, как это сделать для секции, приведенной на 
+рисунке в разделе "Чтение бинарных данных".</P><!--mstheme--></font><PRE><CODE> 
+  </pre>
+<!--mstheme--><font face="Arial"> 
+  <P>procedure TForm1.Button1Click(Sender: TObject);&nbsp;</P>  
+  <P>
+    const
+    &nbsp;&nbsp;&nbsp; Key : String = '\Enum\Network\Family\0000\';</P>  
+  <P>&nbsp;var
+    &nbsp;&nbsp;&nbsp; Data : Array of Byte;
+    &nbsp;&nbsp;&nbsp;&nbsp;</P>  
+  <P> L : TStringList;
+    &nbsp;&nbsp;&nbsp;&nbsp;</P>  
+  <P> S : String;
+    &nbsp;&nbsp;&nbsp;&nbsp;</P>  
+  <P> sz : Word;
+    &nbsp;&nbsp;&nbsp;&nbsp;</P>  
+  <P> I,J : Word;</P>  
+  <P>begin
+    &nbsp;&nbsp;&nbsp;</P>  
+  <P>R := TRegistry.Create;
+    &nbsp;&nbsp;&nbsp;&nbsp;</P>  
+  <P> L := TStringList.Create;
+    &nbsp;&nbsp;&nbsp;&nbsp;</P> <P> with R do begin
+    //
+    // Задать корневую секцию
+    //
+    &nbsp;</P> <P>RootKey := HKEY_LOCAL_MACHINE;
+    //
+    // Открыть подсекцию
+    //</P> <P>OpenKey(Key, False);
+    //
+    // Получить названия элементов
+    //
+    &nbsp;&nbsp;</P> <P>GetValueNames(L);
+    &nbsp;</P> <P>If L.Count &gt; 0 Then begin&nbsp;</P> <P>for I := 0 to L.Count - 1 do
+begin
+    //
+    // Узнать тип данных каждого элемента
+    //
+    &nbsp;&nbsp;</P> <P>case GetDataType(L[I]) of
+    // Строка?
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P> <P>rdString,rdExpandString : S := '"' + ReadString(L[I]) + '"';
+    // Целочисленный?
+    &nbsp;</P> <P>rdInteger : S := IntToStr(ReadInteger(L[I]));
+    // Бинарный?&nbsp;</P> <P>rdBinary :
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P> <P>begin
+    &nbsp;&nbsp;&nbsp;&nbsp;</P> <P>sz := GetDataSize(L[I]);
+    &nbsp;</P> <P>SetLength(Data, sz);</P> <P>ReadBinaryData(L[I], Data[0], sz);&nbsp;</P> <P>S := '';
+    &nbsp;&nbsp;</P> <P>for J := 0 to sz - 1 do begin&nbsp;</P> <P>S := S + Format('%2x',[Data[I]]);</P> <P>end;</P> <P>end;
+    // Неизвестный?
+    &nbsp;</P> <P>rdUnknown : S:= 'Unknown';
+    &nbsp;&nbsp;</P> <P>end;&nbsp;</P> <P>Memo1.Lines.Add(L[I] + #9'' + S);</P> <P>end;</P> <P>end;</P> <P>Free;</P> <P>end;&nbsp;</P> <P>L.Free;&nbsp;</P> <P>
+    end;</P> </CODE>
+<P>&nbsp;</P>
+<P><B>Запись бинарных данных</B></P>
+<P>Для записи бинарных данных используется метод WriteBinaryData, при вызове 
+которого мы указываем название элемента, буфер, в котором хранятся записываемые 
+данные, и его размер.</P>
+<P>Ниже показан пример записи бинарных данных с использованием метода 
+WriteBinaryData.</P><!--mstheme--></font><PRE><CODE> 
+  </pre>
+<!--mstheme--><font face="Arial"> 
+  <P>procedure TForm1.Button1Click(Sender: TObject);&nbsp;</P>  
+  <P>
+    var
+    &nbsp;&nbsp;&nbsp; B : Array [0..15] of Byte;
+    &nbsp;&nbsp;&nbsp;&nbsp;</P>  
+  <P> I : Byte;&nbsp;</P>  
+  <P>
+    Const
+    &nbsp;&nbsp;&nbsp; SubKey : String = 'Software\RegDemo';&nbsp;</P> <P>
+    begin
+    &nbsp;&nbsp;&nbsp; R := TRegistry.Create;
+    &nbsp;&nbsp;&nbsp;&nbsp;</P> <P>with R do&nbsp; begin
+    //
+    // Инициализировать данные случайным образом
+    //
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P> <P>&nbsp;for I := 0 to 15 do
+B[I] := Random(255);
+    //
+    // Создать подсекцию
+    //
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P> <P> OpenKey(SubKey + '\BinKey', True);
+    //
+    // Записать данные
+    //</P> <P>WriteBinaryData('Value', B, SizeOf(B));</P> <P align="left">Free;&nbsp;&nbsp;&nbsp;</P> <P align="left">end;</P> <P align="left"></CODE>&nbsp;<CODE>end;</P> </CODE><B>
+<P>&nbsp;</P></B>
+<P><B>Сохранение подсекции в файле</B></P>
+<P>Для сохранения подсекции (и всех ее вложенных подсекций) в файле мы 
+используем метод SaveKey. Например:</P><!--mstheme--></font><PRE><CODE> 
+  </pre>
+<!--mstheme--><font face="Arial"> 
+  <P>var
+    &nbsp;&nbsp;&nbsp; R : TRegistry;&nbsp;</P>
+  <P>
+    Const
+    &nbsp;&nbsp;&nbsp; SubKey : String = 'Software\RegDemo\';</P>
+  procedure TForm1.Button1Click(Sender: TObject);<P>begin
+    &nbsp;&nbsp;&nbsp;&nbsp;</P> <P>R := TRegistry.Create;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P> <P> If R.SaveKey(SubKey, 'savedemo') then
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P> <P>ShowMessage('Подсекция сохранена')
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</P> <P> else ShowMessage('Ошибка сохранения подсекции');
+    &nbsp;&nbsp;&nbsp;&nbsp;</P> <P> R.Free;&nbsp;</P> <P>
+    end;</P> </CODE>
+<P><B>Получение информации о подсекции</B></P>
+<P>Для получения информации о подсекции мы можем использовать функцию 
+GetKeyInfo. Данная функция заполняет структуру типа TRegKeyInfo, из полей 
+которой можно узнать:</P>
+<!--mstheme--></font>
+<!--msthemelist--><table border="0" cellpadding="0" cellspacing="0" width="100%">
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">число вложенных подсекций;<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">самое длинное название подсекции (в символах);<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">число элементов;<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">самое длинное название элемента;<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">максимальный размер элемента;<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+  <!--msthemelist--><tr>
+    <!--msthemelist--><td valign="baseline" width="42"><img src="zerbul1a.gif" width="15" height="15" hspace="13"></td>
+    <td valign="top" width="100%"><!--mstheme--><font face="Arial">время последней записи подсекции/элемента.<!--mstheme--></font><!--msthemelist--></td>
+  </tr>
+<!--msthemelist--></table>
+<!--mstheme--><font face="Arial">
+<p>Пример использования GetKeyInfo функции показан ниже.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+<p>&nbsp;</p>
+<ol>
+  <li><CODE>var
+    &nbsp;&nbsp;&nbsp; R : TRegistry;
+    &nbsp;&nbsp;&nbsp;&nbsp;</li>
+    <li> KI : TRegKeyInfo;&nbsp;</li>
+    <li>
+    const
+    &nbsp;&nbsp;&nbsp;&nbsp;</li>
+    <li> Key : String = '\Enum\Network\Family\0000\';</li>
+    <li>procedure TForm1.Button1Click(Sender: TObject);&nbsp;</li>
+    <li>
+    begin
+    &nbsp;&nbsp;&nbsp;&nbsp;</li>
+    <li> R := TRegistry.Create;
+    &nbsp;&nbsp;&nbsp;&nbsp;</li>
+    <li> with R do&nbsp; begin
+    //
+    // Задать корневую секцию
+    //
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+    <li>RootKey := HKEY_LOCAL_MACHINE;&nbsp;</li>
+    <li>OpenKey(Key, False);
+    //&nbsp; Открыть подсекцию
+    //
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+    <li>if GetKeyInfo(KI) then begin
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+    <li>with KI do begin</li>
+    <li>Memo1.Lines.Add(CurrentPath + #13#10);</li>
+    <li>Memo1.Lines.Add('MaxSubKeyLen' + #9 +IntToStr(MaxSubKeyLen));&nbsp;</li>
+    <li>Memo1.Lines.Add('NumValues' + #9 +IntToStr(NumValues));
+    &nbsp;&nbsp;</li>
+    <li>Memo1.Lines.Add('MaxValueLen' + #9 +IntToStr(MaxValueLen));
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+    <li>Memo1.Lines.Add('MaxDataLen' + #9 +IntToStr(MaxDataLen));
+    &nbsp;&nbsp;</li>
+    <li>Memo1.Lines.Add('FileTime' + #9 +DateTimeToStr(FileTime.dwLowDateTime));
+    &nbsp;&nbsp;</li>
+    <li>end;</li>
+    <li>end;
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+    <li> end;
+    end;</li>
+  </ol>
+ </CODE>
+<P><IMG height=220 src="../Image110.gif" 
+width=360></P>
+<P><B>Использование программы REGEDIT</B></P>
+<P>Если вам необходимо занести какие-то значения в системный реестр или просто 
+создать пустую подсекцию - такие функции, например, могут быть возложены на 
+программу установки, — то можно воспользоваться программой REGEDIT. Для этого 
+необходимо создать специальный текстовый файл и указать его в качестве параметра 
+при вызове программы REGEDIT. Для нашего примера (создание подсекции) этот файл 
+может выглядеть следующим образом:</P>
+<P>REGEDIT4</P>
+<P>[HKEY_CURRENT_USER\Software\RegDemo]</P>
+<P>Ниже показана подпрограмма, которая создает данный файл и вызывает REGEDIT 
+для обновления содержимого реестра.</P><!--mstheme--></font><PRE><CODE> 
+  </pre>
+<!--mstheme--><font face="Arial">
+<ol>
+  <li><font color="#00FFFF">{///////////////////////////////////////////////////////////////
+    Подпрограмма REGUPDATE - создание файла REGDEMO.REG и обновление 
+    содержимого регистратора через вызов программы REGEDIT
+    ///////////////////////////////////////////////////////////////}</font></li>
+  <li>Procedure TForm1.RegUpdate;&nbsp;</li>
+  <li>
+    Const RegID : String = 'REGEDIT4'+#13#10;
+    &nbsp;&nbsp;&nbsp;&nbsp;</li>
+  <li> RegPath : String = '[HKEY_LOCAL_MACHINE\SOFTWARE\';</li>
+  <li>&nbsp;Var
+    &nbsp;&nbsp;&nbsp; RegFile : TFileStream;
+    &nbsp;&nbsp;&nbsp;</li>
+  <li>&nbsp;RegItem : String;
+    &nbsp;&nbsp;&nbsp;&nbsp;</li>
+  <li> RegCmd : String;
+    &nbsp;&nbsp;&nbsp;</li>
+  <li>&nbsp;P : PChar;
+    &nbsp;&nbsp;&nbsp;</li>
+  <li>&nbsp;RegWnd : hWnd;&nbsp;</li>
+  <li>
+    Begin
+    // Создать регистрационный файл
+    &nbsp;&nbsp;&nbsp;&nbsp;</li>
+  <li> RegFile := TFileStream.Create('REGDEMO.REG', fmCreate);
+    &nbsp;&nbsp;&nbsp;&nbsp;</li>
+  <li> RegItem := RegPath + 'RegDemo]'+#13#10;
+    &nbsp;&nbsp;&nbsp;&nbsp;</li>
+  <li> RegFile.Write(RegID[1], Length(RegID));
+    &nbsp;&nbsp;&nbsp;&nbsp;</li>
+  <li> RegFile.Write(RegItem[1], Length(RegItem));
+    &nbsp;&nbsp;&nbsp;&nbsp;</li>
+  <li> RegFile.Free;
+    // Вызвать REGEDIT и обновить реестр 
+    &nbsp;&nbsp;&nbsp;&nbsp;</li>
+  <li> RegCmd := 'REGEDIT /s'+'REGDEMO.REG';
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+<li><CODE>StrPCopy(P, RegCmd);
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</CODE></li>
+<li><CODE>WinExec(P, SW_MINIMIZE);
+    // Завершающие действия</CODE></li>
+<li><CODE>If FileExists('REGDEMO.REG') Then &nbsp;&nbsp;DeleteFile('REGDEMO.REG');&nbsp;&nbsp;&nbsp;&nbsp;</CODE>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+<li><CODE>End;</li>
+</ol>
+ </CODE>
+<p align="right"><b><a href="Delphi%20reestr.htm"><font color="#FFFF00">&lt;&lt;Предыдущая
+страница</font></a></b></p>
+<!--mstheme--></font></BODY></HTML>

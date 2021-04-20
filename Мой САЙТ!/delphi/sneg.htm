@@ -1,0 +1,441 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Что такое</title>
+<meta name="Microsoft Theme" content="zero 011">
+</head>
+
+<body background="zertxtr.gif" bgcolor="#000000" text="#FFFFFF" link="#6699CC" vlink="#669966" alink="#999999">
+
+<!--mstheme--><font face="Arial">
+<blockquote>
+<!--mstheme--></font>
+<h3 align="center"><!--mstheme--><font face="Arial" color="#CCCCCC"><font color="#00FF00">Что
+такое &quot;Змейка&quot; и как с ней бороться?</font><!--mstheme--></font></h3>
+<!--mstheme--><font face="Arial"><!--// BODY -->
+<!--mstheme--></font>
+<h4><!--mstheme--><font face="Arial" color="#CCCCCC">Введение<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+<p align="justify">Сразу отвечу на первый вопрос.
+&quot;Змейка&quot; это игра, в которой вы
+управляете полоской, набирая очки. Цель у
+игры одна: набрать наибольшее количество
+очков.
+<p align="justify">Как-то увидел я на сотовом
+телефоне эту игру, и уж очень мне захотелось
+написать точно такую же. В этой статье хочу
+рассказать, как написать &quot;змейку&quot;. С
+какими проблемами можно столкнуться при
+создании &quot;змеек&quot;. И попробую
+рассказать, как я их решал.
+<p align="justify">Сразу хочу сказать, что я пишу
+свою статью не для того, чтобы написать &quot;Змейку&quot;,
+а только для объяснения алгоритма работы.<!--mstheme--></font>
+<h4><!--mstheme--><font face="Arial" color="#CCCCCC">Поле действии
+&quot;змейки&quot; - массив<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+<p align="justify">Начнем с того, что нам надо
+придумать то, по чем наша змейка будет
+двигаться. Лично я вижу всего два способа.
+Один - это когда змейка движется по
+абсолютно пустому пространству. Второй же
+способ - массив. Именно этот способ я выбрал
+в своем примере. Мне кажется, что при
+использовании массива открываются
+некоторые довольно приятные возможности,
+такие как создание карт, и, вместе с тем, при
+создании многопользовательской змейки
+будет удобнее делать проверки.<!--mstheme--></font>
+<h4><!--mstheme--><font face="Arial" color="#CCCCCC">Из чего
+состоит &quot;змейка&quot;?<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+<p>Прежде чем приступать к внутренности &quot;змейки&quot;
+давайте посмотрим как она движется.
+<p>Движение змейки можно рассмотреть с двух
+сторон:</p>
+<i>Первая - это то, что конец змейки
+становится началом.</i>
+<p align="justify"><b>Плюсы:</b> нам легче будет
+прорисовывать. Нам не надо постоянно
+перерисовывать весь массив, нам надо всего
+лишь затереть конец змейки и нарисовать
+начало. Такой метод будет очень удобен при
+работе в DOS.
+<p align="justify"><b>Минусы:</b> у нас возникают
+проблемы с опознаванием первого и
+последнего элементов, а добавление нового
+элемента тоже будет немало проблем, при
+какой-либо ошибку у нас может потерятся
+часть змейки, поверьте в прошлом году при
+написании &quot;змейки&quot; на Pascal'е у меня было
+очень много таких &quot;глюков&quot;, причем
+только в многопользовательской игре.</p>
+<i>Вторая сторона - каждый элемент змейки
+становится на место предыдущего.</i>
+<p align="justify"><b>Плюсы:</b> мы всегда знаем, где
+какой элемент; добавление и удаление будут
+делаться буквально несколькими строками в
+коде; у нас ни в коем случае не может
+потеряться элемент, т.к. мы всегда знаем все.
+<p align="justify"><b>Минусы:</b> нам надо больше места
+в ОП для сортирования всех этих элементов.
+<p align="justify">Первый вариант, конечно же, проще,
+но при его использовании мы столкнемся с
+большим количеством проблем оговоренных
+выше. Второй вариант можно реализовать
+двумя способами (может и больше, но я не вижу
+других).</p>
+<i>Первый - создать большой массив для змеи и
+хранить в нем все координаты.</i>
+<p align="justify"><b>Плюсы:</b> плюс один - простота.
+<p align="justify"><b>Минусы:</b> а когда у нас появится
+две змейки нам что делать два массива? а три?
+а четыре? Нет это совершенно не подходит,
+это занимает много места в ОП, и мы
+ограниченны длинной змейки. Существуют
+конечно функции для задания массива SetLength,
+но при ее использовании появляется
+ограничение на длину массива, всего 255.</p>
+<i>Второй - создать динамическую структуру и
+в ней хранить все данный о конкретном
+элементе змейки.</i>
+<p align="justify"><b>Плюсы:</b> нам не надо большого
+количества памяти, мы под каждый новый
+элемент будем выделять еще память.
+<p align="justify"><b>Минусы:</b> нам надо будет больше
+писать (конечно это не самое главное,
+главное чтобы пользователь был доволен)
+<p align="justify">Не знаю как вам, а мне второй
+вариант больше нравится, потому его и
+реализуем.<!--mstheme--></font>
+<h4><!--mstheme--><font face="Arial" color="#CCCCCC">Что нам стоит
+&quot;змею&quot; построить?<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+<p align="justify">Мы уже решили, что элементы нашей
+&quot;змейки&quot; будут представлять
+динамическую структуру, тогда элемент
+змейки будет выглядеть следующим образом:<!--mstheme--></font>
+<pre><b>type</b>
+  TElem = ^TStek;	<i>//объект не может ссылаться сам на себя</i>
+  TStek = <b>record</b>
+    X: integer;		<i>//координата по X</i> 
+    Y: integer;		<i>//координата по Y</i>
+    View: Byte;		<i>//вид этого элемента при прорисовке</i>
+    Nomber: Word;	<i>//номер элемента</i>
+    Next: TElem;	<i>//следующий элемент змейки</i>
+    Prev: TElem;	<i>//предыдущий элемент змейки</i>
+  <b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">Сама же змейка будет выглядеть
+следующим образом - это <b>объект</b>, у
+которого есть свойства <b>цвет</b> (много
+змеек - много цветов), <b>длина</b> (в принципе
+этот параметр можно не вводить, можно
+узнать длину по номеру последнего элемента,
+но пусть будет), <b>направление</b> (очень
+важный параметр, мы же должны знать, куда
+движется &quot;змейка&quot;).
+<p align="justify">Направлений у нас будет всего 4
+соответственно<!--mstheme--></font>
+<pre>TDir = 1..4; //образованно от Direction
+
+TSnake = <b>object</b>
+  First: TElem;		//первый элемент змейки
+  Last: TElem;		//последний элемент змейки
+  Direction: TDir;	//направление змейки
+  Length: Word;		//длина змейки
+  Color: TColor;		//цвет змейки
+  <b>constructor</b> Create(sDirection: TDir; sLength: Word; sX, sY: Byte; sColor: TColor);
+  //процедура создания змеи
+  <b>destructor</b> Destroy;
+  //процедура уничтожения змеи
+
+  <b>procedure</b> Release;
+  //процедура, выводящая всю змею на массив (чтобы знать где расположена змея, вдруг
+  //будем вставлять алгоритм поиска пути или еще что в голову придет)
+
+  <b>procedure</b> Draw(Canvas: TCanvas); 
+  //отрисовывает змею на канвасе (на канвасе, потому, что пример не показывает работу
+  //с Win32API
+
+  <b>procedure</b> DrawElement(Elem: TElem; Canvas: TCanvas); 
+  //отрисовывает определенный элемент змеи
+
+  <b>procedure</b> Move(newX, newY: word); 
+  //двигает все элементы змейки на место предыдущего, а первый на новые координаты
+  //можно с помощью этой процедуры двинуть змейку вообще в какое-нибудь случайное
+  //место, а все элементы потом &quot;телепортируются&quot; туда
+  <b>procedure</b> Add;                     
+  //добавляет к змейке элемент (последний)
+  <b>procedure</b> Remove;              
+  //уничтожает элемент змейки (последний)
+
+  <b>function</b> GetByNomber(Nomber: Word): TElem; 
+  //находит элемент по номеру
+  <b>function</b> GetByCoord(X, Y: word): TElem;         
+  //находит элемент по координатам
+
+  //Вдруг да понадобится найти элемент с определенным номером или расположением
+
+  <b>function</b> SetDirection(sDirection: TDir): boolean;
+  //Устанавливает направление змейки
+  //Делается функцией, чтобы змейка не поехала в противоположную сторону
+
+  <b>procedure</b> SetView(sView: byte);  
+  //Устанавливает вид всей змеи (ну захотелось все змею сделать круглой - сделай!!!)
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial"><!--mstheme--></font>
+<h4><!--mstheme--><font face="Arial" color="#CCCCCC">Наконец код<!--mstheme--></font></h4>
+<!--mstheme--><font face="Arial">
+<p align="justify">Функция создания змейки
+<p align="justify">При создании мы должны
+установить цвет, направление, длину,
+стартовые координаты. Чтобы сильно не
+мучаться, моя змейка создается в
+горизонтальном положении, а в процедуре
+задаются координаты конца.<!--mstheme--></font>
+<pre><b>constructor</b> TSnake.Create(sDirection: TDir; sLength: Word; sX, sY: Byte; sColor: TColor);
+<b>var</b>
+  i: <b>integer</b>;
+  Beg, Tek, Tek2: TElem;
+<b>begin</b>
+  <b>if</b> sDirection = 3 <b>then</b> Direction := 1 <b>else</b> Direction := sDirection;
+  Length := sLength;
+  Color := sColor;
+
+  First := <b>nil</b>;
+  Last := <b>nil</b>;
+
+//делаем проверку на правильное введение координат
+//проверяем, что не вышли за рамки массива
+  <b>if</b> (sX&lt;1) <b>or</b> (sX&gt;AMaxX) <b>or</b> (sY&lt;1) <b>or</b> (sY&gt;AMaxY) <b>or</b> ((sX+sLength)&gt;AMaxX) <b>then
+  begin</b>
+    ShowMessage('Ошибка создания змейки');
+    exit
+  <b>end</b>;
+
+  <b>if</b> sLength=0 <b>then begin</b> ShowMessage('Ошибка создания змейки'); exit <b>end</b>;
+  new(Beg); //создаем первый элемент змейки
+
+  Beg^.X := sX + sLength; 	//координата по X - координата конца + длинна
+  Beg^.Y := sY;		 	//по Y все координаты одинаковые
+  Beg^.View := 0;		//вид самый простой
+  Beg^.Nomber := 1;		//номер естественно первый
+  Beg^.Next := <b>nil</b>;		//следующего элемента пока нет
+  Beg^.Prev := <b>nil</b>;		//предыдущего тоже
+
+  first := beg;			//запомнили первый элемент змейки
+				//с этого момента в змейке есть первый элемент уррра!!! 
+
+  Tek := beg;			//текущий элемент - первый
+  <b>if</b> sLength-1 &lt; 1 <b>then</b> exit;	//если длина 1 тогда ВСЕ
+
+
+  <b>for</b> i := 1 <b>to</b> (sLength-1) <b>do begin</b> //иначе начинаем
+
+    new(Tek2);  			//создаем новый элемент
+
+    Tek2^.X := Tek^.X - 1; 		//располагаем новый элемент левее
+    Tek2^.Y := Tek^.Y;   		//по оси Y все находятся одинаково
+    Tek2^.View := 0;     		//стартовый вид у всех одинаковый
+    Tek2^.Next := <b>nil</b>;   		//следующий элемент должен быть тот, который мы до этого 
+//создали
+    Tek2^.Prev := Tek;   		// предыдущего пока не существует
+
+    Tek2^.Nomber := Tek^.Nomber + 1; //прибавляем номер
+
+    Tek^.Next := Tek2;		//предыдущему ставим существование следующего
+    Tek := Tek2;			//текущий - вновь созданный
+    Last := Tek2;			//последний созданный элемент - это и есть последний 
+//элемент змейки
+  <b>end</b>;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">Вот мы и создали нашу змейку.
+Теперь надо написать процедуру уничтожения,
+чтобы в памяти не осталось следов.<!--mstheme--></font>
+<pre><b>destructor</b> TSnake.Destroy;
+<b>var</b> Tek, Tek2: TElem;
+<b>begin</b>
+  Tek := First;
+  <b>if</b> tek = <b>nil then</b> exit; 		//вдруг змеи нет
+
+  <b>while</b> tek^.Next &lt;&gt; <b>nil do begin</b>
+    Tek2 := Tek.Next;
+    dispose(tek2);			//уничтожаем
+    tek := tek2;
+  <b>end</b>;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">Далее рассмотри, как рисовать
+змейку.<!--mstheme--></font>
+<pre><b>procedure</b> Tsnake.DrawElement(Elem: TElem; anvas: TCanvas);
+<b>var</b> Rect: TRect;
+<b>begin</b>
+  Rect.Left := Elem.X * 5;
+  Rect.Top := Elem.Y * 5;
+  Rect.Bottom := Rect.Top + 5;
+  Rect.Right := Rect.Left + 5;
+
+  Canvas.Pen.Color := clBlack;
+  Canvas.Brush.Color := Color;
+  <b>case</b> Elem.View <b>of</b>
+  0: Canvas.Rectangle(Rect); 	//тут мы можем сделать и что-нибудь другое, например
+//кружочек вместо квадрата в зависимости от вида
+  <b>end</b>;
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">А теперь самое интересное.
+Рассмотрим функцию движения.
+<p align="justify">В змейке движение происходит
+следующим образом:<br>
+Первый элемент передвигается согласно
+текущему направлению, а второй становится
+на место первого, третий на место второго и
+т.д. Значит, каждый элемент занимает место
+предыдущего кроме первого. Ну, так давайте
+это реализуем.<!--mstheme--></font>
+<pre><b>function</b> TSnake.Move(newX, newY: word): <b>boolean</b>;
+<b>var</b> 
+  tek: TElem;
+  tek2: TElem;
+<b>begin</b>
+  result := false;
+  <b>if</b> First = <b>nil</b> <b>then</b> exit;
+
+  tek := last;
+
+  <b>if</b> newX &gt; AMaxX <b>then</b> newX := 1;
+  <b>if</b> newX &lt; 1 <b>then</b> newX := AMaxX;
+  <b>if</b> newY &gt; AMaxY <b>then</b> newY := 1;
+  <b>if</b> newY &lt; 1 <b>then</b> newY := AMaxY;
+
+  Release;
+
+  <b>if</b> GameA[newX, newY] &gt; 0 <b>then</b> result := true;
+
+  <b>while</b> tek^.Prev &lt;&gt; <b>nil do begin</b>
+    tek2 := tek^.Prev;		//предыдущий элемент
+    tek^.X := tek2^.X;		//координаты предыдущего
+    tek^.Y := tek2^.Y;		//элемента
+    tek^.View := tek2^.View;	//вид предыдущего
+    tek :=tek2;			//заново
+  <b>end</b>;
+
+  First^.X := newX;		//перемещаем начало
+  First^.Y := newY;		//на новые координаты
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">Далее надо каким-то образом
+добавлять и удалять у змейки элементы. Все
+просто надо просто добавить или удалить
+последние элемент.<!--mstheme--></font>
+<pre><b>procedure</b> TSnake.Add; //добавление
+<b>var</b> tek: TElem;
+<b>begin</b>
+
+  new(tek);		//создаем новый элемент
+  tek^.X := 0;		//координаты можно ставить любые,
+  tek^.Y := 0; 		//все равно при движении все встанет на свои места
+  tek^.Next := <b>nil</b>;	//следующего не существует (он последний)
+  tek^.Prev := Last;	//предыдущий - тот, который был последним
+  tek^.View := Last^.View;	//вид, как у предыдущего
+  tek^.Nomber := Last^.Nomber + 1;	//номер +1
+  Last^.Next := tek;	//новый последний элемент змейки
+
+  <b>inc</b>(length);		//незабываем увеличить длину
+
+  Last := Tek;
+
+<b>end</b>;
+
+<b>procedure</b> TSnake.Remove; //удаление
+<b>var</b> Tek: TElem;
+<b>begin</b>
+  <b>if</b> Last = First <b>then</b> exit; 	//не можем же мы удалить единственный элемент
+				//что тогда у нас останется?
+  Tek := Last;
+  Last := tek^.Prev;
+  Last^.Next := <b>nil</b>;
+  Dispose(tek);
+
+  <b>inc</b>(length, -1);
+<b>end</b>;
+</pre>
+<!--mstheme--><font face="Arial">
+<p align="justify">Остальные функции и процедуры
+посмотрите в исходнике, т.к. они нам не
+понадобятся.
+<p align="justify">Создав форму в событии OnCreate, cтавим<!--mstheme--></font>
+<pre>//обнуляем массив
+<b>for</b> i := 1 <b>to</b> AMaxX <b>do</b>
+<b>for</b> j := 1 <b>to</b> AMaxY <b>do</b>
+GameA[i, j] := 0;
+
+Buffer := TBitMap.Create;
+Buffer.Width := Form1.Width;
+Buffer.Height := Form1.Height;
+
+//создаем змейку
+Snake.Create(1, 5, 10, 10, clYellow);
+</pre>
+<!--mstheme--><font face="Arial">
+<p>В событии OnDestroy пишем<!--mstheme--></font>
+<pre>Snake.Destroy;
+</pre>
+<!--mstheme--><font face="Arial">
+<p>В событии на таймер ставим<!--mstheme--></font>
+<pre>//очистка канваса
+PatBlt(Buffer.Canvas.Handle,
+0,
+0,
+Buffer.Width,
+Buffer.Height,
+BLACKNESS);
+
+//согласно направлению двигаем змейку (на самом деле
+//это можно и организовать и в функцию Move, но я решил оставить так
+<b>case</b> Snake.Direction <b>of</b>
+1: Snake.Move(Snake.First.X + 1, Snake.First.Y);
+2: Snake.Move(Snake.First.X, Snake.First.Y + 1);
+3: Snake.Move(Snake.First.X - 1, Snake.First.Y);
+4: Snake.Move(Snake.First.X, Snake.First.Y - 1);
+<b>end</b>;
+
+Snake.Draw(Buffer.Canvas);
+
+BitBlt(Form1.Canvas.Handle, 0, 0, Form1.Width, Form1.Height, Buffer.Canvas.Handle,
+0, 0, SRCCOPY); //выводи на форму
+</pre>
+<!--mstheme--><font face="Arial">
+<p>C уважением, Евгений (Ich Hasse)
+<p>Если будут какие либо вопросы по созданию
+игры на основе моего метода, то прошу
+обращаться на e-mail.
+<p align="justify">P.S. Если у вас имеются интересные
+методы решения этой задачи, шлите всем
+отвечу ( <a href="mailto:ichhasse@mail.ru">ichhasse@mail.ru</a>). Буду
+рад, если моя статья кому-нибудь будет
+полезна.
+<p align="justify">Использованные материалы: прежде
+всего - ГОЛОВА, и форумы сайта Мастаки Delphi.
+<p align="justify">К статье прилагается <a href="http://www.delphimaster.ru/articles/snake/snake.zip">файл
+с исходными кодами</a>. </p>
+<p align="right"><!-- BODY //-->
+<b>Автор статьи:</b>&nbsp; <a href="mailto:ichhasse@mail.ru">Евгений
+(Ich Hasse)</a></p>
+</blockquote>
+<!--mstheme--></font>
+
+</body>
+
+</html>

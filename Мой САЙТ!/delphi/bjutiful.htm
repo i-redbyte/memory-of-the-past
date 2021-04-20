@@ -1,0 +1,440 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Красота</title>
+<meta name="Microsoft Theme" content="zero 011, default">
+</head>
+
+<body background="zertxtr.gif" bgcolor="#000000" text="#FFFFFF" link="#6699CC" vlink="#669966" alink="#999999">
+
+<!--mstheme--><font face="Arial">
+<blockquote>
+<!--mstheme--></font>
+<h3 align="center"><!--mstheme--><font face="Arial" color="#CCCCCC"><font color="#00FF00" size="5">Красота
+- это страшная сила.</font><!--mstheme--></font></h3>
+<!--mstheme--><font face="Arial"><!--// BODY -->
+<p align="justify">&nbsp;&nbsp;В этой статье я
+рассматриваю несколько способов сделать
+форму красивой. Примеры, рассмотренные
+здесь, имеют скорее эстетическую, чем
+практическую ценность, но, я думаю, ими
+можно воспользоваться при оформлении окон
+вашей, уважаемые читатели,программы. Для
+оформления я рассмотрю несколько способов
+залития формы градиентной заливкой (пример
+такой заливки - инсталляторы, в которых
+пользователь любуется красивым окном, пока
+программа делает своё чёрное дело). В
+различных Faq я встречал примеры, заливающие
+форму каким - либо градиентом, и существуют
+компоненты, применяющие градиентную
+заливку для оформления (например TRxGradientCaption
+из RxLib), но статьи, систематизирующей
+информацию по этому вопросу я не встречал.
+Поэтому я надеюсь, что этот материал
+окажется вам полезным.<br>
+Для заполнения холста (Canvas) формы я
+использую код, основа которого взята мною у
+достопочтенного <a href="mailto:Nomadic@newmail.ru">Nomadic'а</a>
+из Озеровского FAQ. Его код я преобразовал в
+одно событие OnPaint (у <a href="mailto:Nomadic@newmail.ru">Nomadic'а</a>
+в примере был размещён Timer и обрабатывлись
+FormCreate,Timer.OnTimer, FormDestroy). Вот этот код:<br>
+<font color="#00FFFF">procedure TForm1.FormPaint(sender:TObject);<br>
+type TRGB=record<br>
+&nbsp;b,g,r:byte;<br>
+end;<br>
+ARGB=array [0..1] of TRGB;<br>
+PARGB=^ARGB;<br>
+var<br>
+&nbsp;b:TBitMap;<br>
+&nbsp;p:PARGB;<br>
+&nbsp;x,y:integer;<br>
+begin<br>
+&nbsp;b:=TBitMap.Create;<br>
+&nbsp;b.pixelformat:=pf24bit;<br>
+&nbsp;b.width:=Clientwidth;<br>
+&nbsp;b.height:=Clientheight;<br>
+&nbsp;for y:=0 to b.height-1 do<br>
+&nbsp;&nbsp;begin<br>
+&nbsp;&nbsp;p:=b.scanline[y];<br>
+&nbsp;&nbsp;for x:=0 to b.width-1 do<br>
+&nbsp;&nbsp;&nbsp; begin<br>
+//эту часть кода будем изменять<br>
+</font>&nbsp;&nbsp;&nbsp;<font color="#ff0000">p[x].r:=random(256);<br>
+&nbsp;&nbsp;&nbsp;p[x].g:=random(256);<br>
+&nbsp;&nbsp;&nbsp;p[x].b:=random(256);</font><br>
+<font color="#00FFFF">&nbsp;&nbsp;&nbsp;end;<br>
+&nbsp;&nbsp;end;<br>
+&nbsp;canvas.draw(0,0,b);<br>
+&nbsp;b.free;<br>
+end;<br>
+</font><img src="../1.jpg" width="153" height="122">Это - способ
+быстрого (в отличие, например, от Canvas.Pixels)
+рисования на холсте формы. Результат
+действия этого кода - заполнение формы
+точками случайного цвета (рис.1). Дальнейшие
+изменения кода будут прозводится мною в
+основном с тремя строками, вкоторых
+происходит заполнение точки холста - в коде
+они выделены красным цветом. Для получени
+горизонтального градиента (я буду
+использовать термины градиент или заливка
+вместо градиентная заливка) нужно изменять
+величину r,g,b не случайным образом, а в цикле
+по х. Например, зафиксирова два цвета и
+измняя третий от 0 до 255 мы получим
+горизонтальную заливку от белого до смеси
+фиксированных цветов. Следующий код даст
+нам бело - жёлтый градиент на форме (рис. 2):<img style="FLOAT: right" src="../3.jpg" width="149" height="126"><br>
+<img src="../2.jpg" width="149" height="126"><font color="#FF0000">p[x].r:=255;<br>
+p[x].g:=255;<br>
+p[x].b:=-255*x div b.width ;</font><br>
+При применении горизонтальной заливки
+следует учесть, что пустой залитый объект
+кажется неустойчивым и его нужно
+уравновесить, разместив что-то на нём (рис.3).<br>
+Вертикальную заливку получить не намного
+сложней. Для этого нужно изменять цвета не
+по х, а по у. Например, следующий код даст нам
+столь любимую инсталляторами сине - белую
+заливку ( рис. 4).<br>
+<img src="../4.jpg" width="149" height="126"><font color="#FF0000">p[x].r:=255*y
+div b.Height;<br>
+p[x].g:=255*y div b.Height;<br>
+p[x].b:=255;</font><br>
+Обратите внимание - чтобы получить сине -
+белый градиент я изменяю красный и зелёный
+цвета, а синий оставляю неизменным. Вообще
+получение нужной цветовой растяжки я
+считаю одним из самых хитрым вопросов
+данной темы, и я вернусь к нему в конце
+данной статьи.<br>
+Ещё более красивого эффекта можно
+достигнуть накложив градиенты друг на
+друга. Например изменяя красный цвет по
+вертикали, а зелёный по вертикали мы
+получим следующую картину (рис. 5)<img style="FLOAT: right" src="../5.jpg" width="149" height="126"><br>
+<font color="#FF0000">p[x].r:=255*y div b.Height;<br>
+p[x].g:=255*x div b.Width;<br>
+p[x].b:=255;<br>
+</font>Полученному градиенту можно придать
+зернистую структуру, изменяя один или
+несколько основных цветов случайным
+образом. Что вы скажете о заливках на
+рисунках 6 и 7?<br>
+<br>
+<img src="../6.jpg" width="149" height="126"><font color="#ff0000"><img src="../7.jpg" width="149" height="126"></font><font color="#FF0000">p[x].r:=random(250);<br>
+p[x].g:=255;<br>
+p[x].b:=255*x div b.Width; (рис. 6)<br>
+<br>
+p[x].r:=random(250);<br>
+p[x].g:=255*y div b.Height;<br>
+p[x].b:=255*x div b.Width; (рис.7)</font><font color="#00FFFF"><br>
+Д</font>ля получения более сложного
+распределения градиента по форме придётся
+использовать более сложные формулы при
+присвоении значений цветов. Рассмотрим
+получение заливки &quot;к центру&quot;. Очевидно
+изменяемый цвет должен уменьшаться или
+увеличиваться от края к центру формы, а
+затем изменяться в обратном порядке. Этого
+можно достичь с помощью условного
+оператора (более наглядный способ) (рис 8).<img src="../8.jpg" width="149" height="126"><br>
+<font color="#ff0000">p[x].r:=0;<br>
+if y &lt;= b.Height div 2<br>
+then p[x].g:=255*y*2 div b.Height<br>
+else p[x].g:=-255*y*2 div b.Height ;<br>
+if abs(y - b.Height div 2)&lt;3 then p[x].g:=255;</font> {без этой
+строки образуется полоса в центре заливки
+при увеличении размеров формы}<font color="#ff0000"><br>
+p[x].b:=200;</font><br>
+Более сложный способ - составить функцию,
+изменяющую цвет нужным образом. Для
+следующего примера нам понадобится функция
+Sgn:<br>
+<font color="#00FFFF">function Sgn(i:integer):integer;<br>
+begin<br>
+&nbsp;if i&lt;&gt;0 then Sgn:=round(i/abs(i))<br>
+&nbsp;else Sgn:=1<br>
+end;<br>
+</font>Функция Sign из модуля Math не подходит, т.к.
+возвращает 0 при значении аргумента 0.<br>
+Следующий код даёт такой вариант заливки (рис.
+9): <img style="FLOAT: right" src="../9a.jpg" width="149" height="126"><br>
+<img src="../9.jpg" width="149" height="126"> <font color="#ff0000">p[x].r:=150;<br>
+p[x].g:=Sgn(b.Width div 2-x)*(255*x*2 div b.Width);<br>
+p[x].b:=50;</font><br>
+На рисунке 9а показан результат замены
+функции Sgn, определённой нами на функцию Sign
+из модуля Math. Возвращаемый ноль приводит к
+появлению полосы в середине формы.<br>
+Комбинируя рассмотренные способы заливок
+можно получить формы, вид которых изумит
+всех, включая создателя (рис 10 - 12).<img style="FLOAT: right" src="../11.jpg" width="149" height="126"><img src="../10.jpg" width="149" height="126"><br>
+<font color="#ff0000">p[x].r:=50;<br>
+p[x].g:=sgn(b.Width div 2-x)*(255*x*2 div b.Width);<br>
+p[x].b:=sgn(b.Height div 2-y)*(255*y*2 div b.Height);</font><br>
+{ Зелёная составляющая изменяется к центру
+по горизонтали, а синяя по вертикали} (рис. 10)<br>
+<font color="#ff0000">p[x].r:=150*x div b.Width;<br>
+p[x].g:=sgn(b.Width div 2-x)*(255*x*2 div b.Width);<br>
+<img src="../12.jpg" width="149" height="126">p[x].b:=155*y div b.Height;</font><br>
+{Красная составляющая изменяется слева
+направо, зелёная по горизонтали к центру,
+синяя сверху вниз}(рис. 11)<br>
+<font color="#ff0000">p[x].r:=150*x div b.Width;<br>
+p[x].g:=sgn(b.Width div 2-x)*(255*x*2 div b.Width);<br>
+p[x].b:=155+random(100);</font><br>
+{Тоже, но синий цвет изменяется случайным
+образом}(рис. 12)<br>
+<br>
+Вас не интригует число 255, присутствующее в
+формулах? Очевидно, уменьшая его мы
+изменяем цвет, с которого начинается
+заливка, а вот увеличение числа приводит к
+интересному эффекту &quot;жалюзи&quot; -
+дублированию градиентной заливки по форме (рис.
+13)<img src="../13.jpg" width="149" height="126"><br>
+<font color="#ff0000">p[x].r:=0;<br>
+p[x].g:=255*4*y div b.Height;<br>
+p[x].b:=155;</font><br>
+Здесь я не стал писать 1020 вместо 255*4, чтобы
+было видно откуда взялись четыре &quot;волны&quot;
+градиентной заливки.<br>
+Ещё один эффект (рис. 14) - плавно переходящие
+градиентные волны получаются с помощью
+следующего, правда довольно неуклюжего
+кода:<br>
+<img style="FLOAT: right" src="../14.jpg" width="151" height="128"> <font color="#ff0000">p[x].g:=0;<br>
+if (x &lt;= b.Width div 4) or ((x &lt;= 3*b.Width div 4) and (x &gt;= b.Width
+div 2))<br>
+then p[x].r:=255*x*4 div b.Width<br>
+else p[x].r:=-255*x*4 div b.Width ;<br>
+if abs(x - b.Width div 2)&lt;3 then p[x].r:=0;<br>
+if (abs(x -b.Width div 4)&lt;3) or (abs(x - 3*b.Width div 4)&lt;3) then
+p[x].r:=255;<br>
+p[x].b:=0;</font><br>
+Впрочем, этот эффект будет получен в конце
+статьи другим, более простым способом.<br>
+Итак, вы получили красиво залитую форму и
+стали изменять её размеры. И тут вы
+столкнулись с некрасивым эффектом - на
+форме отпечатываются артефакты от заливки (рис
+15).<br>
+<img src="../15.jpg" width="161" height="116">Способов исправить
+эту ситуацию существует много.
+Воспользуемся самым очевидным из них:<br>
+<font color="#00FFFF">procedure TForm1.FormResize(Sender: TObject);<br>
+begin<br>
+form1.DoubleBuffered:=true;<br>
+form1.Repaint;<br>
+end;<br>
+</font>Теперь при изменении размеров формы
+внешний вид заливки не изменяется.
+<p align="justify">Следующий вопрос, который нельзя
+обойти вниманием в этой статье - это вопрос
+выбора цветов для создания градиента. Для
+его исследования в общем случае нужно иметь
+представление о RGB цветовой модели.
+Цветовой переход градиента представляет
+собой кривую в этой модели, уравнение
+которой нужно задать в программе. Изучение
+цветовой модели и создание произвольного
+цветового градиента - задача не для статьи.
+Здесь рассмотрим, как получить двухцветный
+переход. Довольно понятно решение для
+основных цветов (красный, синий, зелёный) и
+их смесей. Так RG даёт жёлтый цвет, RB -
+фиолетовый, GB - лазурный. Например, для
+получения сине - жёлтой раcтяжки нужно
+изменять B от 255 до 0, R и G от 0 до 255 - вот так (рис.
+16).<br>
+<img src="../16.jpg" width="149" height="124"><font color="#ff0000">p[x].r:=255*y
+div b.Height;<br>
+p[x].g:=255*y div b.Height;<br>
+p[x].b:= -255*y div b.Height;</font><br>
+Для получения произвольной цветовой
+растяжки предлагаю следующую процедуру.<br>
+Определив значения нужных цветов визуально
+(например, с помощью окна выбора цвета),
+подставте их на нужное место и определите
+направление заливки.<br>
+<p align="justify"><br>
+<font color="#00FFFF">procedure Grad (Holst:TCanvas;FColor,LColor:TColor;
+VertOrientation:boolean);<br>
+</font>{Holst - Canvas, на котором мы будем рисовать,
+FColor - начальный,<br>
+а LColor - конечный цвет градиента, VertOrientation
+указывает на вертикальную<br>
+или горизонтальную ориентацию заливки}<br>
+<font color="#00FFFF">type<br>
+TRGB=record<br>
+b,g,r:byte;<br>
+end;<br>
+ARGB=array [0..1] of TRGB;<br>
+PARGB=^ARGB;<br>
+var<br>
+b:TBitMap;<br>
+p:PARGB;<br>
+x,y:integer;<br>
+s1,s2,fb,fg,fr,lb,lg,lr:string;<br>
+r1,r2,g1,g2,b1,b2:byte;<br>
+</font>//Эти переменные нужны для анализа
+заданных цветов<br>
+<font color="#00FFFF">begin<br>
+s1:=IntToHex(FColor,6);<br>
+s2:=IntToHex(LColor,6);<br>
+if Length(s1)&gt;6 then Delete(s1,1,Length(s1)-6);<br>
+if Length(s2)&gt;6 then Delete(s2,1,Length(s2)-6);<br>
+fb:=Copy(s1,1,2);<br>
+fg:=Copy(s1,3,2);<br>
+fr:=Copy(s1,5,2);<br>
+lb:=Copy(s2,1,2);<br>
+lg:=Copy(s2,3,2);<br>
+lr:=Copy(s2,5,2);<br>
+</font>//Анализируем заданные цвета<br>
+<font color="#00FFFF">b1:=StrToInt('$'+fb);<br>
+b2:=StrToInt('$'+lb);<br>
+g1:=StrToInt('$'+fg);<br>
+g2:=StrToInt('$'+lg);<br>
+r1:=StrToInt('$'+fr);<br>
+r2:=StrToInt('$'+lr);<br>
+</font>//Определяем начальное и конечное
+значение для каждого из RGB составляющего<br>
+<font color="#00FFFF">b:=TBitMap.Create;<br>
+b.PixelFormat:=pf24bit;<br>
+b.Width:=Holst.ClipRect.Right-Holst.ClipRect.Left;<br>
+b.Height:=Holst.ClipRect.Bottom-Holst.ClipRect.Top;<br>
+</font>{У TCanvas нет свойств Width и Height, для
+определения размеров BitMap<br>
+вычисляем размеры отрисовываемой области}<br>
+<font color="#00FFFF">for y:=0 to b.Height-1 do<br>
+begin<br>
+p:=b.ScanLine[y];<br>
+for x:=0 to b.Width-1 do<br>
+begin<br>
+</font>//Выполняем заливку<br>
+<font color="#00FFFF">if VertOrientation then begin<br>
+</font><font color="#ff0000">p[x].r:=r1-(r1-r2)*y div b.Height;<br>
+p[x].g:=g1-(g1-g2)*y div b.Height;<br>
+p[x].b:=b1-(b1-b2)*y div b.Height;</font><br>
+<font color="#00FFFF">end<br>
+else begin<br>
+</font><font color="#ff0000">p[x].r:=r1-(r1-r2)*x div b.Width;<br>
+p[x].g:=g1-(g1-g2)*x div b.Width;<br>
+p[x].b:=b1-(b1-b2)*x div b.Width;</font><br>
+<font color="#00FFFF">end<br>
+end;<br>
+end;<br>
+Holst.Draw(0,0,b);<br>
+b.Free;<br>
+end;</font>
+<p align="justify">Применять эту процедуру можно к
+любому объекту имеющему Canvas, например к TImage
+(рис. 17)<br>
+<img src="../17.jpg" width="151" height="124"><font color="#00FFFF">procedure
+TForm1.FormPaint(Sender: TObject);<br>
+begin<br>
+Grad (Form1.Canvas,$1654D3,$8BAACF,true);<br>
+Grad (Image1.Canvas,$ff,$ff00,false)<br>
+end;</font><font color="#0000ff"><br>
+</font>Существует, как я указывал выше, иной
+способ разукрашивания формы.<br>
+Фон формы можно заполнить повторяющимся
+рисунком с помощью следующего кода:
+Form1.Brush.Bitmap:=Bitmap // нужного изображения. В
+следующем примере я размещаю на форме Image1,
+Visible = false, Picture, как на рис 18а. Результат на
+рис. 18. Рис. 18а:<br>
+<img src="../18.jpg" width="189" height="96"> <font color="#00FFFF">procedure
+TForm1.FormCreate(Sender: TObject);<br>
+begin<br>
+Form1.Brush.Bitmap:=Image1.Picture.Bitmap;<br>
+end;</font><br>
+Круто! Можно нарисовать градиент (или
+текстуру) с помощью мощного редактора (Фотошоп,
+например, или Гимп, кому что нравится)
+поместить на форму и с помощью волшебной
+строки залить форму. Но есть тут один
+нюансик. При изменении размеров формы
+фоновые картинки дублируются. Если для
+заливки на рис. 18а или текстуры это не
+страшно, то для градиента мы получим
+довольно неприглядную картинку (рис. 19)<img src="../19.jpg" width="154" height="128"><br>
+Простые способы, вроде описанного выше Resaize'а
+здесь не помогут, т.к. BitMap, в отличие от Image,
+имеет фиксированные длину и ширину. Здесь
+надобы написать какую-то процедурку,
+масштабирующую BitMap, но вообще
+масштабирование изображения - не очень
+простая задача. Но этот алгоритм уже
+реализован в Delphi и в следующем примере я
+просто им пользуюсь.
+<p><font color="#00FFFF">Image1.Stretch:=true </font>// где-нибудь,
+можно на этапе проектирования.
+<p><font color="#00FFFF">procedure TForm1.FormResize(Sender: TObject);<br>
+var b:TBitMap;<br>
+begin<br>
+b:=TBitMap.Create;<br>
+Image1.Height:=Form1.ClientHeight;<br>
+//растягиваем Image до нужных размеров<br>
+b.Width:=Image1.Width;<br>
+b.Height:=Image1.Height;<br>
+//создаём BitMap нужных размеров<br>
+b.Canvas.CopyRect(b.Canvas.ClipRect,Image1.Canvas,Image1.Canvas.ClipRect);<br>
+//и копируем в BitMap растянутое изображение<br>
+Form1.Brush.Bitmap:=b;<br>
+Form1.Repaint;<br>
+//затем пишем волшебную фразу и
+перерисовываем форму<br>
+end;<br>
+</font>Созданный код имеет (опять!) один
+маленький недостаток - полученное
+приложение потихоньку (с каждым изменением
+размеров окна) захватывает место в памяти.
+Попробуйте преодолеть эту проблему.<br>
+Мне она оказалась не по зубам и я закрасил
+форму &quot;вручную&quot;.<br>
+<font color="#00FFFF">procedure TForm1.FormResize(Sender: TObject);<br>
+var b:TBitMap;<br>
+i:integer;<br>
+begin<br>
+b:=TBitMap.Create;<br>
+Image1.Height:=Form1.ClientHeight;<br>
+b.Width:=Image1.Width;<br>
+b.Height:=Image1.Height;<br>
+b.Canvas.CopyRect(b.Canvas.ClipRect,Image1.Canvas,Image1.Canvas.ClipRect);<br>
+for i:=0 to Form1.ClientWidth div b.Width do<br>
+Form1.Canvas.Draw(b.Width*i,0,b);<br>
+end;<br>
+</font>Чтобы избежать глюков при
+разворачивании формы присвойте Form.OnPaint
+FormResize.<br>
+Итак, всё работает. Какой же из двух
+способов лучше? Второй способ проще,
+картинку для заливки можно нарисовать
+вручную. Но полученная программа больше, да
+и заливки, подобные изображённым на
+рисунках 5 - 12 получить не удасться. Поэтому
+используйте тот способ, который более
+подходит для нужной вам ситуации. Отмечу
+только, что в первом случае мы имеем дело с
+векторной, а во втором с растровой графикой.<br>
+Ну и маленький совет по применению.
+Поместите на форму таймер и вставьте один
+из вариантов вышеизложенного кода в OnTimer. Вы
+получите основу для ScreenSaver'a или заставки
+WindowsMedia...<br>
+<font color="#ff0000"><b>Успехов! :)))))</b></font> </p>
+<p align="right"><b>Автор статьи:</b>&nbsp; <a href="mailto:yanval@yandex.ru">Ян
+Валерьевич</a></p>
+</blockquote>
+<!--mstheme--></font>
+
+</body>
+
+</html>

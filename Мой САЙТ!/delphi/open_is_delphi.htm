@@ -1,0 +1,199 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>&#1047;&#1072;&#1087;&#1091;&#1089;&#1082;
+&#1087;&#1088;&#1086;&#1075;&#1088;&#1072;&#1084;&#1084; &#1080;&#1079; Delphi</title>
+<meta name="Microsoft Theme" content="zero 011">
+</head>
+
+<body background="zertxtr.gif" bgcolor="#000000" text="#FFFFFF" link="#6699CC" vlink="#669966" alink="#999999">
+
+<!--mstheme--><font face="Arial, Arial, Helvetica"><!--mstheme--></font>
+<h3 align="center"><!--mstheme--><font face="Arial, Arial, Helvetica" color="#CCCCCC"><font size="6" color="#00FF00">&#1047;&#1072;&#1087;&#1091;&#1089;&#1082;
+&#1087;&#1088;&#1086;&#1075;&#1088;&#1072;&#1084;&#1084; &#1080;&#1079; Delphi</font><!--mstheme--></font></h3>
+<!--mstheme--><font face="Arial, Arial, Helvetica">
+<p>&nbsp;&nbsp;&nbsp;&#1042; &#1101;&#1090;&#1086;&#1081;
+&#1089;&#1090;&#1072;&#1090;&#1100;&#1077; &#1074;&#1099;
+&#1085;&#1072;&#1091;&#1095;&#1080;&#1090;&#1077;&#1089;&#1100;
+&#1087;&#1088;&#1080;&#1084;&#1077;&#1085;&#1103;&#1090;&#1100;
+&#1092;&#1091;&#1085;&#1082;&#1094;&#1080;&#1102; Windows API ShellExecute.
+&#1045;&#1077; &#1087;&#1088;&#1080;&#1084;&#1077;&#1085;&#1103;&#1102;&#1090;
+&#1074; &#1090;&#1077;&#1093; &#1089;&#1083;&#1091;&#1095;&#1072;&#1103;&#1093;,
+&#1082;&#1086;&#1075;&#1076;&#1072; &#1084;&#1099;,
+&#1085;&#1072;&#1087;&#1088;&#1080;&#1084;&#1077;&#1088;,
+&#1093;&#1086;&#1090;&#1080;&#1084;
+&#1086;&#1090;&#1082;&#1088;&#1099;&#1090;&#1100; &#1092;&#1072;&#1081;&#1083;
+&#1074;
+&#1089;&#1086;&#1086;&#1090;&#1074;&#1077;&#1090;&#1089;&#1090;&#1074;&#1080;&#1080;
+&#1089; &#1077;&#1075;&#1086;
+&#1088;&#1072;&#1089;&#1096;&#1080;&#1088;&#1077;&#1085;&#1080;&#1077;&#1084;,
+&#1085;&#1077; &#1079;&#1085;&#1072;&#1103;, &#1082;&#1072;&#1082;&#1072;&#1103;
+&#1087;&#1088;&#1086;&#1075;&#1088;&#1072;&#1084;&#1084;&#1072;
+&#1072;&#1089;&#1089;&#1086;&#1094;&#1080;&#1080;&#1088;&#1086;&#1074;&#1072;&#1085;&#1072;
+&#1089; &#1090;&#1072;&#1082;&#1080;&#1084;
+&#1092;&#1072;&#1081;&#1083;&#1072;&#1084;&#1080;. &#1048;&#1090;&#1072;&#1082;,
+&#1085;&#1072;&#1095;&#1085;&#1077;&#1084; &#1089;
+&#1087;&#1088;&#1086;&#1089;&#1090;&#1086;&#1075;&#1086;:</p>
+<p>&nbsp;- &#1047;&#1072;&#1087;&#1091;&#1089;&#1090;&#1080;&#1090;&#1100;
+&#1073;&#1083;&#1086;&#1082;&#1085;&#1086;&#1090; (notepad)</p>
+<!--mstheme--></font>
+<table cellSpacing="0" cellPadding="2" width="100%" border="1" bordercolorlight="#CCCCCC" bordercolordark="#666666">
+  <tbody>
+    <tr>
+      <td><!--mstheme--><font face="Arial, Arial, Helvetica"><code>uses
+        ShellApi;<br>
+        ...<br>
+        ShellExecute(Handle, 'open', 'c:\Windows\notepad.exe', nil, nil,
+        SW_SHOWNORMAL);</code><!--mstheme--></font></td>
+    </tr>
+  </tbody>
+</table>
+<!--mstheme--><font face="Arial, Arial, Helvetica">
+<p>- &#1054;&#1090;&#1082;&#1088;&#1099;&#1090;&#1100;
+&#1090;&#1077;&#1082;&#1089;&#1090;&#1086;&#1074;&#1099;&#1081;
+&#1092;&#1072;&#1081;&#1083; c:\text.txt &#1074;
+&#1073;&#1083;&#1086;&#1082;&#1085;&#1086;&#1090;&#1077;</p>
+<!--mstheme--></font>
+<table cellSpacing="0" cellPadding="2" width="100%" border="1" bordercolorlight="#CCCCCC" bordercolordark="#666666">
+  <tbody>
+    <tr>
+      <td><!--mstheme--><font face="Arial, Arial, Helvetica"><code>ShellExecute(Handle,'open',
+        'c:\windows\notepad.exe','c:\text.txt',<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;nil, SW_SHOWNORMAL);</code><!--mstheme--></font></td>
+    </tr>
+  </tbody>
+</table>
+<!--mstheme--><font face="Arial, Arial, Helvetica">
+<p>- &#1055;&#1086;&#1082;&#1072;&#1079;&#1072;&#1090;&#1100;
+&#1089;&#1086;&#1076;&#1077;&#1088;&#1078;&#1080;&#1084;&#1086;&#1077;
+&#1082;&#1072;&#1090;&#1072;&#1083;&#1086;&#1075;&#1072; c:\archive</p>
+<!--mstheme--></font>
+<table cellSpacing="0" cellPadding="2" width="100%" border="1" bordercolorlight="#CCCCCC" bordercolordark="#666666">
+  <tbody>
+    <tr>
+      <td><!--mstheme--><font face="Arial, Arial, Helvetica"><code>ShellExecute(Handle,'open','c:\archive',
+        nil, nil, SW_SHOWNORMAL);</code><!--mstheme--></font></td>
+    </tr>
+  </tbody>
+</table>
+<!--mstheme--><font face="Arial, Arial, Helvetica">
+<p><span>- &#1054;&#1090;&#1082;&#1088;&#1099;&#1090;&#1100;
+&#1092;&#1072;&#1081;&#1083; &#1074;
+&#1089;&#1086;&#1086;&#1090;&#1074;&#1077;&#1090;&#1089;&#1090;&#1074;&#1080;&#1080;
+&#1089; &#1088;&#1072;&#1089;&#1096;&#1080;&#1088;&#1077;&#1085;&#1080;&#1077;</span>&#1084;</p>
+<!--mstheme--></font>
+<table cellSpacing="0" cellPadding="2" width="100%" border="1" bordercolorlight="#CCCCCC" bordercolordark="#666666">
+  <tbody>
+    <tr>
+      <td><!--mstheme--><font face="Arial, Arial, Helvetica"><code>ShellExecute(Handle,
+        'open','c:\MyDocuments\Letter.doc',nil,nil,SW_SHOWNORMAL);</code><!--mstheme--></font></td>
+    </tr>
+  </tbody>
+</table>
+<!--mstheme--><font face="Arial, Arial, Helvetica">
+<p>- &#1054;&#1090;&#1082;&#1088;&#1099;&#1090;&#1100; html
+&#1076;&#1086;&#1082;&#1091;&#1084;&#1077;&#1085;&#1090; &#1074;
+&#1073;&#1088;&#1072;&#1091;&#1079;&#1077;&#1088;&#1077; &#1087;&#1086;
+&#1091;&#1084;&#1086;&#1083;&#1095;&#1072;&#1085;&#1080;&#1102;<br>
+</p>
+<!--mstheme--></font>
+<table cellSpacing="0" cellPadding="2" width="100%" border="1" bordercolorlight="#CCCCCC" bordercolordark="#666666">
+  <tbody>
+    <tr>
+      <td><!--mstheme--><font face="Arial, Arial, Helvetica"><code>ShellExecute(Handle,
+        'open','http://src.fitkursk.ru',nil,nil, SW_SHOWNORMAL);</code><!--mstheme--></font></td>
+    </tr>
+  </tbody>
+</table>
+<!--mstheme--><font face="Arial, Arial, Helvetica">
+<p>- &#1055;&#1086;&#1089;&#1083;&#1072;&#1090;&#1100;
+&#1089;&#1086;&#1086;&#1073;&#1097;&#1077;&#1085;&#1080;&#1077; &#1087;&#1086;
+&#1101;&#1083;&#1077;&#1082;&#1090;&#1088;&#1086;&#1085;&#1085;&#1086;&#1081;
+&#1087;&#1086;&#1095;&#1090;&#1077;<br>
+</p>
+<!--mstheme--></font>
+<table cellSpacing="0" cellPadding="2" width="100%" border="1" bordercolorlight="#CCCCCC" bordercolordark="#666666">
+  <tbody>
+    <tr>
+      <td><!--mstheme--><font face="Arial, Arial, Helvetica"><code>var
+        em_subject, em_body, em_mail : string;<br>
+        begin<br>
+        &nbsp;&nbsp;em_subject := 'This is the subject line';<br>
+        &nbsp;&nbsp;em_body := 'Message body text goes here'; &nbsp;em_mail :=
+        'mailto:alex@fitkursk.ru?subject=' +<br>
+        &nbsp;em_subject + '&amp;body=' + em_body ; &nbsp;ShellExecute(Handle,'open',PChar(em_mail),
+        nil, nil, SW_SHOWNORMAL);<br>
+        end;</code><!--mstheme--></font></td>
+    </tr>
+  </tbody>
+</table>
+<!--mstheme--><font face="Arial, Arial, Helvetica">
+<p>- &#1044;&#1086;&#1078;&#1080;&#1076;&#1072;&#1077;&#1084;&#1089;&#1103;
+&#1086;&#1082;&#1086;&#1085;&#1095;&#1072;&#1085;&#1080;&#1103;
+&#1079;&#1072;&#1087;&#1091;&#1097;&#1077;&#1085;&#1085;&#1086;&#1081;
+&#1087;&#1088;&#1086;&#1075;&#1088;&#1072;&#1084;&#1084;&#1099;<br>
+</p>
+<!--mstheme--></font>
+<table cellSpacing="0" cellPadding="2" width="100%" border="1" bordercolorlight="#CCCCCC" bordercolordark="#666666">
+  <tbody>
+    <tr>
+      <td><!--mstheme--><font face="Arial, Arial, Helvetica"><code>//
+        &#1092;&#1088;&#1072;&#1075;&#1084;&#1077;&#1085;&#1090;
+        &#1082;&#1086;&#1076;&#1072;
+        &#1079;&#1072;&#1087;&#1091;&#1089;&#1082;&#1072;&#1077;&#1090;
+        &#1082;&#1072;&#1083;&#1100;&#1082;&#1091;&#1083;&#1103;&#1090;&#1086;&#1088;
+        &#1080;<br>
+        // &#1074;&#1099;&#1076;&#1072;&#1077;&#1090;
+        &#1089;&#1086;&#1086;&#1073;&#1097;&#1077;&#1085;&#1080;&#1077;,
+        &#1082;&#1086;&#1075;&#1076;&#1072; &#1086;&#1085;
+        &#1079;&#1072;&#1082;&#1088;&#1099;&#1074;&#1072;&#1077;&#1090;&#1089;&#1103;<br>
+        uses ShellApi;<br>
+        ...<br>
+        var<br>
+        &nbsp;&nbsp;SEInfo: TShellExecuteInfo;<br>
+        &nbsp;&nbsp;ExitCode: DWORD;<br>
+        &nbsp;&nbsp;ExecuteFile, ParamString, StartInString: string;<br>
+        begin<br>
+        &nbsp;&nbsp;ExecuteFile:='c:\Windows\Calc.exe';<br>
+        <br>
+        &nbsp;&nbsp;FillChar(SEInfo, SizeOf(SEInfo), 0);<br>
+        &nbsp;&nbsp;SEInfo.cbSize := SizeOf(TShellExecuteInfo);<br>
+        &nbsp;&nbsp;with SEInfo do begin<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;fMask := SEE_MASK_NOCLOSEPROCESS;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;Wnd := Application.Handle;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;lpFile := PChar(ExecuteFile);<br>
+        &nbsp;&nbsp;&nbsp;{<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ParamString can contain the<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;application parameters.<br>
+        &nbsp;&nbsp;&nbsp;}<br>
+        &nbsp;// lpParameters := PChar(ParamString);<br>
+        &nbsp;&nbsp;&nbsp;{<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;StartInString specifies the<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of the working directory.<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If ommited, the current directory is used.<br>
+        &nbsp;&nbsp;&nbsp;}<br>
+        // lpDirectory := PChar(StartInString);<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;nShow := SW_SHOWNORMAL;<br>
+        &nbsp;&nbsp;end;<br>
+        &nbsp;&nbsp;if ShellExecuteEx(@SEInfo) then begin<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;repeat<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Application.ProcessMessages;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GetExitCodeProcess(SEInfo.hProcess,
+        ExitCode);<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;until (ExitCode &lt;&gt; STILL_ACTIVE) or
+        Application.Terminated;<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;ShowMessage('Calculator terminated');<br>
+        &nbsp;&nbsp;end<br>
+        &nbsp;&nbsp;else ShowMessage('Error starting Calc!');<br>
+        end;</code><!--mstheme--></font></td>
+    </tr>
+  </tbody>
+</table>
+<!--mstheme--><font face="Arial, Arial, Helvetica"><!--mstheme--></font>
+
+</body>
+
+</html>

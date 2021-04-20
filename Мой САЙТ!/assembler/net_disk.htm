@@ -1,0 +1,143 @@
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<meta name="GENERATOR" content="Microsoft FrontPage 4.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Подключаем сетевой диск под Windows NT</title>
+<meta name="Microsoft Theme" content="zero 011">
+</head>
+
+<body background="../delphi/zertxtr.gif" bgcolor="#000000" text="#FFFFFF" link="#6699CC" vlink="#669966" alink="#999999">
+
+<!--mstheme--><font face="Arial"><!--mstheme--></font>
+<h3 align="center"><!--mstheme--><font face="Arial" color="#CCCCCC"><font color="#00FF00" size="5">Подключаем
+сетевой диск под Windows NT</font><!--mstheme--></font></h3>
+<!--mstheme--><font face="Arial">
+<!--msthemeseparator--><p align="center"><img src="../delphi/zerrulea.gif"></p>
+<p>Небольшой пример, демонстрирующий
+использование WIN32 Security API в ассемблере. В
+частности показывается, как подключить или
+отключить сетевой диск.</p>
+<p>Компилятор: MASM32</p>
+<p><img src="winasm1.jpg" width="352" height="233"></p>
+<p><img src="winasm2.jpg" width="414" height="392"></p>
+<p><b>Ниже приведён исходный код программы:</b></p>
+<p><font face="Arial">.386<br>
+.model flat,stdcall<br>
+option casemap:none<br>
+<br>
+WinMain proto :DWORD,:DWORD,:DWORD,:DWORD<br>
+<br>
+include \masm32\include\windows.inc<br>
+include \masm32\include\user32.inc<br>
+include \masm32\include\kernel32.inc<br>
+include \masm32\include\mpr.inc<br>
+includelib \masm32\lib\mpr.lib<br>
+includelib \masm32\lib\user32.lib<br>
+includelib \masm32\lib\kernel32.lib<br>
+<br>
+.data<br>
+ClassName db &quot;SimpleWinClass&quot;,0<br>
+AppName db &quot;NT Security API In Assembly !&quot;,0<br>
+ButtonClassName db &quot;button&quot;,0<br>
+ButtonConnectText db &quot;Map Drive&quot;,0<br>
+ButtonDisconnectText db &quot;Un-Map Drive&quot;,0<br>
+<br>
+.data?<br>
+hwndConnectButton HWND ?<br>
+hwndDisconnectButton HWND ?<br>
+hInstance HINSTANCE ?<br>
+CommandLine LPSTR ?<br>
+<br>
+.const<br>
+IDM_GETTEXT equ 1<br>
+ButtonConnectID equ 2<br>
+ButtonDisconnectID equ 3<br>
+<br>
+.code<br>
+start:<br>
+invoke GetModuleHandle, NULL<br>
+mov hInstance,eax<br>
+invoke GetCommandLine<br>
+invoke WinMain, hInstance,NULL,CommandLine, SW_SHOWDEFAULT<br>
+invoke ExitProcess,eax<br>
+<br>
+WinMain proc hInst:HINSTANCE,hPrevInst:HINSTANCE,CmdLine:LPSTR,CmdShow:DWORD<br>
+LOCAL wc:WNDCLASSEX<br>
+LOCAL msg:MSG<br>
+LOCAL hwnd:HWND<br>
+mov wc.cbSize,SIZEOF WNDCLASSEX<br>
+mov wc.style, CS_HREDRAW or CS_VREDRAW<br>
+mov wc.lpfnWndProc, OFFSET WndProc<br>
+mov wc.cbClsExtra,NULL<br>
+mov wc.cbWndExtra,NULL<br>
+push hInst<br>
+pop wc.hInstance<br>
+mov wc.hbrBackground,COLOR_BTNFACE+1<br>
+mov wc.lpszClassName,OFFSET ClassName<br>
+invoke LoadIcon,NULL,IDI_APPLICATION<br>
+mov wc.hIcon,eax<br>
+mov wc.hIconSm,eax<br>
+invoke LoadCursor,NULL,IDC_ARROW<br>
+mov wc.hCursor,eax<br>
+invoke RegisterClassEx, addr wc<br>
+INVOKE CreateWindowEx,WS_EX_CLIENTEDGE,ADDR ClassName,ADDR AppName,\<br>
+WS_OVERLAPPEDWINDOW,CW_USEDEFAULT,\<br>
+CW_USEDEFAULT,540,305,NULL,NULL,\<br>
+hInst,NULL<br>
+mov hwnd,eax<br>
+INVOKE ShowWindow, hwnd,SW_SHOWNORMAL<br>
+INVOKE UpdateWindow, hwnd<br>
+.WHILE TRUE<br>
+INVOKE GetMessage, ADDR msg,NULL,0,0<br>
+.BREAK .IF (!eax)<br>
+INVOKE TranslateMessage, ADDR msg<br>
+INVOKE DispatchMessage, ADDR msg<br>
+.ENDW<br>
+mov eax,msg.wParam<br>
+ret<br>
+WinMain endp<br>
+<br>
+WndProc proc hWnd:HWND, uMsg:UINT, wParam:WPARAM, lParam:LPARAM<br>
+.IF uMsg==WM_DESTROY<br>
+invoke PostQuitMessage,NULL<br>
+<br>
+.ELSEIF uMsg==WM_CREATE<br>
+invoke CreateWindowEx,NULL, ADDR ButtonClassName,ADDR ButtonConnectText,\<br>
+WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON,\<br>
+122,80,100,25,hWnd,ButtonConnectID,hInstance,NULL<br>
+mov hwndConnectButton,eax<br>
+invoke CreateWindowEx,NULL, ADDR ButtonClassName,ADDR ButtonDisconnectText,\<br>
+WS_CHILD or WS_VISIBLE or BS_DEFPUSHBUTTON,\<br>
+122,120,100,25,hWnd,ButtonDisconnectID,hInstance,NULL<br>
+mov hwndDisconnectButton,eax<br>
+<br>
+.ELSEIF uMsg==WM_COMMAND<br>
+mov eax,wParam<br>
+.IF ax==ButtonConnectID<br>
+shr eax,16<br>
+.IF ax==BN_CLICKED<br>
+invoke WNetConnectionDialog,hWnd,RESOURCETYPE_DISK<br>
+.ENDIF<br>
+.ENDIF<br>
+.IF ax==ButtonDisconnectID<br>
+shr eax,16<br>
+.IF ax==BN_CLICKED<br>
+invoke WNetDisconnectDialog,hWnd,RESOURCETYPE_DISK<br>
+.ENDIF<br>
+.ENDIF<br>
+.ELSE<br>
+invoke DefWindowProc,hWnd,uMsg,wParam,lParam<br>
+ret<br>
+.ENDIF<br>
+xor eax,eax<br>
+ret<br>
+WndProc endp<br>
+<br>
+end start</font></p>
+<!--mstheme--></font>
+
+</body>
+
+</html>
