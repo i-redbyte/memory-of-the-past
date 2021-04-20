@@ -1,3 +1,4 @@
+*.* linguist-language=Java
 baza_AOMZ1_6/* linguist-vendored
 first_site/* linguist-vendored
 GAME/* linguist-vendored
