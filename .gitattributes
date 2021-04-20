@@ -1,5 +1,6 @@
 *.html linguist-detectable=false
 RS-485_protocol/*.* linguist-language=C++
+ASM_labs/*.* linguist-language=Assembly
 baza_AOMZ1_6/* linguist-vendored
 first_site/* linguist-vendored
 GAME/* linguist-vendored
