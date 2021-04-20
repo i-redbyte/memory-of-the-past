@@ -11,3 +11,4 @@ I have completely preserved the style, file names, encoding, etc.
 5. [Pascal syntax checker version 2](/Syntax3.6/README.md)
 6. [My First site](/Мой%20САЙТ!/README.md)
 7. [Desktop test on VB](/TEST/README.md)
+8. [Chinese hexagrams](/Прога%20по%20ицзын/README.md)
