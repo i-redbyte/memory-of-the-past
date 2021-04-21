@@ -4,3 +4,4 @@ baza_AOMZ1_6/*.* linguist-vendored
 chines_histogram/*.* linguist-vendored
 Prover_vers2_32_3/*.* linguist-vendored
 Syntax3_6/*.* linguist-vendored
+RS-485_protocol/*.* linguist-language=C++
