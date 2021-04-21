@@ -1,3 +1,6 @@
-*.asm linguist-detectable
-*.asm linguist-language=Assembly
-*.* linguist-vendored
+first_site/*.* linguist-vendored
+GAME/*.* linguist-vendored *.pas linguist-language=Pascal
+baza_AOMZ1_6/*.* linguist-vendored
+chines_histogram/*.* linguist-vendored
+Prover_vers2_32_3/*.* linguist-vendored
+Syntax3_6/*.* linguist-vendored
