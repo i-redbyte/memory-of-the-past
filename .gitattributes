@@ -1,4 +1,4 @@
-first_site/*.* linguist-vendored
+first_site/*.htm linguist-vendored
 GAME/*.* linguist-vendored *.pas linguist-language=Pascal
 baza_AOMZ1_6/*.* linguist-vendored
 chines_histogram/*.* linguist-vendored
