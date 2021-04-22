@@ -16,5 +16,5 @@ I have completely preserved the style, file names, encoding, etc.
 10. [RS-485 protocol program; *language: C++*](/RS-485_protocol/README.md)
 
 <p align="center">
-<img src="https://github.com/i-redbyte/memory-of-the-past/tree/master/resources/languages.png" alt="Languages" width="50%" height="50%">
+<img src="https://github.com/i-redbyte/memory-of-the-past/blob/master/resources/languages.png" alt="Languages" width="50%" height="50%">
 </p>
