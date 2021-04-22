@@ -15,4 +15,6 @@ I have completely preserved the style, file names, encoding, etc.
 9. [Database for AOMZ; *language: Pascal/Delphi*](/baza_AOMZ1_6/README.md)
 10. [RS-485 protocol program; *language: C++*](/RS-485_protocol/README.md)
 
-![Languages image]("/resources/languages.png)
+<p align="center">
+<img src="https://github.com/i-redbyte/memory-of-the-past/tree/master/resources/languages.png" alt="Languages" width="50%" height="50%">
+</p>
