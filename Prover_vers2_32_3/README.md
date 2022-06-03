@@ -1,3 +1,3 @@
-#syntax check Pascal code #
+# syntax check Pascal code #
 
 around 2005
